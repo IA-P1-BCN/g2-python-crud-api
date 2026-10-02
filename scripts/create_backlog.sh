@@ -282,7 +282,7 @@ sub "Configure pytest and test database" "testing" 2 "pytest.ini, dependency ove
 sub "Create shared fixtures and factories" "testing" 2 "Fixtures for admin/trainer/member, plan, class, schedule."
 sub "Add coverage reporting" "testing" 1 "pytest-cov with a minimum threshold."
 
-story "Markdown documentation" "docs" P1 2 "$ASSIGNEE_IVANNA" <<'EOF'
+story "Markdown documentation" "docs" P1 2 "$ASSIGNEE_ELENA" <<'EOF'
 **As a** new team member or evaluator **I want** clear documentation **so that** I can install, run and understand the project quickly.
 
 ### Acceptance criteria
@@ -347,7 +347,7 @@ sub "Reusable pagination dependency and response model" "backend" 2 "Generic Pag
 sub "Implement filters per resource" "backend" 2 "Query params and SQL filters for each list endpoint."
 sub "Tests for filtering and pagination" "testing" 2 "Boundaries, empty pages, invalid params."
 
-story "Relationship endpoints" "backend" P2 2 "$ASSIGNEE_EVA" <<'EOF'
+story "Relationship endpoints" "backend" P2 2 "$ASSIGNEE_ELENA" <<'EOF'
 **As an** API consumer **I want** nested resource endpoints **so that** I can query related data directly.
 
 ### Acceptance criteria
@@ -372,7 +372,7 @@ sub "Payment schemas and validation" "backend" 1 "Amount and status validation."
 sub "Implement /payments CRUD endpoints" "backend" 1 "Router + service."
 sub "Unit tests for every payment endpoint" "testing" 1 "CRUD and validation errors."
 
-story "CSV export" "backend" P2 2 "$ASSIGNEE_PEDRO" <<'EOF'
+story "CSV export" "backend" P2 2 "$ASSIGNEE_NAYELI" <<'EOF'
 **As an** admin **I want** to export data to CSV **so that** I can analyse it in a spreadsheet.
 
 ### Acceptance criteria
@@ -501,7 +501,7 @@ sub "Provision managed database" "devops,database" 2 "Create DB, get connection 
 sub "Deploy the container and configure secrets" "devops" 3 "Environment variables, health checks, HTTPS."
 sub "Smoke test and document deployment" "docs,testing" 1 "Test main endpoints on the live URL."
 
-story "External service integration (payments)" "backend" P2 4 "$ASSIGNEE_NAYELI" <<'EOF'
+story "External service integration (payments)" "backend" P2 4 "$ASSIGNEE_IVANNA" <<'EOF'
 **As a** member **I want** to pay for my membership online **so that** it activates automatically.
 
 ### Acceptance criteria
