@@ -1,16 +1,12 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { Alert, Button } from '@/components/ui'
 import { homePathForRole, useAuth } from '@/auth'
 
-type LocationState = {
-  from?: { pathname: string }
-}
-
-export function LoginPage() {
-  const { login, isLoading, error, isAuthenticated, user } = useAuth()
+export function RegisterPage() {
+  const { register, isLoading, error, isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
+  const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -21,21 +17,31 @@ export function LoginPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     try {
-      const user = await login({ email, password })
-      const state = location.state as LocationState | null
-      const destination = state?.from?.pathname ?? homePathForRole(user.role)
-      navigate(destination, { replace: true })
+      const user = await register({ full_name: fullName, email, password })
+      navigate(homePathForRole(user.role), { replace: true })
     } catch {
-      // El error ya se muestra desde AuthContext.
+      // The error is already shown by AuthContext.
     }
   }
 
   return (
     <div className="login">
-      <form className="login__card" onSubmit={handleSubmit} aria-label="Iniciar sesión">
-        <h1>Acceso al gimnasio</h1>
+      <form className="login__card" onSubmit={handleSubmit} aria-label="Crear cuenta">
+        <h1>Crear cuenta de socio</h1>
 
         {error ? <Alert variant="error">{error}</Alert> : null}
+
+        <label className="field">
+          <span>Nombre completo</span>
+          <input
+            type="text"
+            name="full_name"
+            autoComplete="name"
+            required
+            value={fullName}
+            onChange={(event) => setFullName(event.target.value)}
+          />
+        </label>
 
         <label className="field">
           <span>Email</span>
@@ -54,19 +60,20 @@ export function LoginPage() {
           <input
             type="password"
             name="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
             required
+            minLength={8}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
         </label>
 
         <Button type="submit" isLoading={isLoading}>
-          Entrar
+          Registrarme
         </Button>
 
         <p className="login__footer">
-          ¿No tienes cuenta? <Link to="/register">Regístrate</Link>
+          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
         </p>
       </form>
     </div>

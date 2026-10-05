@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authApi, setUnauthorizedHandler, toApiError } from '@/api'
-import type { LoginRequest, Role, User } from '@/types/schema'
+import type { LoginRequest, RegisterRequest, Role, Token, User } from '@/types/schema'
 import { AuthContext, type AuthContextValue } from './context'
 import { tokenStorage } from './tokenStorage'
 
@@ -31,22 +31,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => setUnauthorizedHandler(null)
   }, [navigate])
 
-  const login = useCallback(async (payload: LoginRequest) => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const result = await authApi.login(payload)
-      tokenStorage.setSession(result.access_token, result.user)
-      setToken(result.access_token)
-      setUser(result.user)
-      return result.user
-    } catch (err) {
-      setError(toApiError(err).message)
-      throw err
-    } finally {
-      setIsLoading(false)
-    }
+  const startSession = useCallback((result: Token) => {
+    tokenStorage.setSession(result.access_token, result.user)
+    setToken(result.access_token)
+    setUser(result.user)
+    return result.user
   }, [])
+
+  const login = useCallback(
+    async (payload: LoginRequest) => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const result = await authApi.login(payload)
+        return startSession(result)
+      } catch (err) {
+        setError(toApiError(err).message)
+        throw err
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [startSession],
+  )
+
+  const register = useCallback(
+    async (payload: RegisterRequest) => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const result = await authApi.register(payload)
+        return startSession(result)
+      } catch (err) {
+        setError(toApiError(err).message)
+        throw err
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [startSession],
+  )
 
   const hasRole = useCallback(
     (...roles: Role[]) => user !== null && roles.includes(user.role),
@@ -61,10 +85,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       error,
       login,
+      register,
       logout,
       hasRole,
     }),
-    [user, token, isLoading, error, login, logout, hasRole],
+    [user, token, isLoading, error, login, register, logout, hasRole],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

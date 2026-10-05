@@ -30,29 +30,31 @@ export function Table<T>({
   }
 
   return (
-    <table className="table">
-      <thead>
-        <tr>
-          {columns.map((column) => (
-            <th key={column.key} scope="col">
-              {column.header}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row) => (
-          <tr key={rowKey(row)}>
+    <div className="table-scroll">
+      <table className="table">
+        <thead>
+          <tr>
             {columns.map((column) => (
-              <td key={column.key}>
-                {column.render
-                  ? column.render(row)
-                  : String((row as Record<string, unknown>)[column.key] ?? '')}
-              </td>
+              <th key={column.key} scope="col">
+                {column.header}
+              </th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={rowKey(row)}>
+              {columns.map((column) => (
+                <td key={column.key}>
+                  {column.render
+                    ? column.render(row)
+                    : String((row as Record<string, unknown>)[column.key] ?? '')}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }

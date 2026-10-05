@@ -1,9 +1,14 @@
 import { apiClient } from './client'
-import type { LoginRequest, Token, User } from '@/types/schema'
+import type { LoginRequest, RegisterRequest, Token, User } from '@/types/schema'
 
 export const authApi = {
   async login(payload: LoginRequest): Promise<Token> {
     const { data } = await apiClient.post<Token>('/auth/login', payload)
+    return data
+  },
+
+  async register(payload: RegisterRequest): Promise<Token> {
+    const { data } = await apiClient.post<Token>('/auth/register', payload)
     return data
   },
 
