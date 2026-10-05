@@ -22,6 +22,8 @@ from app.models.user import User, UserRole
 
 # Los tests usan su propia base de datos; no intentamos crear tablas en PostgreSQL.
 settings.auto_create_tables = False
+# Tests log only to the console, not to logs/app.log.
+settings.log_file = ""
 
 
 @pytest.fixture()

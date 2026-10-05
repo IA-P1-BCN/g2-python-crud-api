@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
     cors_origins: str = "http://localhost:5173"
     log_level: str = "INFO"
+    log_file: str = "logs/app.log"
     auto_create_tables: bool = True
 
     @property
