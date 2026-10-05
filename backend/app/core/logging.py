@@ -13,13 +13,13 @@ LOG_FILE_BACKUP_COUNT = 5
 
 request_logger = logging.getLogger("app.requests")
 
-# Handlers que instala la app; se guardan para poder sustituirlos sin tocar los de terceros
-# (por ejemplo, el de pytest).
+# Handlers installed by the app, kept so they can be replaced without touching third-party
+# ones (e.g. pytest's).
 _app_handlers: list[logging.Handler] = []
 
 
 def configure_logging(level: str = "INFO", log_file: str = "") -> None:
-    """Configura el logging de la aplicación: consola y, si se indica, fichero rotativo."""
+    """Set up application logging: console and, if given, a rotating log file."""
     root = logging.getLogger()
     for handler in _app_handlers:
         root.removeHandler(handler)
@@ -45,12 +45,12 @@ def configure_logging(level: str = "INFO", log_file: str = "") -> None:
         root.addHandler(handler)
     root.setLevel(getattr(logging, level.upper(), logging.INFO))
 
-    # El middleware de peticiones sustituye al access log de uvicorn.
+    # The request middleware replaces uvicorn's access log.
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
 
 
 def register_request_logging(app: FastAPI) -> None:
-    """Registra cada petición con método, ruta, código de estado y duración."""
+    """Log every request with method, path, status code and duration."""
 
     @app.middleware("http")
     async def log_request(

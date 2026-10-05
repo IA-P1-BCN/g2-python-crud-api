@@ -22,7 +22,7 @@ from app.models.user import User, UserRole
 
 # Los tests usan su propia base de datos; no intentamos crear tablas en PostgreSQL.
 settings.auto_create_tables = False
-# Los tests solo escriben logs en consola, no en logs/app.log.
+# Tests log only to the console, not to logs/app.log.
 settings.log_file = ""
 
 

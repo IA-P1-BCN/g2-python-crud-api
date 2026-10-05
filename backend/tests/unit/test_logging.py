@@ -13,7 +13,7 @@ from app.core.logging import configure_logging, register_request_logging
 @pytest.fixture(autouse=True)
 def reset_logging() -> Generator[None, None, None]:
     yield
-    # Cierra el fichero de log para que pytest pueda borrar tmp_path (Windows lo bloquea).
+    # Close the log file so pytest can delete tmp_path (Windows keeps it locked).
     configure_logging("INFO")
 
 
@@ -25,7 +25,7 @@ def test_logs_to_rotating_file(tmp_path: Path) -> None:
     log_file = tmp_path / "logs" / "app.log"
 
     configure_logging("INFO", str(log_file))
-    logging.getLogger("app.test").info("mensaje de prueba")
+    logging.getLogger("app.test").info("test message")
 
     assert any(isinstance(h, RotatingFileHandler) for h in logging.getLogger().handlers)
     for handler in logging.getLogger().handlers:
@@ -33,7 +33,7 @@ def test_logs_to_rotating_file(tmp_path: Path) -> None:
     content = log_file.read_text(encoding="utf-8")
     assert "INFO" in content
     assert "app.test" in content
-    assert "mensaje de prueba" in content
+    assert "test message" in content
 
 
 def test_without_file_logs_only_to_console() -> None:

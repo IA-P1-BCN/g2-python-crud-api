@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     configure_logging(settings.log_level, settings.log_file)
-    logger.info("GymFlow API iniciada (log_level=%s)", settings.log_level)
+    logger.info("GymFlow API started (log_level=%s)", settings.log_level)
     if settings.auto_create_tables:
         try:
             Base.metadata.create_all(bind=engine)
@@ -29,7 +29,7 @@ async def lifespan(_: FastAPI):
                 exc_info=True,
             )
     yield
-    logger.info("GymFlow API detenida")
+    logger.info("GymFlow API stopped")
 
 
 def create_app() -> FastAPI:
