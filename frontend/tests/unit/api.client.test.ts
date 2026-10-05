@@ -2,7 +2,7 @@ import type { AxiosAdapter } from 'axios'
 import { afterEach, describe, expect, it } from 'vitest'
 import { apiClient, toApiError } from '@/api/client'
 import { tokenStorage } from '@/auth/tokenStorage'
-import type { User } from '@/types/schema'
+import type { User } from '@/types/api'
 
 const user: User = {
   id: 1,
@@ -10,6 +10,7 @@ const user: User = {
   full_name: 'Socio Uno',
   role: 'member',
   is_active: true,
+  created_at: '2026-10-01T10:00:00Z',
 }
 
 describe('apiClient', () => {

@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import type { LoginRequest, RegisterRequest, Role, User } from '@/types/schema'
+import type { LoginRequest, RegisterRequest, Role, User } from '@/types/api'
 
 export type AuthContextValue = {
   user: User | null

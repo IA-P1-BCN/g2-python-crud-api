@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { Button } from '@/components/ui'
 import { useAuth } from '@/auth'
-import type { Role } from '@/types/schema'
+import type { Role } from '@/types/api'
 
 type NavItem = {
   to: string

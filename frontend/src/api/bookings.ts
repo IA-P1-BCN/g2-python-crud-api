@@ -1,14 +1,26 @@
 import { apiClient } from './client'
-import type { Booking, BookingCreate, BookingPage, MemberPage } from '@/types/schema'
+import type { Booking, BookingCreate, BookingPage, BookingStatus } from '@/types/api'
 
 export type ListParams = {
   page?: number
   size?: number
 }
 
+export type ListBookingsParams = ListParams & {
+  member_id?: number
+  schedule_id?: number
+  status_filter?: BookingStatus
+  on_date?: string
+}
+
 export const bookingsApi = {
-  async listMine(params: ListParams = {}): Promise<BookingPage> {
-    const { data } = await apiClient.get<BookingPage>('/members/me/bookings', { params })
+  async listForUser(userId: number, params: ListParams = {}): Promise<BookingPage> {
+    const { data } = await apiClient.get<BookingPage>(`/users/${userId}/bookings`, { params })
+    return data
+  },
+
+  async list(params: ListBookingsParams = {}): Promise<BookingPage> {
+    const { data } = await apiClient.get<BookingPage>('/bookings', { params })
     return data
   },
 
@@ -19,12 +31,5 @@ export const bookingsApi = {
 
   async cancel(id: number): Promise<void> {
     await apiClient.delete(`/bookings/${id}`)
-  },
-}
-
-export const membersApi = {
-  async list(params: ListParams = {}): Promise<MemberPage> {
-    const { data } = await apiClient.get<MemberPage>('/members', { params })
-    return data
   },
 }

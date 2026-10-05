@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuth, type AuthContextValue } from '@/auth'
 import { RegisterPage } from '@/pages/RegisterPage'
-import type { User } from '@/types/schema'
+import type { User } from '@/types/api'
 
 vi.mock('@/auth', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/auth')>()
@@ -19,6 +19,7 @@ const user: User = {
   full_name: 'Nueva Socia',
   role: 'member',
   is_active: true,
+  created_at: '2026-10-01T10:00:00Z',
 }
 
 function authValue(partial: Partial<AuthContextValue>): AuthContextValue {
