@@ -22,6 +22,8 @@ services:
       SECRET_KEY: change-me
       CORS_ORIGINS: http://localhost:5173
       LOG_LEVEL: INFO
+      # In the container logs go to stdout (docker logs); appuser cannot write to /app
+      LOG_FILE: ''
     ports:
       - '8000:8000'
     depends_on:

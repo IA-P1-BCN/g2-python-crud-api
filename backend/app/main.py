@@ -8,7 +8,7 @@ from app import models  # noqa: F401  (registra los modelos en Base.metadata)
 from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.exceptions import register_exception_handlers
-from app.core.logging import configure_logging
+from app.core.logging import configure_logging, register_request_logging
 from app.db.base import Base
 from app.db.session import engine
 
@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    configure_logging(settings.log_level, settings.log_file)
+    logger.info("GymFlow API iniciada (log_level=%s)", settings.log_level)
     if settings.auto_create_tables:
         try:
             Base.metadata.create_all(bind=engine)
@@ -27,11 +29,10 @@ async def lifespan(_: FastAPI):
                 exc_info=True,
             )
     yield
+    logger.info("GymFlow API detenida")
 
 
 def create_app() -> FastAPI:
-    configure_logging(settings.log_level)
-
     application = FastAPI(
         title="GymFlow API",
         version="0.1.0",
@@ -50,6 +51,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    register_request_logging(application)
     register_exception_handlers(application)
     application.include_router(api_router, prefix="/api/v1")
 

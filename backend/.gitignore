@@ -16,6 +16,8 @@ build/
 htmlcov/
 *.db
 *.sqlite3
+logs/
+*.log
 
 # Editor / OS
 .vscode/*
