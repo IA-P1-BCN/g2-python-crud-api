@@ -44,7 +44,12 @@ extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "-ra"
+addopts = "-ra --cov --cov-report=term-missing"
 
 [tool.coverage.run]
 source = ["app"]
+
+[tool.coverage.report]
+# Raise to 80 once classes and schedules have their tests (#30, #34)
+fail_under = 75
+skip_covered = true
