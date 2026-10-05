@@ -8,40 +8,56 @@ export type MockUser = {
   full_name: string
   role: MockRole
   is_active: boolean
+  created_at: string
+}
+
+export type MockClass = {
+  id: number
+  name: string
+  capacity: number
+  trainer_id: number
+  room_id: number | null
+  is_active: boolean
+  created_at: string
+}
+
+export type MockSchedule = {
+  id: number
+  class_id: number
+  day_of_week: number
+  start_time: string
+  end_time: string
+  room_id: number | null
+  created_at: string
 }
 
 export type MockBooking = {
   id: number
   member_id: number
   schedule_id: number
-  class_name: string
-  starts_at: string
-  trainer_id: number | null
-  status: 'active' | 'cancelled'
-}
-
-export type MockSchedule = {
-  id: number
-  class_id: number
-  class_name: string
-  description: string | null
-  day_of_week: number
-  start_time: string
-  end_time: string
-  room: string | null
-  capacity: number
-  booked_count: number
-  remaining_spots: number
+  booking_date: string
+  status: 'confirmed' | 'cancelled'
+  created_at: string
 }
 
 export type MockMembership = {
   id: number
   user_id: number
   plan_id: number
-  plan_name: string
   start_date: string
   end_date: string
   status: 'active' | 'expired' | 'cancelled'
+  created_at: string
+}
+
+export type MockPlan = {
+  id: number
+  name: string
+  description: string | null
+  price_cents: number
+  duration_days: number
+  is_active: boolean
+  created_at: string
 }
 
 export const users: Record<MockRole, MockUser> = {
@@ -51,6 +67,7 @@ export const users: Record<MockRole, MockUser> = {
     full_name: 'Socio Uno',
     role: 'member',
     is_active: true,
+    created_at: '2026-10-01T10:00:00Z',
   },
   trainer: {
     id: 2,
@@ -58,6 +75,7 @@ export const users: Record<MockRole, MockUser> = {
     full_name: 'Entrenador Uno',
     role: 'trainer',
     is_active: true,
+    created_at: '2026-10-01T10:00:00Z',
   },
   admin: {
     id: 3,
@@ -65,35 +83,49 @@ export const users: Record<MockRole, MockUser> = {
     full_name: 'Admin Uno',
     role: 'admin',
     is_active: true,
+    created_at: '2026-10-01T10:00:00Z',
   },
 }
+
+export const defaultClasses: MockClass[] = [
+  {
+    id: 1,
+    name: 'Yoga',
+    capacity: 20,
+    trainer_id: 2,
+    room_id: 1,
+    is_active: true,
+    created_at: '2026-10-01T10:00:00Z',
+  },
+  {
+    id: 2,
+    name: 'Spinning',
+    capacity: 15,
+    trainer_id: 2,
+    room_id: 2,
+    is_active: true,
+    created_at: '2026-10-01T10:00:00Z',
+  },
+]
 
 export const defaultSchedules: MockSchedule[] = [
   {
     id: 1,
     class_id: 1,
-    class_name: 'Yoga',
-    description: null,
     day_of_week: 0,
     start_time: '10:00:00',
     end_time: '11:00:00',
-    room: 'Sala 1',
-    capacity: 2,
-    booked_count: 0,
-    remaining_spots: 2,
+    room_id: 1,
+    created_at: '2026-10-01T10:00:00Z',
   },
   {
     id: 2,
     class_id: 2,
-    class_name: 'Spinning',
-    description: null,
     day_of_week: 2,
     start_time: '18:00:00',
     end_time: '19:00:00',
-    room: 'Sala 2',
-    capacity: 1,
-    booked_count: 1,
-    remaining_spots: 0,
+    room_id: 2,
+    created_at: '2026-10-01T10:00:00Z',
   },
 ]
 
@@ -101,16 +133,29 @@ export const defaultMembership: MockMembership = {
   id: 1,
   user_id: 1,
   plan_id: 1,
-  plan_name: 'Mensual',
   start_date: '2026-10-01',
   end_date: '2026-12-31',
   status: 'active',
+  created_at: '2026-10-01T10:00:00Z',
 }
+
+export const defaultPlans: MockPlan[] = [
+  {
+    id: 1,
+    name: 'Mensual',
+    description: null,
+    price_cents: 3999,
+    duration_days: 30,
+    is_active: true,
+    created_at: '2026-10-01T10:00:00Z',
+  },
+]
 
 type MockApiOptions = {
   user: MockUser
   bookings?: MockBooking[]
   schedules?: MockSchedule[]
+  classes?: MockClass[]
   membership?: MockMembership | null
 }
 
@@ -122,26 +167,33 @@ function json(route: Route, status: number, body: unknown) {
   })
 }
 
-function pageMeta(total: number) {
-  return { total, page: 1, size: 10, pages: Math.max(Math.ceil(total / 10), 1) }
+function toPage<T>(items: T[], size = 10) {
+  return {
+    items,
+    total: items.length,
+    page: 1,
+    size,
+    pages: Math.max(Math.ceil(items.length / size), 1),
+  }
 }
 
 /**
- * Simula el backend FastAPI interceptando las llamadas del front.
- * Todas las peticiones pasan por /api (proxy de Vite / variable VITE_API_URL).
+ * Simulates the FastAPI backend by intercepting the requests the frontend makes
+ * to /api/v1 (Vite proxy / VITE_API_URL).
  */
 export async function mockApi(page: Page, options: MockApiOptions) {
   const bookings: MockBooking[] = options.bookings ?? []
   const schedules: MockSchedule[] = options.schedules ?? defaultSchedules
+  const classes: MockClass[] = options.classes ?? defaultClasses
   const membership = options.membership === undefined ? defaultMembership : options.membership
   let nextBookingId = bookings.reduce((max, b) => Math.max(max, b.id), 0) + 1
 
-  await page.route('**/api/**', async (route) => {
+  await page.route('**/api/v1/**', async (route) => {
     const request = route.request()
     const path = new URL(request.url()).pathname
     const method = request.method()
 
-    if (path === '/api/auth/login' && method === 'POST') {
+    if (path === '/api/v1/auth/login' && method === 'POST') {
       return json(route, 200, {
         access_token: 'e2e-token',
         token_type: 'bearer',
@@ -149,7 +201,7 @@ export async function mockApi(page: Page, options: MockApiOptions) {
       })
     }
 
-    if (path === '/api/auth/register' && method === 'POST') {
+    if (path === '/api/v1/auth/register' && method === 'POST') {
       return json(route, 201, {
         access_token: 'e2e-token',
         token_type: 'bearer',
@@ -157,66 +209,57 @@ export async function mockApi(page: Page, options: MockApiOptions) {
       })
     }
 
-    if (path === '/api/auth/me' && method === 'GET') {
+    if (path === '/api/v1/auth/me' && method === 'GET') {
       return json(route, 200, options.user)
     }
 
-    if (path === '/api/class-schedules' && method === 'GET') {
-      return json(route, 200, { items: schedules, meta: pageMeta(schedules.length) })
+    if (path === '/api/v1/classes' && method === 'GET') {
+      return json(route, 200, toPage(classes))
     }
 
-    if (path === '/api/classes' && method === 'GET') {
-      return json(route, 200, { items: [], meta: pageMeta(0) })
+    if (path === '/api/v1/class-schedules' && method === 'GET') {
+      return json(route, 200, toPage(schedules))
     }
 
-    if (path === '/api/members/me/bookings' && method === 'GET') {
-      return json(route, 200, { items: bookings, meta: pageMeta(bookings.length) })
+    if (path === '/api/v1/membership-plans' && method === 'GET') {
+      return json(route, 200, toPage(defaultPlans))
     }
 
-    if (path === '/api/members/me/membership' && method === 'GET') {
-      if (membership === null) {
-        return json(route, 404, { detail: 'Sin membresía' })
+    const bookingsMatch = path.match(/^\/api\/v1\/users\/(\d+)\/bookings$/)
+    if (bookingsMatch && method === 'GET') {
+      const userId = Number(bookingsMatch[1])
+      return json(route, 200, toPage(bookings.filter((item) => item.member_id === userId)))
+    }
+
+    const membershipsMatch = path.match(/^\/api\/v1\/users\/(\d+)\/memberships$/)
+    if (membershipsMatch && method === 'GET') {
+      const items = membership ? [membership] : []
+      return json(route, 200, toPage(items))
+    }
+
+    if (path === '/api/v1/bookings' && method === 'POST') {
+      const payload = request.postDataJSON() as {
+        member_id: number
+        schedule_id: number
+        booking_date: string
       }
-      return json(route, 200, membership)
-    }
-
-    if (path === '/api/bookings' && method === 'POST') {
-      const payload = request.postDataJSON() as { schedule_id: number }
-      const schedule = schedules.find((item) => item.id === payload.schedule_id)
       const booking: MockBooking = {
         id: nextBookingId++,
-        member_id: options.user.id,
+        member_id: payload.member_id,
         schedule_id: payload.schedule_id,
-        class_name: schedule?.class_name ?? 'Clase',
-        starts_at: '2026-10-06T10:00:00',
-        trainer_id: null,
-        status: 'active',
+        booking_date: payload.booking_date,
+        status: 'confirmed',
+        created_at: '2026-10-05T10:00:00Z',
       }
       bookings.push(booking)
-      if (schedule && schedule.remaining_spots > 0) {
-        schedule.remaining_spots -= 1
-        schedule.booked_count += 1
-      }
       return json(route, 201, booking)
     }
 
-    if (path.startsWith('/api/bookings/') && method === 'DELETE') {
+    if (path.startsWith('/api/v1/bookings/') && method === 'DELETE') {
       const id = Number(path.split('/').pop())
       const booking = bookings.find((item) => item.id === id)
       if (booking) booking.status = 'cancelled'
       return route.fulfill({ status: 204, body: '' })
-    }
-
-    if (path === '/api/trainer/members' && method === 'GET') {
-      return json(route, 200, { items: [], meta: pageMeta(0) })
-    }
-
-    if (path === '/api/members' && method === 'GET') {
-      return json(route, 200, { items: [], meta: pageMeta(0) })
-    }
-
-    if (path === '/api/plans' && method === 'GET') {
-      return json(route, 200, { items: [], meta: pageMeta(0) })
     }
 
     return json(route, 404, { detail: `No mockeado: ${method} ${path}` })

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authApi, setUnauthorizedHandler, toApiError } from '@/api'
-import type { LoginRequest, RegisterRequest, Role, Token, User } from '@/types/schema'
+import type { LoginRequest, RegisterRequest, Role, Token, User } from '@/types/api'
 import { AuthContext, type AuthContextValue } from './context'
 import { tokenStorage } from './tokenStorage'
 

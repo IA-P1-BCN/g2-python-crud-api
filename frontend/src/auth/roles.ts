@@ -1,4 +1,4 @@
-import type { Role } from '@/types/schema'
+import type { Role } from '@/types/api'
 
 export const HOME_BY_ROLE: Record<Role, string> = {
   member: '/member',

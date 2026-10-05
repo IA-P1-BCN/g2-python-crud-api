@@ -1,4 +1,4 @@
-import type { User } from '@/types/schema'
+import type { User } from '@/types/api'
 
 const TOKEN_KEY = 'gym.token'
 const USER_KEY = 'gym.user'

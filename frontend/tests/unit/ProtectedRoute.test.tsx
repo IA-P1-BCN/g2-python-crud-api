@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProtectedRoute } from '@/auth/ProtectedRoute'
 import { useAuth } from '@/auth/useAuth'
 import type { AuthContextValue } from '@/auth'
-import type { Role, User } from '@/types/schema'
+import type { Role, User } from '@/types/api'
 
 vi.mock('@/auth/useAuth', () => ({
   useAuth: vi.fn(),
@@ -18,6 +18,7 @@ const memberUser: User = {
   full_name: 'Socio Uno',
   role: 'member',
   is_active: true,
+  created_at: '2026-10-01T10:00:00Z',
 }
 
 function authValue(partial: Partial<AuthContextValue>): AuthContextValue {

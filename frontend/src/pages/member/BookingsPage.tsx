@@ -1,42 +1,70 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Alert, Badge, Button, Pagination, Table, type Column } from '@/components/ui'
-import { bookingsApi, toApiError } from '@/api'
-import { formatDateTime } from '@/lib/format'
-import type { Booking } from '@/types/schema'
+import { bookingsApi, classesApi, schedulesApi, toApiError } from '@/api'
+import { useAuth } from '@/auth'
+import { formatDate } from '@/lib/format'
+import type { Booking } from '@/types/api'
 
 const PAGE_SIZE = 10
 
 export function BookingsPage() {
+  const { user } = useAuth()
   const [page, setPage] = useState(1)
   const queryClient = useQueryClient()
 
   const bookings = useQuery({
-    queryKey: ['bookings', page],
-    queryFn: () => bookingsApi.listMine({ page, size: PAGE_SIZE }),
+    queryKey: ['bookings', user?.id, page],
+    enabled: user !== null,
+    queryFn: () => bookingsApi.listForUser(Number(user?.id), { page, size: PAGE_SIZE }),
   })
+
+  const schedules = useQuery({
+    queryKey: ['schedules', 'all'],
+    queryFn: () => schedulesApi.list({ size: 100 }),
+  })
+
+  const classes = useQuery({
+    queryKey: ['classes'],
+    queryFn: () => classesApi.list({ size: 100 }),
+  })
+
+  const { scheduleMap, classMap } = useMemo(
+    () => ({
+      scheduleMap: new Map((schedules.data?.items ?? []).map((item) => [item.id, item.class_id])),
+      classMap: new Map((classes.data?.items ?? []).map((item) => [item.id, item.name])),
+    }),
+    [schedules.data, classes.data],
+  )
 
   const cancel = useMutation({
     mutationFn: (id: number) => bookingsApi.cancel(id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['bookings'] })
-      await queryClient.invalidateQueries({ queryKey: ['schedules'] })
     },
   })
 
   const columns: Column<Booking>[] = [
-    { key: 'class_name', header: 'Clase' },
     {
-      key: 'starts_at',
+      key: 'schedule_id',
+      header: 'Clase',
+      render: (row) => {
+        const classId = scheduleMap.get(row.schedule_id)
+        if (classId === undefined) return `Horario #${row.schedule_id}`
+        return classMap.get(classId) ?? `Clase #${classId}`
+      },
+    },
+    {
+      key: 'booking_date',
       header: 'Fecha',
-      render: (row) => formatDateTime(row.starts_at),
+      render: (row) => formatDate(row.booking_date),
     },
     {
       key: 'status',
       header: 'Estado',
       render: (row) =>
-        row.status === 'active' ? (
-          <Badge tone="success">Activa</Badge>
+        row.status === 'confirmed' ? (
+          <Badge tone="success">Confirmada</Badge>
         ) : (
           <Badge tone="neutral">Cancelada</Badge>
         ),
@@ -47,7 +75,7 @@ export function BookingsPage() {
       render: (row) => (
         <Button
           variant="danger"
-          disabled={row.status !== 'active'}
+          disabled={row.status !== 'confirmed'}
           isLoading={cancel.isPending && cancel.variables === row.id}
           onClick={() => cancel.mutate(row.id)}
         >
@@ -76,8 +104,8 @@ export function BookingsPage() {
         emptyMessage="Todavía no tienes reservas."
       />
 
-      {bookings.data && bookings.data.meta.pages > 1 ? (
-        <Pagination page={page} pages={bookings.data.meta.pages} onChange={setPage} />
+      {bookings.data && bookings.data.pages > 1 ? (
+        <Pagination page={page} pages={bookings.data.pages} onChange={setPage} />
       ) : null}
     </div>
   )
