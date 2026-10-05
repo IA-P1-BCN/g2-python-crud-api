@@ -10,8 +10,9 @@ type NavItem = {
 }
 
 const NAV_ITEMS: NavItem[] = [
+  { to: '/member/classes', label: 'Clases', roles: ['member'] },
   { to: '/member/bookings', label: 'Mis reservas', roles: ['member'] },
-  { to: '/member/bookings/new', label: 'Nueva reserva', roles: ['member'] },
+  { to: '/member/membership', label: 'Mi membresía', roles: ['member'] },
   { to: '/trainer/members', label: 'Mis socios', roles: ['trainer'] },
   { to: '/admin/plans', label: 'Planes', roles: ['admin'] },
   { to: '/admin/members', label: 'Socios', roles: ['admin'] },

@@ -7,10 +7,18 @@
  *
  * Si el backend cambia un campo, este fichero cambia y el front deja de
  * compilar: el contrato roto se detecta en CI.
+ *
+ * NOTA (HU-120): mientras el backend todavía no expone los endpoints de
+ * registro, clases, horarios y membresía, este contrato es provisional y se
+ * ha escrito a mano. Al regenerarlo contra el OpenAPI real, estos tipos
+ * mandarán.
  */
 export interface paths {
   '/auth/login': {
     post: operations['login']
+  }
+  '/auth/register': {
+    post: operations['register']
   }
   '/auth/me': {
     get: operations['getCurrentUser']
@@ -24,11 +32,20 @@ export interface paths {
     patch: operations['updatePlan']
     delete: operations['deletePlan']
   }
+  '/classes': {
+    get: operations['listClasses']
+  }
+  '/class-schedules': {
+    get: operations['listClassSchedules']
+  }
   '/members': {
     get: operations['listMembers']
   }
   '/members/me/bookings': {
     get: operations['listMyBookings']
+  }
+  '/members/me/membership': {
+    get: operations['getMyMembership']
   }
   '/bookings': {
     post: operations['createBooking']
@@ -55,6 +72,12 @@ export interface components {
 
     LoginRequest: {
       email: string
+      password: string
+    }
+
+    RegisterRequest: {
+      email: string
+      full_name: string
       password: string
     }
 
@@ -88,6 +111,40 @@ export interface components {
       is_active?: boolean
     }
 
+    Class: {
+      id: number
+      name: string
+      description?: string | null
+      capacity: number
+      trainer_id?: number | null
+    }
+
+    ClassSchedule: {
+      id: number
+      class_id: number
+      class_name: string
+      description?: string | null
+      day_of_week: number
+      start_time: string
+      end_time: string
+      room?: string | null
+      capacity: number
+      booked_count: number
+      remaining_spots: number
+    }
+
+    MembershipStatus: 'active' | 'expired' | 'cancelled'
+
+    Membership: {
+      id: number
+      user_id: number
+      plan_id: number
+      plan_name: string
+      start_date: string
+      end_date: string
+      status: components['schemas']['MembershipStatus']
+    }
+
     Member: {
       id: number
       user_id: number
@@ -100,6 +157,7 @@ export interface components {
     Booking: {
       id: number
       member_id: number
+      schedule_id: number
       class_name: string
       starts_at: string
       trainer_id?: number | null
@@ -107,8 +165,7 @@ export interface components {
     }
 
     BookingCreate: {
-      class_name: string
-      starts_at: string
+      schedule_id: number
     }
 
     PageMeta: {
@@ -125,6 +182,16 @@ export interface components {
 
     MemberPage: {
       items: components['schemas']['Member'][]
+      meta: components['schemas']['PageMeta']
+    }
+
+    ClassPage: {
+      items: components['schemas']['Class'][]
+      meta: components['schemas']['PageMeta']
+    }
+
+    ClassSchedulePage: {
+      items: components['schemas']['ClassSchedule'][]
       meta: components['schemas']['PageMeta']
     }
 
@@ -148,16 +215,23 @@ export interface components {
 export type Role = components['schemas']['Role']
 export type User = components['schemas']['User']
 export type LoginRequest = components['schemas']['LoginRequest']
+export type RegisterRequest = components['schemas']['RegisterRequest']
 export type Token = components['schemas']['Token']
 export type Plan = components['schemas']['Plan']
 export type PlanCreate = components['schemas']['PlanCreate']
 export type PlanUpdate = components['schemas']['PlanUpdate']
+export type Class = components['schemas']['Class']
+export type ClassSchedule = components['schemas']['ClassSchedule']
+export type Membership = components['schemas']['Membership']
+export type MembershipStatus = components['schemas']['MembershipStatus']
 export type Member = components['schemas']['Member']
 export type Booking = components['schemas']['Booking']
 export type BookingCreate = components['schemas']['BookingCreate']
 export type PageMeta = components['schemas']['PageMeta']
 export type PlanPage = components['schemas']['PlanPage']
 export type MemberPage = components['schemas']['MemberPage']
+export type ClassPage = components['schemas']['ClassPage']
+export type ClassSchedulePage = components['schemas']['ClassSchedulePage']
 export type BookingPage = components['schemas']['BookingPage']
 export type Paginated<T> = {
   items: T[]
@@ -180,6 +254,25 @@ export interface operations {
         }
       }
       401: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
+        }
+      }
+    }
+  }
+  register: {
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RegisterRequest']
+      }
+    }
+    responses: {
+      201: {
+        content: {
+          'application/json': components['schemas']['Token']
+        }
+      }
+      409: {
         content: {
           'application/json': components['schemas']['HTTPValidationError']
         }
@@ -248,6 +341,30 @@ export interface operations {
       }
     }
   }
+  listClasses: {
+    responses: {
+      200: {
+        content: {
+          'application/json': components['schemas']['ClassPage']
+        }
+      }
+    }
+  }
+  listClassSchedules: {
+    parameters: {
+      query?: {
+        page?: number
+        size?: number
+      }
+    }
+    responses: {
+      200: {
+        content: {
+          'application/json': components['schemas']['ClassSchedulePage']
+        }
+      }
+    }
+  }
   listMembers: {
     responses: {
       200: {
@@ -262,6 +379,20 @@ export interface operations {
       200: {
         content: {
           'application/json': components['schemas']['BookingPage']
+        }
+      }
+    }
+  }
+  getMyMembership: {
+    responses: {
+      200: {
+        content: {
+          'application/json': components['schemas']['Membership']
+        }
+      }
+      404: {
+        content: {
+          'application/json': components['schemas']['HTTPValidationError']
         }
       }
     }

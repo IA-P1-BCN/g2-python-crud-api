@@ -28,6 +28,7 @@ function authValue(partial: Partial<AuthContextValue>): AuthContextValue {
     isLoading: false,
     error: null,
     login: vi.fn(),
+    register: vi.fn(),
     logout: vi.fn(),
     hasRole: vi.fn(),
     ...partial,
