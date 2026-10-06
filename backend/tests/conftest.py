@@ -24,6 +24,8 @@ from app.models.user import User, UserRole
 settings.auto_create_tables = False
 # Tests log only to the console, not to logs/app.log.
 settings.log_file = ""
+# HS256 needs a key of at least 32 bytes; the default "change-me" is only a placeholder.
+settings.secret_key = "test-secret-key-0123456789-abcdefghij"
 
 
 @pytest.fixture()
