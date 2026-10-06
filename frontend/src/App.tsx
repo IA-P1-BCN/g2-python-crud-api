@@ -8,6 +8,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage'
 import { ClassesPage } from '@/pages/member/ClassesPage'
 import { BookingsPage } from '@/pages/member/BookingsPage'
 import { MembershipPage } from '@/pages/member/MembershipPage'
+import { TrainerSessionsPage } from '@/pages/trainer/TrainerSessionsPage'
 import { TrainerMembersPage } from '@/pages/trainer/TrainerMembersPage'
 import { PlansPage } from '@/pages/admin/PlansPage'
 import { AdminMembersPage } from '@/pages/admin/AdminMembersPage'
@@ -37,7 +38,8 @@ export function App() {
           </Route>
 
           <Route path="trainer" element={<ProtectedRoute allowedRoles={['trainer']} />}>
-            <Route index element={<Navigate to="/trainer/members" replace />} />
+            <Route index element={<Navigate to="/trainer/sessions" replace />} />
+            <Route path="sessions" element={<TrainerSessionsPage />} />
             <Route path="members" element={<TrainerMembersPage />} />
           </Route>
 

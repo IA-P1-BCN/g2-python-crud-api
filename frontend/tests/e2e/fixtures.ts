@@ -190,7 +190,9 @@ export async function mockApi(page: Page, options: MockApiOptions) {
 
   await page.route('**/api/v1/**', async (route) => {
     const request = route.request()
-    const path = new URL(request.url()).pathname
+    const url = new URL(request.url())
+    const path = url.pathname
+    const params = url.searchParams
     const method = request.method()
 
     if (path === '/api/v1/auth/login' && method === 'POST') {
@@ -213,16 +215,39 @@ export async function mockApi(page: Page, options: MockApiOptions) {
       return json(route, 200, options.user)
     }
 
+    if (path === '/api/v1/users' && method === 'GET') {
+      const role = params.get('role')
+      const items = Object.values(users).filter((user) => !role || user.role === role)
+      return json(route, 200, toPage(items))
+    }
+
     if (path === '/api/v1/classes' && method === 'GET') {
-      return json(route, 200, toPage(classes))
+      const trainerId = params.get('trainer_id')
+      const items = trainerId
+        ? classes.filter((item) => item.trainer_id === Number(trainerId))
+        : classes
+      return json(route, 200, toPage(items))
     }
 
     if (path === '/api/v1/class-schedules' && method === 'GET') {
-      return json(route, 200, toPage(schedules))
+      const classId = params.get('class_id')
+      const items = classId
+        ? schedules.filter((item) => item.class_id === Number(classId))
+        : schedules
+      return json(route, 200, toPage(items))
     }
 
     if (path === '/api/v1/membership-plans' && method === 'GET') {
       return json(route, 200, toPage(defaultPlans))
+    }
+
+    if (path === '/api/v1/bookings' && method === 'GET') {
+      const scheduleId = params.get('schedule_id')
+      const onDate = params.get('on_date')
+      let items = bookings
+      if (scheduleId) items = items.filter((item) => item.schedule_id === Number(scheduleId))
+      if (onDate) items = items.filter((item) => item.booking_date === onDate)
+      return json(route, 200, toPage(items))
     }
 
     const bookingsMatch = path.match(/^\/api\/v1\/users\/(\d+)\/bookings$/)
