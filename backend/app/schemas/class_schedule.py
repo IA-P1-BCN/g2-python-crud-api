@@ -1,6 +1,6 @@
 from datetime import datetime, time
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class ClassScheduleBase(BaseModel):
@@ -8,7 +8,7 @@ class ClassScheduleBase(BaseModel):
     day_of_week: int = Field(ge=0, le=6, description="0 = lunes, 6 = domingo")
     start_time: time
     end_time: time
-    room_id: int | None = None
+    room_id: int
 
     @model_validator(mode="after")
     def validate_times(self) -> "ClassScheduleBase":
@@ -27,6 +27,14 @@ class ClassScheduleUpdate(BaseModel):
     start_time: time | None = None
     end_time: time | None = None
     room_id: int | None = None
+
+    # None only means "not sent": an explicit null would leave the schedule without a room.
+    @field_validator("room_id")
+    @classmethod
+    def room_cannot_be_removed(cls, value: int | None) -> int:
+        if value is None:
+            raise ValueError("room_id no puede ser nulo")
+        return value
 
 
 class ClassScheduleRead(BaseModel):

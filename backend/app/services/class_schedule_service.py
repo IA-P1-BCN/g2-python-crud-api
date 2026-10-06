@@ -1,7 +1,7 @@
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import ConflictError, NotFoundError
+from app.core.exceptions import ConflictError, InvalidDataError, NotFoundError
 from app.models.class_schedule import ClassSchedule
 from app.schemas.class_schedule import ClassScheduleCreate, ClassScheduleUpdate
 from app.services import class_service, room_service
@@ -57,15 +57,14 @@ def _check_room_overlap(
 
 def create_schedule(db: Session, data: ClassScheduleCreate) -> ClassSchedule:
     class_service.get_class(db, data.class_id)
-    if data.room_id is not None:
-        room_service.get_room(db, data.room_id)
-        _check_room_overlap(
-            db,
-            room_id=data.room_id,
-            day_of_week=data.day_of_week,
-            start_time=data.start_time,
-            end_time=data.end_time,
-        )
+    room_service.get_room(db, data.room_id)
+    _check_room_overlap(
+        db,
+        room_id=data.room_id,
+        day_of_week=data.day_of_week,
+        start_time=data.start_time,
+        end_time=data.end_time,
+    )
     schedule = ClassSchedule(**data.model_dump())
     db.add(schedule)
     db.commit()
@@ -86,7 +85,7 @@ def update_schedule(
 
     class_service.get_class(db, class_id)
     if start_time >= end_time:
-        raise ConflictError("start_time debe ser anterior a end_time")
+        raise InvalidDataError("start_time debe ser anterior a end_time")
     if room_id is not None:
         room_service.get_room(db, room_id)
         _check_room_overlap(

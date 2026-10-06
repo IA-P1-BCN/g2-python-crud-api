@@ -8,7 +8,7 @@ from app.models.room import Room
 SCHEDULES_URL = "/api/v1/class-schedules"
 
 
-def _schedule_payload(class_id: int, room_id: int, **overrides) -> dict:
+def _schedule_payload(class_id: int, room_id: int | None, **overrides) -> dict:
     return {
         "class_id": class_id,
         "day_of_week": 2,
@@ -42,14 +42,23 @@ def test_create_schedule(client, gym_class, room) -> None:
     assert body["room_id"] == room.id
 
 
-@pytest.mark.parametrize("missing_field", ["class_id", "day_of_week", "start_time", "end_time"])
-def test_create_schedule_requires_class_day_and_times(
+@pytest.mark.parametrize(
+    "missing_field", ["class_id", "day_of_week", "start_time", "end_time", "room_id"]
+)
+def test_create_schedule_requires_class_day_times_and_room(
     client, gym_class, room, missing_field: str
 ) -> None:
     payload = _schedule_payload(gym_class.id, room.id)
     del payload[missing_field]
 
     response = client.post(SCHEDULES_URL, json=payload)
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "validation_error"
+
+
+def test_create_schedule_room_cannot_be_null(client, gym_class) -> None:
+    response = client.post(SCHEDULES_URL, json=_schedule_payload(gym_class.id, None))
 
     assert response.status_code == 422
     assert response.json()["code"] == "validation_error"
@@ -262,6 +271,29 @@ def test_update_schedule_day_of_week_must_be_0_to_6(client, schedule) -> None:
 
     assert response.status_code == 422
     assert response.json()["code"] == "validation_error"
+
+
+@pytest.mark.parametrize(
+    "changes",
+    [
+        {"start_time": "12:00:00", "end_time": "11:00:00"},  # both sent
+        {"end_time": "09:00:00"},  # before the stored start (10:00)
+        {"start_time": "11:00:00"},  # equal to the stored end (11:00)
+    ],
+)
+def test_update_schedule_start_must_be_before_end(client, schedule, changes: dict) -> None:
+    response = client.put(f"{SCHEDULES_URL}/{schedule.id}", json=changes)
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "validation_error"
+
+
+def test_update_schedule_room_cannot_be_removed(client, schedule) -> None:
+    response = client.put(f"{SCHEDULES_URL}/{schedule.id}", json={"room_id": None})
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "validation_error"
+    assert client.get(f"{SCHEDULES_URL}/{schedule.id}").json()["room_id"] == schedule.room_id
 
 
 def test_update_schedule_with_unknown_class_returns_404(client, schedule) -> None:
