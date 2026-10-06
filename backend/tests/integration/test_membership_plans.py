@@ -195,3 +195,18 @@ def test_delete_unknown_plan_returns_404(client) -> None:
     response = client.delete(f"{PLANS_URL}/9999")
 
     assert response.status_code == 404
+
+
+def test_delete_plan_with_memberships_returns_409(client, plan, active_membership) -> None:
+    response = client.delete(f"{PLANS_URL}/{plan.id}")
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "conflict"
+    assert client.get(f"{PLANS_URL}/{plan.id}").status_code == 200
+
+
+def test_plan_with_memberships_can_be_deactivated(client, plan, active_membership) -> None:
+    response = client.put(f"{PLANS_URL}/{plan.id}", json={"is_active": False})
+
+    assert response.status_code == 200
+    assert response.json()["is_active"] is False

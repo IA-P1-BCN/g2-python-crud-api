@@ -2,6 +2,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import ConflictError, NotFoundError
+from app.models.membership import Membership
 from app.models.membership_plan import MembershipPlan
 from app.schemas.membership_plan import MembershipPlanCreate, MembershipPlanUpdate
 
@@ -63,5 +64,12 @@ def update_plan(db: Session, plan_id: int, data: MembershipPlanUpdate) -> Member
 
 def delete_plan(db: Session, plan_id: int) -> None:
     plan = get_plan(db, plan_id)
+    has_memberships = db.execute(
+        select(Membership.id).where(Membership.plan_id == plan_id).limit(1)
+    ).first()
+    if has_memberships is not None:
+        raise ConflictError(
+            "No se puede borrar un plan con membresías asignadas; desactívalo en su lugar"
+        )
     db.delete(plan)
     db.commit()
