@@ -31,9 +31,12 @@ def get_user(db: Session, user_id: int) -> User:
     return user
 
 
+def get_user_by_email(db: Session, email: str) -> User | None:
+    return db.execute(select(User).where(User.email == email)).scalar_one_or_none()
+
+
 def create_user(db: Session, data: UserCreate) -> User:
-    existing = db.execute(select(User).where(User.email == data.email)).scalar_one_or_none()
-    if existing is not None:
+    if get_user_by_email(db, data.email) is not None:
         raise ConflictError("El email ya está registrado")
     user = User(
         email=data.email,
