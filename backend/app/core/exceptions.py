@@ -34,6 +34,13 @@ class BusinessRuleError(AppError):
     code = "business_rule"
 
 
+class InvalidDataError(AppError):
+    """Validation that needs stored data, so it cannot live in the request schema."""
+
+    status_code = 422
+    code = "validation_error"
+
+
 class AuthenticationError(AppError):
     status_code = 401
     code = "unauthorized"
