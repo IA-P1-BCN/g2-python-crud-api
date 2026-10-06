@@ -321,6 +321,10 @@ body {
   margin: 0 0 0.5rem;
 }
 
+.members {
+  margin-top: 1.5rem;
+}
+
 /* Responsive layout: on narrow screens the nav drops to its own row and tables
    scroll horizontally instead of breaking the layout. */
 @media (max-width: 640px) {
