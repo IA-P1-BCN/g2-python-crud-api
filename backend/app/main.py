@@ -36,10 +36,30 @@ def create_app() -> FastAPI:
     application = FastAPI(
         title="GymFlow API",
         version="0.1.0",
+        summary="API REST para la gestión de un gimnasio",
         description=(
-            "API REST para la gestión de un gimnasio: socios, planes de membresía, "
-            "clases, horarios, reservas y pagos."
+            "API para gestionar socios, entrenadores, planes de membresía, clases, "
+            "horarios, reservas y pagos.\n\n"
+            "Autenticación mediante **JWT**: haz `POST /api/v1/auth/login` y usa el "
+            "`access_token` con el botón **Authorize** (esquema `Bearer`).\n\n"
+            "Documentación interactiva en `/docs` y esquema OpenAPI en `/openapi.json`."
         ),
+        openapi_tags=[
+            {"name": "health", "description": "Estado del servicio."},
+            {"name": "auth", "description": "Registro, inicio de sesión y usuario autenticado."},
+            {"name": "users", "description": "Usuarios, y sus membresías y reservas."},
+            {"name": "membership-plans", "description": "Planes de membresía."},
+            {"name": "memberships", "description": "Suscripciones de los socios."},
+            {"name": "rooms", "description": "Salas del gimnasio."},
+            {"name": "classes", "description": "Clases y sus horarios."},
+            {"name": "class-schedules", "description": "Horarios semanales de las clases."},
+            {"name": "bookings", "description": "Reservas de los socios en los horarios."},
+            {"name": "payments", "description": "Pagos asociados a las membresías."},
+            {"name": "export", "description": "Exportación de datos a CSV."},
+        ],
+        docs_url="/docs",
+        redoc_url="/redoc",
+        openapi_url="/openapi.json",
         lifespan=lifespan,
     )
 
@@ -55,7 +75,12 @@ def create_app() -> FastAPI:
     register_exception_handlers(application)
     application.include_router(api_router, prefix="/api/v1")
 
-    @application.get("/health", tags=["health"])
+    @application.get(
+        "/health",
+        tags=["health"],
+        summary="Estado del servicio",
+        description="Comprobación de salud: devuelve `{\"status\": \"ok\"}`.",
+    )
     def health() -> dict[str, str]:
         return {"status": "ok"}
 

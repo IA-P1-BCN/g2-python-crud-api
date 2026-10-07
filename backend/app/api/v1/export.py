@@ -16,11 +16,21 @@ def _csv_response(content: str, filename: str) -> Response:
     )
 
 
-@router.get("/members.csv", response_class=Response)
+@router.get(
+    "/members.csv",
+    response_class=Response,
+    summary="Exportar socios a CSV",
+    description="Descarga los socios en formato CSV. Requiere rol administrador.",
+)
 def export_members(db: Session = Depends(get_db)) -> Response:
     return _csv_response(export_service.members_csv(db), "members.csv")
 
 
-@router.get("/bookings.csv", response_class=Response)
+@router.get(
+    "/bookings.csv",
+    response_class=Response,
+    summary="Exportar reservas a CSV",
+    description="Descarga las reservas en formato CSV. Requiere rol administrador.",
+)
 def export_bookings(db: Session = Depends(get_db)) -> Response:
     return _csv_response(export_service.bookings_csv(db), "bookings.csv")

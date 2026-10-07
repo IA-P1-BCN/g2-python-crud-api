@@ -20,7 +20,15 @@ from app.services import access_service, booking_service
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
 
-@router.get("", response_model=Page[BookingRead])
+@router.get(
+    "",
+    response_model=Page[BookingRead],
+    summary="Listar reservas",
+    description=(
+        "Lista las reservas paginadas. Filtros: `member_id`, `schedule_id`, `status_filter` "
+        "y `on_date`. Un entrenador solo ve las reservas de sus clases."
+    ),
+)
 def list_bookings(
     pagination: Pagination = Depends(),
     member_id: int | None = None,
@@ -43,7 +51,16 @@ def list_bookings(
     return build_page(items, total, pagination)
 
 
-@router.post("", response_model=BookingRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=BookingRead,
+    status_code=status.HTTP_201_CREATED,
+    summary="Crear reserva",
+    description=(
+        "Reserva una plaza en un horario para un socio. Valida membresía activa, aforo y "
+        "solapamiento de horarios."
+    ),
+)
 def create_booking(
     data: BookingCreate,
     current_user: User = Depends(require_member_or_admin),
@@ -53,7 +70,12 @@ def create_booking(
     return booking_service.create_booking(db, data)
 
 
-@router.get("/{booking_id}", response_model=BookingRead)
+@router.get(
+    "/{booking_id}",
+    response_model=BookingRead,
+    summary="Obtener reserva",
+    description="Devuelve una reserva por id. Solo el socio propietario, su entrenador o un admin.",
+)
 def get_booking(
     booking_id: int,
     current_user: User = Depends(get_current_user),
@@ -64,7 +86,12 @@ def get_booking(
     return booking
 
 
-@router.delete("/{booking_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{booking_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Cancelar reserva",
+    description="Cancela una reserva. Solo el socio propietario o un administrador.",
+)
 def cancel_booking(
     booking_id: int,
     current_user: User = Depends(require_member_or_admin),
