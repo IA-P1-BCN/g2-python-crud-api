@@ -15,6 +15,20 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=128)
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "email": "socio@example.com",
+                    "full_name": "Socio Uno",
+                    "role": "member",
+                    "is_active": True,
+                    "password": "gymflow123",
+                }
+            ]
+        }
+    )
+
 
 class UserUpdate(BaseModel):
     email: EmailStr | None = None
@@ -25,7 +39,22 @@ class UserUpdate(BaseModel):
 
 
 class UserRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
+            "examples": [
+                {
+                    "id": 1,
+                    "email": "socio@example.com",
+                    "full_name": "Socio Uno",
+                    "role": "member",
+                    "is_active": True,
+                    "created_at": "2026-01-01T10:00:00Z",
+                    "deactivated_at": None,
+                }
+            ]
+        },
+    )
 
     id: int
     email: EmailStr
@@ -33,3 +62,4 @@ class UserRead(BaseModel):
     role: UserRole
     is_active: bool
     created_at: datetime
+    deactivated_at: datetime | None

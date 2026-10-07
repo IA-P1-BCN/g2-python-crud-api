@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -42,9 +44,9 @@ def create_user(db: Session, data: UserCreate) -> User:
         email=data.email,
         full_name=data.full_name,
         role=data.role,
-        is_active=data.is_active,
         hashed_password=hash_password(data.password),
     )
+    _set_active(user, data.is_active)
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -63,17 +65,30 @@ def update_user(db: Session, user_id: int, data: UserUpdate) -> User:
         if duplicate is not None:
             raise ConflictError("El email ya está registrado")
 
+    is_active = payload.pop("is_active", None)
     for field, value in payload.items():
         setattr(user, field, value)
     if password:
         user.hashed_password = hash_password(password)
+    if is_active is not None:
+        _set_active(user, is_active)
 
     db.commit()
     db.refresh(user)
     return user
 
 
-def delete_user(db: Session, user_id: int) -> None:
+def deactivate_user(db: Session, user_id: int) -> None:
+    """Sign the user off without deleting them, so their history is kept."""
     user = get_user(db, user_id)
-    db.delete(user)
+    _set_active(user, False)
     db.commit()
+
+
+def _set_active(user: User, is_active: bool) -> None:
+    """Keep is_active and deactivated_at in step; the first deactivation date is kept."""
+    user.is_active = is_active
+    if is_active:
+        user.deactivated_at = None
+    elif user.deactivated_at is None:
+        user.deactivated_at = datetime.now(UTC)
