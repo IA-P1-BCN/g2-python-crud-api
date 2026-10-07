@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
@@ -37,13 +37,29 @@ class UserUpdate(BaseModel):
     is_active: bool | None = None
     password: str | None = Field(default=None, min_length=8, max_length=128)
 
+
 class ProfileUpdate(BaseModel):
     email: EmailStr | None = None
     full_name: str | None = Field(default=None, min_length=1, max_length=255)
 
+
 class PasswordChange(BaseModel):
     current_password: str = Field(min_length=8, max_length=128)
     new_password: str = Field(min_length=8, max_length=128)
+
+
+class UserFilters(BaseModel):
+    """Query filters of the users listing. Date ranges include both ends."""
+
+    role: UserRole | None = None
+    is_active: bool | None = None
+    search: str | None = Field(
+        default=None, min_length=1, max_length=255, description="Texto en el nombre o el email"
+    )
+    created_from: date | None = Field(default=None, description="Altas desde esta fecha")
+    created_to: date | None = Field(default=None, description="Altas hasta esta fecha")
+    deactivated_from: date | None = Field(default=None, description="Bajas desde esta fecha")
+    deactivated_to: date | None = Field(default=None, description="Bajas hasta esta fecha")
 
 
 class UserRead(BaseModel):
