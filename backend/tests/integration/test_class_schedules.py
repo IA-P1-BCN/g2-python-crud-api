@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from app.models.booking import Booking
+from app.models.booking import Booking, BookingStatus
 from app.models.room import Room
 
 SCHEDULES_URL = "/api/v1/class-schedules"
@@ -352,3 +352,117 @@ def test_list_bookings_of_unknown_schedule_returns_404(client) -> None:
     response = client.get(f"{SCHEDULES_URL}/9999/bookings")
 
     assert response.status_code == 404
+
+
+# GET /class-schedules/{schedule_id}/availability
+
+SESSION_DATE = date(2026, 10, 12)
+
+
+def _book(db_session, member_id: int, schedule_id: int, **overrides) -> Booking:
+    booking = Booking(
+        **(
+            {"member_id": member_id, "schedule_id": schedule_id, "booking_date": SESSION_DATE}
+            | overrides
+        )
+    )
+    db_session.add(booking)
+    db_session.commit()
+    return booking
+
+
+def _availability(client, schedule_id: int, on_date: date = SESSION_DATE):
+    return client.get(
+        f"{SCHEDULES_URL}/{schedule_id}/availability", params={"on_date": on_date.isoformat()}
+    )
+
+
+def test_availability_of_an_empty_session(client, schedule, gym_class) -> None:
+    response = _availability(client, schedule.id)
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "schedule_id": schedule.id,
+        "on_date": "2026-10-12",
+        "capacity": gym_class.capacity,
+        "booked": 0,
+        "available": gym_class.capacity,
+    }
+
+
+def test_availability_counts_confirmed_bookings(client, db_session, schedule, member) -> None:
+    _book(db_session, member.id, schedule.id)
+
+    body = _availability(client, schedule.id).json()
+
+    assert body["booked"] == 1
+    assert body["available"] == body["capacity"] - 1
+
+
+def test_availability_ignores_cancelled_bookings(client, db_session, schedule, member) -> None:
+    _book(db_session, member.id, schedule.id, status=BookingStatus.cancelled)
+
+    body = _availability(client, schedule.id).json()
+
+    assert body["booked"] == 0
+    assert body["available"] == body["capacity"]
+
+
+def test_availability_is_per_date(client, db_session, schedule, member) -> None:
+    _book(db_session, member.id, schedule.id, booking_date=date(2026, 10, 19))
+
+    assert _availability(client, schedule.id).json()["booked"] == 0
+    assert _availability(client, schedule.id, date(2026, 10, 19)).json()["booked"] == 1
+
+
+def test_availability_of_a_full_session_is_zero(
+    client, db_session, schedule, gym_class, member, trainer, admin
+) -> None:
+    # The gym_class fixture has capacity 2; a third row must not turn the result negative.
+    for user in (member, trainer, admin):
+        _book(db_session, user.id, schedule.id)
+
+    body = _availability(client, schedule.id).json()
+
+    assert body["capacity"] == gym_class.capacity == 2
+    assert body["booked"] == 3
+    assert body["available"] == 0
+
+
+def test_availability_matches_what_booking_allows(
+    client, schedule, member, active_membership
+) -> None:
+    today = date.today()
+    before = _availability(client, schedule.id, today).json()
+
+    created = client.post(
+        "/api/v1/bookings",
+        json={"member_id": member.id, "schedule_id": schedule.id, "booking_date": str(today)},
+    )
+    after = _availability(client, schedule.id, today).json()
+
+    assert created.status_code == 201
+    assert after["available"] == before["available"] - 1
+
+
+def test_availability_is_public(anon_client, schedule) -> None:
+    response = _availability(anon_client, schedule.id)
+
+    assert response.status_code == 200
+
+
+def test_availability_of_unknown_schedule_returns_404(client) -> None:
+    response = _availability(client, 9999)
+
+    assert response.status_code == 404
+    assert response.json()["code"] == "not_found"
+
+
+def test_availability_requires_a_valid_date(client, schedule) -> None:
+    missing = client.get(f"{SCHEDULES_URL}/{schedule.id}/availability")
+    invalid = client.get(
+        f"{SCHEDULES_URL}/{schedule.id}/availability", params={"on_date": "not-a-date"}
+    )
+
+    assert missing.status_code == 422
+    assert invalid.status_code == 422

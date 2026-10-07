@@ -1,3 +1,5 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
@@ -8,6 +10,7 @@ from app.schemas.class_schedule import (
     ClassScheduleCreate,
     ClassScheduleRead,
     ClassScheduleUpdate,
+    ScheduleAvailability,
 )
 from app.schemas.common import Page
 from app.services import (
@@ -50,6 +53,14 @@ def create_schedule(
 @router.get("/{schedule_id}", response_model=ClassScheduleRead)
 def get_schedule(schedule_id: int, db: Session = Depends(get_db)) -> ClassScheduleRead:
     return class_schedule_service.get_schedule(db, schedule_id)
+
+
+@router.get("/{schedule_id}/availability", response_model=ScheduleAvailability)
+def get_schedule_availability(
+    schedule_id: int, on_date: date, db: Session = Depends(get_db)
+) -> ScheduleAvailability:
+    """Capacity, booked and free spots of the schedule on a date. Public, like the schedules."""
+    return booking_service.get_availability(db, schedule_id, on_date)
 
 
 @router.put("/{schedule_id}", response_model=ClassScheduleRead)

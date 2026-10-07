@@ -8,6 +8,7 @@ from app.models.booking import Booking, BookingStatus
 from app.models.class_schedule import ClassSchedule
 from app.models.gym_class import GymClass
 from app.schemas.booking import BookingCreate
+from app.schemas.class_schedule import ScheduleAvailability
 from app.services import class_schedule_service, membership_service, user_service
 
 
@@ -55,6 +56,32 @@ def get_booking(db: Session, booking_id: int) -> Booking:
     return booking
 
 
+def count_confirmed(db: Session, schedule_id: int, on_date: date) -> int:
+    """Spots taken in a session; cancelled bookings free their spot."""
+    return db.execute(
+        select(func.count())
+        .select_from(Booking)
+        .where(
+            Booking.schedule_id == schedule_id,
+            Booking.booking_date == on_date,
+            Booking.status == BookingStatus.confirmed,
+        )
+    ).scalar_one()
+
+
+def get_availability(db: Session, schedule_id: int, on_date: date) -> ScheduleAvailability:
+    schedule = class_schedule_service.get_schedule(db, schedule_id)
+    capacity = schedule.gym_class.capacity
+    booked = count_confirmed(db, schedule_id, on_date)
+    return ScheduleAvailability(
+        schedule_id=schedule_id,
+        on_date=on_date,
+        capacity=capacity,
+        booked=booked,
+        available=max(capacity - booked, 0),
+    )
+
+
 def create_booking(db: Session, data: BookingCreate) -> Booking:
     user_service.get_user(db, data.member_id)
     schedule = class_schedule_service.get_schedule(db, data.schedule_id)
@@ -63,16 +90,7 @@ def create_booking(db: Session, data: BookingCreate) -> Booking:
     if membership_service.get_active_for_user(db, data.member_id, data.booking_date) is None:
         raise BusinessRuleError("El socio no tiene una membresía activa en esa fecha")
 
-    confirmed = db.execute(
-        select(func.count())
-        .select_from(Booking)
-        .where(
-            Booking.schedule_id == schedule.id,
-            Booking.booking_date == data.booking_date,
-            Booking.status == BookingStatus.confirmed,
-        )
-    ).scalar_one()
-    if confirmed >= gym_class.capacity:
+    if count_confirmed(db, schedule.id, data.booking_date) >= gym_class.capacity:
         raise ConflictError("No quedan plazas para esa clase")
 
     same_day = db.execute(
