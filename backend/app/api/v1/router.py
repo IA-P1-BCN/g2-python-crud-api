@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1 import (
+    admin,
     auth,
     bookings,
     class_schedules,
@@ -24,3 +25,4 @@ api_router.include_router(class_schedules.router)
 api_router.include_router(bookings.router)
 api_router.include_router(payments.router)
 api_router.include_router(export.router)
+api_router.include_router(admin.router)
