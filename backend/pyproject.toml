@@ -37,6 +37,12 @@ extend-exclude = ["alembic/versions"]
 # E/W: pycodestyle, F: pyflakes, I: isort, B: bugbear, UP: pyupgrade
 select = ["E", "W", "F", "I", "B", "UP"]
 
+[tool.ruff.lint.isort]
+# Only `app` is first-party; otherwise the local `alembic/` migrations folder
+# would be mistaken for the installed `alembic` package.
+known-first-party = ["app"]
+known-third-party = ["alembic"]
+
 [tool.ruff.lint.flake8-bugbear]
 # FastAPI dependencies are declared as default arguments
 extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Path"]
