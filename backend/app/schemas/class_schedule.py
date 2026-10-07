@@ -18,7 +18,19 @@ class ClassScheduleBase(BaseModel):
 
 
 class ClassScheduleCreate(ClassScheduleBase):
-    pass
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "class_id": 1,
+                    "day_of_week": 0,
+                    "start_time": "10:00:00",
+                    "end_time": "11:00:00",
+                    "room_id": 1,
+                }
+            ]
+        }
+    )
 
 
 class ClassScheduleUpdate(BaseModel):
@@ -38,7 +50,22 @@ class ClassScheduleUpdate(BaseModel):
 
 
 class ClassScheduleRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
+            "examples": [
+                {
+                    "id": 1,
+                    "class_id": 1,
+                    "day_of_week": 0,
+                    "start_time": "10:00:00",
+                    "end_time": "11:00:00",
+                    "room_id": 1,
+                    "created_at": "2026-01-01T10:00:00Z",
+                }
+            ]
+        },
+    )
 
     id: int
     class_id: int

@@ -10,18 +10,34 @@ from app.services import auth_service
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=Token,
+    status_code=status.HTTP_201_CREATED,
+    summary="Registrar socio",
+    description="Crea una cuenta de socio y devuelve el token JWT de acceso.",
+)
 def register(data: RegisterRequest, db: Session = Depends(get_db)) -> Token:
     user = auth_service.register(db, data)
     return auth_service.issue_token(user)
 
 
-@router.post("/login", response_model=Token)
+@router.post(
+    "/login",
+    response_model=Token,
+    summary="Iniciar sesión",
+    description="Autentica con email y contraseña y devuelve un token JWT de acceso.",
+)
 def login(data: LoginRequest, db: Session = Depends(get_db)) -> Token:
     user = auth_service.authenticate(db, data)
     return auth_service.issue_token(user)
 
 
-@router.get("/me", response_model=UserRead)
+@router.get(
+    "/me",
+    response_model=UserRead,
+    summary="Usuario autenticado",
+    description="Devuelve el usuario actual a partir del token Bearer.",
+)
 def read_current_user(current_user: User = Depends(get_current_user)) -> UserRead:
     return current_user

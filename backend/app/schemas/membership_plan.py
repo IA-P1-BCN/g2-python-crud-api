@@ -12,7 +12,19 @@ class MembershipPlanBase(BaseModel):
 
 
 class MembershipPlanCreate(MembershipPlanBase):
-    pass
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "name": "Mensual",
+                    "description": "Acceso completo durante 30 días",
+                    "price_cents": 3999,
+                    "duration_days": 30,
+                    "is_active": True,
+                }
+            ]
+        }
+    )
 
 
 class MembershipPlanUpdate(BaseModel):
@@ -24,7 +36,22 @@ class MembershipPlanUpdate(BaseModel):
 
 
 class MembershipPlanRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
+            "examples": [
+                {
+                    "id": 1,
+                    "name": "Mensual",
+                    "description": "Acceso completo durante 30 días",
+                    "price_cents": 3999,
+                    "duration_days": 30,
+                    "is_active": True,
+                    "created_at": "2026-01-01T10:00:00Z",
+                }
+            ]
+        },
+    )
 
     id: int
     name: str
