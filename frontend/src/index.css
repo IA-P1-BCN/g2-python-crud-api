@@ -325,6 +325,26 @@ body {
   margin-top: 1.5rem;
 }
 
+.weekdays {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.session-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.session-detail__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
 .public {
   min-height: 100vh;
   display: flex;

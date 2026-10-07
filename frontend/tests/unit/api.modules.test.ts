@@ -6,6 +6,7 @@ import {
   classesApi,
   membershipPlansApi,
   membershipsApi,
+  roomsApi,
   schedulesApi,
 } from '@/api'
 import { apiClient } from '@/api/client'
@@ -51,6 +52,15 @@ describe('api modules', () => {
     await schedulesApi.list({ page: 1, size: 10 })
 
     expect(captured).toMatchObject({ url: '/class-schedules', method: 'get' })
+  })
+
+  it('roomsApi.list hace GET a /rooms', async () => {
+    const captured: Captured = {}
+    apiClient.defaults.adapter = captureAdapter(captured, { items: [], total: 0, pages: 1 })
+
+    await roomsApi.list({ page: 1, size: 10 })
+
+    expect(captured).toMatchObject({ url: '/rooms', method: 'get' })
   })
 
   it('membershipPlansApi.list hace GET a /membership-plans', async () => {

@@ -14,6 +14,9 @@ export type MembershipPlanPage = Schemas['Page_MembershipPlanRead_']
 export type GymClass = Schemas['GymClassRead']
 export type GymClassPage = Schemas['Page_GymClassRead_']
 
+export type Room = Schemas['RoomRead']
+export type RoomPage = Schemas['Page_RoomRead_']
+
 export type ClassSchedule = Schemas['ClassScheduleRead']
 export type ClassSchedulePage = Schemas['Page_ClassScheduleRead_']
 

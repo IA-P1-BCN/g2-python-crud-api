@@ -60,6 +60,12 @@ export type MockPlan = {
   created_at: string
 }
 
+export type MockRoom = {
+  id: number
+  name: string
+  capacity: number
+}
+
 export const users: Record<MockRole, MockUser> = {
   member: {
     id: 1,
@@ -139,6 +145,11 @@ export const defaultMembership: MockMembership = {
   created_at: '2026-10-01T10:00:00Z',
 }
 
+export const defaultRooms: MockRoom[] = [
+  { id: 1, name: 'Sala 1', capacity: 20 },
+  { id: 2, name: 'Sala 2', capacity: 15 },
+]
+
 export const defaultPlans: MockPlan[] = [
   {
     id: 1,
@@ -165,7 +176,9 @@ type MockApiOptions = {
   bookings?: MockBooking[]
   schedules?: MockSchedule[]
   classes?: MockClass[]
+  rooms?: MockRoom[]
   membership?: MockMembership | null
+  bookingError?: { status: number; detail: string }
 }
 
 function json(route: Route, status: number, body: unknown) {
@@ -194,6 +207,7 @@ export async function mockApi(page: Page, options: MockApiOptions) {
   const bookings: MockBooking[] = options.bookings ?? []
   const schedules: MockSchedule[] = options.schedules ?? defaultSchedules
   const classes: MockClass[] = options.classes ?? defaultClasses
+  const rooms: MockRoom[] = options.rooms ?? defaultRooms
   const membership = options.membership === undefined ? defaultMembership : options.membership
   let nextBookingId = bookings.reduce((max, b) => Math.max(max, b.id), 0) + 1
 
@@ -238,11 +252,16 @@ export async function mockApi(page: Page, options: MockApiOptions) {
       return json(route, 200, toPage(items))
     }
 
+    if (path === '/api/v1/rooms' && method === 'GET') {
+      return json(route, 200, toPage(rooms))
+    }
+
     if (path === '/api/v1/class-schedules' && method === 'GET') {
       const classId = params.get('class_id')
-      const items = classId
-        ? schedules.filter((item) => item.class_id === Number(classId))
-        : schedules
+      const dayOfWeek = params.get('day_of_week')
+      let items = schedules
+      if (classId) items = items.filter((item) => item.class_id === Number(classId))
+      if (dayOfWeek) items = items.filter((item) => item.day_of_week === Number(dayOfWeek))
       return json(route, 200, toPage(items))
     }
 
@@ -274,6 +293,12 @@ export async function mockApi(page: Page, options: MockApiOptions) {
     }
 
     if (path === '/api/v1/bookings' && method === 'POST') {
+      if (options.bookingError) {
+        return json(route, options.bookingError.status, {
+          detail: options.bookingError.detail,
+          code: 'business_rule',
+        })
+      }
       const payload = request.postDataJSON() as {
         member_id: number
         schedule_id: number
