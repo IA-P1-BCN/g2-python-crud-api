@@ -1,14 +1,16 @@
+from collections.abc import Callable
+
 from fastapi import Depends, Query
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import AuthenticationError
+from app.core.exceptions import AuthenticationError, PermissionDeniedError
 from app.db.session import get_db
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.common import Page
 from app.services import auth_service
 
-__all__ = ["Pagination", "build_page", "get_current_user", "get_db"]
+__all__ = ["Pagination", "build_page", "get_current_user", "get_db", "require_roles"]
 
 # auto_error=False so a missing token goes through our own error format (401, not 403).
 bearer_scheme = HTTPBearer(auto_error=False, description="Token devuelto por /auth/login")
@@ -22,6 +24,17 @@ def get_current_user(
     if credentials is None:
         raise AuthenticationError("Falta el token de acceso")
     return auth_service.get_user_from_token(db, credentials.credentials)
+
+
+def require_roles(*roles: UserRole) -> Callable[[User], User]:
+    """Build a dependency that lets in only users with one of the given roles (403 otherwise)."""
+
+    def dependency(current_user: User = Depends(get_current_user)) -> User:
+        if current_user.role not in roles:
+            raise PermissionDeniedError("No tienes permiso para realizar esta acción")
+        return current_user
+
+    return dependency
 
 
 class Pagination:
