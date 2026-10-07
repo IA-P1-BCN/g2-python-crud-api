@@ -13,7 +13,9 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173"
     log_level: str = "INFO"
     log_file: str = "logs/app.log"
-    auto_create_tables: bool = True
+    # Alembic is the single source of truth for the schema; set this to true only for a
+    # throwaway database where you do not want to run migrations.
+    auto_create_tables: bool = False
 
     @property
     def cors_origins_list(self) -> list[str]:
