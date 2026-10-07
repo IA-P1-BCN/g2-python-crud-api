@@ -93,7 +93,9 @@ def get_schedule_availability(
     "/{schedule_id}",
     response_model=ClassScheduleRead,
     summary="Actualizar horario",
-    description="Actualiza un horario. Requiere rol administrador o ser el entrenador de la clase.",
+    description=(
+        "Actualiza un horario. Requiere rol administrador o ser el entrenador de la clase."
+    ),
 )
 def update_schedule(
     schedule_id: int,
