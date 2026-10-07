@@ -10,5 +10,5 @@ test('el registro crea la sesión y entra al área de socio', async ({ page }) =
   await page.getByLabel('Contraseña').fill('secret123')
   await page.getByRole('button', { name: 'Registrarme' }).click()
 
-  await expect(page.getByRole('heading', { name: 'Clases y horarios' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Calendario de clases' })).toBeVisible()
 })
