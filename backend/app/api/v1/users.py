@@ -13,7 +13,13 @@ from app.models.user import User, UserRole
 from app.schemas.booking import BookingRead
 from app.schemas.common import Page
 from app.schemas.membership import MembershipRead
-from app.schemas.user import UserCreate, UserRead, UserUpdate
+from app.schemas.user import (
+    PasswordChange,
+    ProfileUpdate,
+    UserCreate,
+    UserRead,
+    UserUpdate,
+)
 from app.services import access_service, booking_service, membership_service, user_service
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -66,6 +72,40 @@ def get_user(
 ) -> UserRead:
     access_service.ensure_self_or_admin(current_user, user_id)
     return user_service.get_user(db, user_id)
+
+@router.put(
+    "/{user_id}/profile",
+    response_model=UserRead,
+    summary="Actualizar perfil propio",
+    description="Actualiza el email y nombre del propio usuario.",
+)
+def update_profile(
+    user_id: int,
+    data: ProfileUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> UserRead:
+    access_service.ensure_self_or_admin(current_user, user_id)
+    return user_service.update_profile(db, user_id, data)
+
+@router.put(
+    "/{user_id}/password",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Cambiar contraseña",
+    description="Cambia la contraseña del propio usuario.",
+)
+def change_password(
+    user_id: int,
+    data: PasswordChange,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> None:
+    access_service.ensure_self_or_admin(current_user, user_id)
+    user_service.change_password(db, user_id, data)
+
+
+
+
 
 
 @router.put(

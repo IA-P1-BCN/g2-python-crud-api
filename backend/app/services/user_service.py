@@ -3,10 +3,10 @@ from datetime import UTC, datetime
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import ConflictError, NotFoundError
-from app.core.security import hash_password
+from app.core.exceptions import AuthenticationError, ConflictError, NotFoundError
+from app.core.security import hash_password, verify_password
 from app.models.user import User, UserRole
-from app.schemas.user import UserCreate, UserUpdate
+from app.schemas.user import PasswordChange, ProfileUpdate, UserCreate, UserUpdate
 
 
 def list_users(
@@ -76,6 +76,33 @@ def update_user(db: Session, user_id: int, data: UserUpdate) -> User:
     db.commit()
     db.refresh(user)
     return user
+
+def update_profile(db: Session, user_id: int, data: ProfileUpdate) -> User:
+    user = get_user(db, user_id)
+    payload = data.model_dump(exclude_unset=True)
+
+    if "email" in payload:
+        duplicate = db.execute(
+            select(User).where(User.email == payload["email"], User.id != user_id)
+        ).scalar_one_or_none()
+        if duplicate is not None:
+            raise ConflictError("El email ya está registrado")
+
+    for field, value in payload.items():
+        setattr(user, field, value)
+
+    db.commit()
+    db.refresh(user)
+    return user
+
+def change_password(db: Session, user_id: int, data: PasswordChange) -> None:
+    user = get_user(db, user_id)
+
+    if not verify_password(data.current_password, user.hashed_password):
+        raise AuthenticationError("La contraseña actual no es correcta")
+
+    user.hashed_password = hash_password(data.new_password)
+    db.commit()
 
 
 def deactivate_user(db: Session, user_id: int) -> None:
