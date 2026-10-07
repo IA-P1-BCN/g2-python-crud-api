@@ -1,4 +1,4 @@
-"""Role x endpoint matrix: who may call each route, before any ownership rule applies."""
+"""Role x endpoint matrix: who may call each route. Id 9999 never belongs to the caller."""
 
 import pytest
 
@@ -13,6 +13,8 @@ LOGGED_IN = (401, OK, OK, OK)
 STAFF = (401, 403, OK, OK)
 MEMBER_OR_ADMIN = (401, OK, 403, OK)
 ADMIN = (401, 403, 403, OK)
+# Data of another user: only an admin gets past the ownership check
+OTHER_USER = (401, 403, 403, OK)
 
 MATRIX = [
     ("GET", "/auth/me", *LOGGED_IN),
@@ -44,11 +46,11 @@ MATRIX = [
     # Users
     ("GET", "/users", *STAFF),
     ("POST", "/users", *ADMIN),
-    ("GET", "/users/9999", *LOGGED_IN),
+    ("GET", "/users/9999", *OTHER_USER),
     ("PUT", "/users/9999", *ADMIN),
     ("DELETE", "/users/9999", *ADMIN),
-    ("GET", "/users/9999/memberships", *LOGGED_IN),
-    ("GET", "/users/9999/bookings", *LOGGED_IN),
+    ("GET", "/users/9999/memberships", *OTHER_USER),
+    ("GET", "/users/9999/bookings", *OTHER_USER),
     # Memberships
     ("GET", "/memberships", *ADMIN),
     ("POST", "/memberships", *ADMIN),
