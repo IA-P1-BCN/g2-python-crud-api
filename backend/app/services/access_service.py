@@ -1,6 +1,6 @@
 """Ownership rules: what a user may do with a resource, beyond the role guard of the route."""
 
-from app.core.exceptions import PermissionDeniedError
+from app.core.exceptions import ConflictError, PermissionDeniedError
 from app.models.booking import Booking
 from app.models.gym_class import GymClass
 from app.models.user import User, UserRole
@@ -12,6 +12,12 @@ def _is_admin(user: User) -> bool:
 
 def _deny() -> None:
     raise PermissionDeniedError("No tienes permiso para acceder a este recurso")
+
+
+def ensure_not_own_account(current_user: User, user_id: int) -> None:
+    """Nobody signs themselves off: an admin doing it could lock everyone out of the panel."""
+    if current_user.id == user_id:
+        raise ConflictError("No puedes dar de baja tu propia cuenta")
 
 
 def ensure_self_or_admin(current_user: User, user_id: int) -> None:

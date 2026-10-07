@@ -53,16 +53,27 @@ def get_user(
     return user_service.get_user(db, user_id)
 
 
-@router.put("/{user_id}", response_model=UserRead, dependencies=[Depends(require_admin)])
-def update_user(user_id: int, data: UserUpdate, db: Session = Depends(get_db)) -> UserRead:
+@router.put("/{user_id}", response_model=UserRead)
+def update_user(
+    user_id: int,
+    data: UserUpdate,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> UserRead:
+    if data.is_active is False:
+        access_service.ensure_not_own_account(current_user, user_id)
     return user_service.update_user(db, user_id, data)
 
 
-@router.delete(
-    "/{user_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_admin)]
-)
-def delete_user(user_id: int, db: Session = Depends(get_db)) -> None:
-    user_service.delete_user(db, user_id)
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def deactivate_user(
+    user_id: int,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> None:
+    """Sign a user off: the account is deactivated, never deleted, so its history is kept."""
+    access_service.ensure_not_own_account(current_user, user_id)
+    user_service.deactivate_user(db, user_id)
 
 
 @router.get("/{user_id}/memberships", response_model=Page[MembershipRead])
