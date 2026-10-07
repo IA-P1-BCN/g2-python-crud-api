@@ -10,6 +10,11 @@ export function formatTime(value: string): string {
   return value.slice(0, 5)
 }
 
+/** Formats an amount in cents as a euro currency string (e.g. 3999 → "39,99 €"). */
+export function formatPrice(cents: number): string {
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100)
+}
+
 export function formatDate(value: string): string {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value

@@ -62,6 +62,15 @@ describe('api modules', () => {
     expect(captured).toMatchObject({ url: '/membership-plans', method: 'get' })
   })
 
+  it('membershipPlansApi.list puede filtrar por active_only', async () => {
+    const captured: Captured = {}
+    apiClient.defaults.adapter = captureAdapter(captured, { items: [], total: 0, pages: 1 })
+
+    await membershipPlansApi.list({ active_only: true, size: 100 })
+
+    expect(captured.params).toMatchObject({ active_only: true, size: 100 })
+  })
+
   it('membershipsApi.listForUser hace GET a /users/{id}/memberships', async () => {
     const captured: Captured = {}
     apiClient.defaults.adapter = captureAdapter(captured, { items: [], total: 0, pages: 1 })

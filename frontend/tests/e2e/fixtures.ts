@@ -149,6 +149,15 @@ export const defaultPlans: MockPlan[] = [
     is_active: true,
     created_at: '2026-10-01T10:00:00Z',
   },
+  {
+    id: 2,
+    name: 'Antiguo',
+    description: null,
+    price_cents: 1999,
+    duration_days: 15,
+    is_active: false,
+    created_at: '2026-09-01T10:00:00Z',
+  },
 ]
 
 type MockApiOptions = {
@@ -238,7 +247,9 @@ export async function mockApi(page: Page, options: MockApiOptions) {
     }
 
     if (path === '/api/v1/membership-plans' && method === 'GET') {
-      return json(route, 200, toPage(defaultPlans))
+      const activeOnly = params.get('active_only') === 'true'
+      const items = activeOnly ? defaultPlans.filter((plan) => plan.is_active) : defaultPlans
+      return json(route, 200, toPage(items))
     }
 
     if (path === '/api/v1/bookings' && method === 'GET') {
