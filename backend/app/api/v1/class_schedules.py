@@ -74,15 +74,27 @@ def get_schedule(schedule_id: int, db: Session = Depends(get_db)) -> ClassSchedu
     return class_schedule_service.get_schedule(db, schedule_id)
 
 
-@router.get("/{schedule_id}/availability", response_model=ScheduleAvailability)
+@router.get(
+    "/{schedule_id}/availability",
+    response_model=ScheduleAvailability,
+    summary="Plazas libres de una sesión",
+    description=(
+        "Devuelve el aforo, las plazas reservadas y las libres de un horario en una fecha. "
+        "Las reservas canceladas no cuentan. Es público."
+    ),
+)
 def get_schedule_availability(
     schedule_id: int, on_date: date, db: Session = Depends(get_db)
 ) -> ScheduleAvailability:
-    """Capacity, booked and free spots of the schedule on a date. Public, like the schedules."""
     return booking_service.get_availability(db, schedule_id, on_date)
 
 
-@router.put("/{schedule_id}", response_model=ClassScheduleRead)
+@router.put(
+    "/{schedule_id}",
+    response_model=ClassScheduleRead,
+    summary="Actualizar horario",
+    description="Actualiza un horario. Requiere rol administrador o ser el entrenador de la clase.",
+)
 def update_schedule(
     schedule_id: int,
     data: ClassScheduleUpdate,
