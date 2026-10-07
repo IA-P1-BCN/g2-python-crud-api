@@ -168,3 +168,67 @@ def test_admin_can_still_edit_their_own_profile(anon_client, admin) -> None:
 
     assert response.status_code == 200
     assert response.json()["full_name"] == "Admin Renombrada"
+
+def test_member_can_update_own_profile(anon_client, member) -> None:
+    headers = {"Authorization": f"Bearer {create_access_token(member.id, member.role.value)}"}
+
+    response = anon_client.put(
+        f"/api/v1/users/{member.id}/profile",
+        json={"full_name": "Nombre Actualizado", "email": "actualizado@test.dev"},
+        headers=headers,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["full_name"] == "Nombre Actualizado"
+    assert response.json()["email"] == "actualizado@test.dev"
+
+
+def test_member_can_change_own_password(anon_client, member) -> None:
+    headers = {"Authorization": f"Bearer {create_access_token(member.id, member.role.value)}"}
+
+    response = anon_client.put(
+        f"/api/v1/users/{member.id}/password",
+        json={
+            "current_password": "password123",
+            "new_password": "nuevaPassword123",
+        },
+        headers=headers,
+    )
+
+    assert response.status_code == 204
+
+    login = anon_client.post(
+        "/api/v1/auth/login",
+        json={"email": member.email, "password": "nuevaPassword123"},
+    )
+
+    assert login.status_code == 200
+
+def test_member_cannot_change_password_with_wrong_current_password(
+    anon_client, member
+) -> None:
+    headers = {"Authorization": f"Bearer {create_access_token(member.id, member.role.value)}"}
+
+    response = anon_client.put(
+        f"/api/v1/users/{member.id}/password",
+        json={
+            "current_password": "contraseñaIncorrecta123",
+            "new_password": "nuevaPassword123",
+        },
+        headers=headers,
+    )
+
+    assert response.status_code == 401
+
+def test_member_cannot_update_another_member_profile(
+    anon_client, member, admin
+) -> None:
+    headers = {"Authorization": f"Bearer {create_access_token(member.id, member.role.value)}"}
+
+    response = anon_client.put(
+        f"/api/v1/users/{admin.id}/profile",
+        json={"full_name": "No Debería Cambiar"},
+        headers=headers,
+    )
+
+    assert response.status_code == 403
