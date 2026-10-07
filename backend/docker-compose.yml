@@ -24,12 +24,13 @@ services:
       LOG_LEVEL: INFO
       # In the container logs go to stdout (docker logs); appuser cannot write to /app
       LOG_FILE: ''
+      # The image runs the Alembic migrations at start-up; they are the only source of the schema
+      AUTO_CREATE_TABLES: 'false'
     ports:
       - '8000:8000'
     depends_on:
       db:
         condition: service_healthy
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 volumes:
   pgdata:
