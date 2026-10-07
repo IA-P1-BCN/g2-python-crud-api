@@ -218,7 +218,15 @@ def test_member_cannot_change_password_with_wrong_current_password(
         headers=headers,
     )
 
-    assert response.status_code == 401
+    assert response.status_code == 400
+    assert response.json()["code"] == "business_rule"
+    # The session is still valid and the password did not change.
+    assert anon_client.get("/api/v1/auth/me", headers=headers).status_code == 200
+    login = anon_client.post(
+        "/api/v1/auth/login", json={"email": member.email, "password": "password123"}
+    )
+    assert login.status_code == 200
+
 
 def test_member_cannot_update_another_member_profile(
     anon_client, member, admin

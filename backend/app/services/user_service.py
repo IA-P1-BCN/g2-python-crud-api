@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import AuthenticationError, ConflictError, NotFoundError
+from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
 from app.core.security import hash_password, verify_password
 from app.models.user import User, UserRole
 from app.schemas.user import PasswordChange, ProfileUpdate, UserCreate, UserUpdate
@@ -98,8 +98,9 @@ def update_profile(db: Session, user_id: int, data: ProfileUpdate) -> User:
 def change_password(db: Session, user_id: int, data: PasswordChange) -> None:
     user = get_user(db, user_id)
 
+    # Not a 401: the session is valid, and clients log the user out on any 401.
     if not verify_password(data.current_password, user.hashed_password):
-        raise AuthenticationError("La contraseña actual no es correcta")
+        raise BusinessRuleError("La contraseña actual no es correcta")
 
     user.hashed_password = hash_password(data.new_password)
     db.commit()
