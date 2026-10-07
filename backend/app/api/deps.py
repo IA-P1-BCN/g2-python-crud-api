@@ -10,7 +10,16 @@ from app.models.user import User, UserRole
 from app.schemas.common import Page
 from app.services import auth_service
 
-__all__ = ["Pagination", "build_page", "get_current_user", "get_db", "require_roles"]
+__all__ = [
+    "Pagination",
+    "build_page",
+    "get_current_user",
+    "get_db",
+    "require_admin",
+    "require_member_or_admin",
+    "require_roles",
+    "require_staff",
+]
 
 # auto_error=False so a missing token goes through our own error format (401, not 403).
 bearer_scheme = HTTPBearer(auto_error=False, description="Token devuelto por /auth/login")
@@ -35,6 +44,11 @@ def require_roles(*roles: UserRole) -> Callable[[User], User]:
         return current_user
 
     return dependency
+
+
+require_admin = require_roles(UserRole.admin)
+require_staff = require_roles(UserRole.admin, UserRole.trainer)
+require_member_or_admin = require_roles(UserRole.admin, UserRole.member)
 
 
 class Pagination:

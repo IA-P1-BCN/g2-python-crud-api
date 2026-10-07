@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import Pagination, build_page, get_db
+from app.api.deps import Pagination, build_page, get_db, require_staff
 from app.schemas.booking import BookingRead
 from app.schemas.class_schedule import (
     ClassScheduleCreate,
@@ -31,10 +31,13 @@ def list_schedules(
     return build_page(items, total, pagination)
 
 
-@router.post("", response_model=ClassScheduleRead, status_code=status.HTTP_201_CREATED)
-def create_schedule(
-    data: ClassScheduleCreate, db: Session = Depends(get_db)
-) -> ClassScheduleRead:
+@router.post(
+    "",
+    response_model=ClassScheduleRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_staff)],
+)
+def create_schedule(data: ClassScheduleCreate, db: Session = Depends(get_db)) -> ClassScheduleRead:
     return class_schedule_service.create_schedule(db, data)
 
 
@@ -43,19 +46,27 @@ def get_schedule(schedule_id: int, db: Session = Depends(get_db)) -> ClassSchedu
     return class_schedule_service.get_schedule(db, schedule_id)
 
 
-@router.put("/{schedule_id}", response_model=ClassScheduleRead)
+@router.put(
+    "/{schedule_id}", response_model=ClassScheduleRead, dependencies=[Depends(require_staff)]
+)
 def update_schedule(
     schedule_id: int, data: ClassScheduleUpdate, db: Session = Depends(get_db)
 ) -> ClassScheduleRead:
     return class_schedule_service.update_schedule(db, schedule_id, data)
 
 
-@router.delete("/{schedule_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{schedule_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_staff)]
+)
 def delete_schedule(schedule_id: int, db: Session = Depends(get_db)) -> None:
     class_schedule_service.delete_schedule(db, schedule_id)
 
 
-@router.get("/{schedule_id}/bookings", response_model=Page[BookingRead])
+@router.get(
+    "/{schedule_id}/bookings",
+    response_model=Page[BookingRead],
+    dependencies=[Depends(require_staff)],
+)
 def list_schedule_bookings(
     schedule_id: int,
     pagination: Pagination = Depends(),

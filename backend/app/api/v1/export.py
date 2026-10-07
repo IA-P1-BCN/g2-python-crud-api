@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_db, require_admin
 from app.services import export_service
 
-router = APIRouter(prefix="/export", tags=["export"])
+router = APIRouter(prefix="/export", tags=["export"], dependencies=[Depends(require_admin)])
 
 
 def _csv_response(content: str, filename: str) -> Response:

@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import Pagination, build_page, get_db
+from app.api.deps import Pagination, build_page, get_db, require_admin
 from app.models.payment import PaymentStatus
 from app.schemas.common import Page
 from app.schemas.payment import PaymentCreate, PaymentRead, PaymentUpdate
 from app.services import payment_service
 
-router = APIRouter(prefix="/payments", tags=["payments"])
+router = APIRouter(prefix="/payments", tags=["payments"], dependencies=[Depends(require_admin)])
 
 
 @router.get("", response_model=Page[PaymentRead])

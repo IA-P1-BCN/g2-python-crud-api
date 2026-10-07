@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import Pagination, build_page, get_db
+from app.api.deps import Pagination, build_page, get_db, require_admin
 from app.schemas.common import Page
 from app.schemas.membership_plan import (
     MembershipPlanCreate,
@@ -25,10 +25,13 @@ def list_plans(
     return build_page(items, total, pagination)
 
 
-@router.post("", response_model=MembershipPlanRead, status_code=status.HTTP_201_CREATED)
-def create_plan(
-    data: MembershipPlanCreate, db: Session = Depends(get_db)
-) -> MembershipPlanRead:
+@router.post(
+    "",
+    response_model=MembershipPlanRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)],
+)
+def create_plan(data: MembershipPlanCreate, db: Session = Depends(get_db)) -> MembershipPlanRead:
     return membership_plan_service.create_plan(db, data)
 
 
@@ -37,13 +40,15 @@ def get_plan(plan_id: int, db: Session = Depends(get_db)) -> MembershipPlanRead:
     return membership_plan_service.get_plan(db, plan_id)
 
 
-@router.put("/{plan_id}", response_model=MembershipPlanRead)
+@router.put("/{plan_id}", response_model=MembershipPlanRead, dependencies=[Depends(require_admin)])
 def update_plan(
     plan_id: int, data: MembershipPlanUpdate, db: Session = Depends(get_db)
 ) -> MembershipPlanRead:
     return membership_plan_service.update_plan(db, plan_id, data)
 
 
-@router.delete("/{plan_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{plan_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(require_admin)]
+)
 def delete_plan(plan_id: int, db: Session = Depends(get_db)) -> None:
     membership_plan_service.delete_plan(db, plan_id)

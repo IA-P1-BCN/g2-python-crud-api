@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app import models  # noqa: F401
+from app.api.deps import get_current_user
 from app.core.config import settings
 from app.core.security import hash_password
 from app.db.base import Base
@@ -45,7 +46,9 @@ def db_session() -> Generator[Session, None, None]:
 
 
 @pytest.fixture()
-def client(db_session: Session) -> Generator[TestClient, None, None]:
+def anon_client(db_session: Session) -> Generator[TestClient, None, None]:
+    """Client without a session: requests carry only the headers each test sends."""
+
     def override_get_db() -> Generator[Session, None, None]:
         yield db_session
 
@@ -53,6 +56,15 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def client(anon_client: TestClient) -> TestClient:
+    """Client that acts as an admin, so resource tests can focus on the resource rules."""
+    app.dependency_overrides[get_current_user] = lambda: User(
+        id=0, email="root@test.dev", full_name="Root", role=UserRole.admin, is_active=True
+    )
+    return anon_client
 
 
 def _make_user(db: Session, email: str, role: UserRole) -> User:
@@ -85,9 +97,7 @@ def member(db_session: Session) -> User:
 
 @pytest.fixture()
 def plan(db_session: Session) -> MembershipPlan:
-    plan = MembershipPlan(
-        name="Mensual", description="30 días", price_cents=3999, duration_days=30
-    )
+    plan = MembershipPlan(name="Mensual", description="30 días", price_cents=3999, duration_days=30)
     db_session.add(plan)
     db_session.commit()
     db_session.refresh(plan)
@@ -128,9 +138,7 @@ def schedule(db_session: Session, gym_class: GymClass, room: Room) -> ClassSched
 
 
 @pytest.fixture()
-def active_membership(
-    db_session: Session, member: User, plan: MembershipPlan
-) -> Membership:
+def active_membership(db_session: Session, member: User, plan: MembershipPlan) -> Membership:
     today = date.today()
     membership = Membership(
         user_id=member.id,
