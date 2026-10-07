@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, status
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import (
@@ -9,7 +11,7 @@ from app.api.deps import (
     require_admin,
     require_staff,
 )
-from app.models.user import User, UserRole
+from app.models.user import User
 from app.schemas.booking import BookingRead
 from app.schemas.common import Page
 from app.schemas.membership import MembershipRead
@@ -17,6 +19,7 @@ from app.schemas.user import (
     PasswordChange,
     ProfileUpdate,
     UserCreate,
+    UserFilters,
     UserRead,
     UserUpdate,
 )
@@ -31,18 +34,20 @@ router = APIRouter(prefix="/users", tags=["users"])
     summary="Listar usuarios",
     description=(
         "Lista usuarios paginados. Un entrenador solo ve socios; el administrador ve todos. "
-        "Se puede filtrar por `role`."
+        "Se puede filtrar por `role`, por `is_active`, por texto en el nombre o el email "
+        "(`search`) y por fechas de alta (`created_from`, `created_to`) y de baja "
+        "(`deactivated_from`, `deactivated_to`)."
     ),
 )
 def list_users(
+    filters: Annotated[UserFilters, Query()],
     pagination: Pagination = Depends(),
-    role: UserRole | None = None,
     current_user: User = Depends(require_staff),
     db: Session = Depends(get_db),
 ) -> Page[UserRead]:
-    role = access_service.visible_user_role(current_user, role)
+    filters.role = access_service.visible_user_role(current_user, filters.role)
     items, total = user_service.list_users(
-        db, page=pagination.page, size=pagination.size, role=role
+        db, page=pagination.page, size=pagination.size, filters=filters
     )
     return build_page(items, total, pagination)
 
@@ -73,6 +78,7 @@ def get_user(
     access_service.ensure_self_or_admin(current_user, user_id)
     return user_service.get_user(db, user_id)
 
+
 @router.put(
     "/{user_id}/profile",
     response_model=UserRead,
@@ -87,6 +93,7 @@ def update_profile(
 ) -> UserRead:
     access_service.ensure_self_or_admin(current_user, user_id)
     return user_service.update_profile(db, user_id, data)
+
 
 @router.put(
     "/{user_id}/password",
@@ -104,17 +111,12 @@ def change_password(
     user_service.change_password(db, user_id, data)
 
 
-
-
-
-
 @router.put(
     "/{user_id}",
     response_model=UserRead,
     summary="Actualizar usuario",
     description=(
-        "Actualiza un usuario. Requiere rol administrador; no permite desactivarse "
-        "a sí mismo."
+        "Actualiza un usuario. Requiere rol administrador; no permite desactivarse a sí mismo."
     ),
 )
 def update_user(

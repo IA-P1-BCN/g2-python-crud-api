@@ -1,12 +1,12 @@
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, time, timedelta
 
-from sqlalchemy import func, select
+from sqlalchemy import ColumnElement, func, or_, select
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
 from app.core.security import hash_password, verify_password
-from app.models.user import User, UserRole
-from app.schemas.user import PasswordChange, ProfileUpdate, UserCreate, UserUpdate
+from app.models.user import User
+from app.schemas.user import PasswordChange, ProfileUpdate, UserCreate, UserFilters, UserUpdate
 
 
 def list_users(
@@ -14,16 +14,36 @@ def list_users(
     *,
     page: int,
     size: int,
-    role: UserRole | None = None,
+    filters: UserFilters | None = None,
 ) -> tuple[list[User], int]:
-    stmt = select(User)
-    count_stmt = select(func.count()).select_from(User)
-    if role is not None:
-        stmt = stmt.where(User.role == role)
-        count_stmt = count_stmt.where(User.role == role)
-    total = db.execute(count_stmt).scalar_one()
-    stmt = stmt.order_by(User.id).offset((page - 1) * size).limit(size)
+    conditions = _user_conditions(filters or UserFilters())
+    total = db.execute(select(func.count()).select_from(User).where(*conditions)).scalar_one()
+    stmt = select(User).where(*conditions).order_by(User.id).offset((page - 1) * size).limit(size)
     return list(db.execute(stmt).scalars().all()), total
+
+
+def _user_conditions(filters: UserFilters) -> list[ColumnElement[bool]]:
+    conditions: list[ColumnElement[bool]] = []
+    if filters.role is not None:
+        conditions.append(User.role == filters.role)
+    if filters.is_active is not None:
+        conditions.append(User.is_active.is_(filters.is_active))
+    if filters.search:
+        pattern = f"%{filters.search.strip()}%"
+        conditions.append(or_(User.full_name.ilike(pattern), User.email.ilike(pattern)))
+    conditions += _date_range(User.created_at, filters.created_from, filters.created_to)
+    conditions += _date_range(User.deactivated_at, filters.deactivated_from, filters.deactivated_to)
+    return conditions
+
+
+def _date_range(column, start: date | None, end: date | None) -> list[ColumnElement[bool]]:
+    """Conditions for a timestamp column falling between two calendar days, both included."""
+    conditions: list[ColumnElement[bool]] = []
+    if start is not None:
+        conditions.append(column >= datetime.combine(start, time.min, tzinfo=UTC))
+    if end is not None:
+        conditions.append(column < datetime.combine(end + timedelta(days=1), time.min, tzinfo=UTC))
+    return conditions
 
 
 def get_user(db: Session, user_id: int) -> User:
@@ -77,6 +97,7 @@ def update_user(db: Session, user_id: int, data: UserUpdate) -> User:
     db.refresh(user)
     return user
 
+
 def update_profile(db: Session, user_id: int, data: ProfileUpdate) -> User:
     user = get_user(db, user_id)
     payload = data.model_dump(exclude_unset=True)
@@ -94,6 +115,7 @@ def update_profile(db: Session, user_id: int, data: ProfileUpdate) -> User:
     db.commit()
     db.refresh(user)
     return user
+
 
 def change_password(db: Session, user_id: int, data: PasswordChange) -> None:
     user = get_user(db, user_id)
