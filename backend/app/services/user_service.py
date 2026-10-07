@@ -16,10 +16,17 @@ def list_users(
     size: int,
     filters: UserFilters | None = None,
 ) -> tuple[list[User], int]:
-    conditions = _user_conditions(filters or UserFilters())
-    total = db.execute(select(func.count()).select_from(User).where(*conditions)).scalar_one()
+    filters = filters or UserFilters()
+    conditions = _user_conditions(filters)
+    total = count_users(db, filters)
     stmt = select(User).where(*conditions).order_by(User.id).offset((page - 1) * size).limit(size)
     return list(db.execute(stmt).scalars().all()), total
+
+
+def count_users(db: Session, filters: UserFilters) -> int:
+    return db.execute(
+        select(func.count()).select_from(User).where(*_user_conditions(filters))
+    ).scalar_one()
 
 
 def _user_conditions(filters: UserFilters) -> list[ColumnElement[bool]]:

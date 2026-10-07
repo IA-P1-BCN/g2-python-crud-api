@@ -70,6 +70,7 @@ MATRIX = [
     ("PUT", "/payments/9999", *ADMIN),
     ("DELETE", "/payments/9999", *ADMIN),
     ("GET", "/export/members.csv", *ADMIN),
+    ("GET", "/admin/dashboard", *ADMIN),
     ("GET", "/export/bookings.csv", *ADMIN),
 ]
 
