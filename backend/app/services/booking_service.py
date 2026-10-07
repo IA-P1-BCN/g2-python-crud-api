@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 
 from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
 from app.models.booking import Booking, BookingStatus
+from app.models.class_schedule import ClassSchedule
+from app.models.gym_class import GymClass
 from app.schemas.booking import BookingCreate
 from app.services import class_schedule_service, membership_service, user_service
 
@@ -18,6 +20,7 @@ def list_bookings(
     schedule_id: int | None = None,
     status: BookingStatus | None = None,
     on_date: date | None = None,
+    trainer_id: int | None = None,
 ) -> tuple[list[Booking], int]:
     stmt = select(Booking)
     count_stmt = select(func.count()).select_from(Booking)
@@ -30,6 +33,13 @@ def list_bookings(
         filters.append(Booking.status == status)
     if on_date is not None:
         filters.append(Booking.booking_date == on_date)
+    if trainer_id is not None:
+        own_schedules = (
+            select(ClassSchedule.id)
+            .join(GymClass, ClassSchedule.class_id == GymClass.id)
+            .where(GymClass.trainer_id == trainer_id)
+        )
+        filters.append(Booking.schedule_id.in_(own_schedules))
     if filters:
         stmt = stmt.where(*filters)
         count_stmt = count_stmt.where(*filters)
