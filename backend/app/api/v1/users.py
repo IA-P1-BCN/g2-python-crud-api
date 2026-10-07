@@ -19,7 +19,15 @@ from app.services import access_service, booking_service, membership_service, us
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("", response_model=Page[UserRead])
+@router.get(
+    "",
+    response_model=Page[UserRead],
+    summary="Listar usuarios",
+    description=(
+        "Lista usuarios paginados. Un entrenador solo ve socios; el administrador ve todos. "
+        "Se puede filtrar por `role`."
+    ),
+)
 def list_users(
     pagination: Pagination = Depends(),
     role: UserRole | None = None,
@@ -38,12 +46,19 @@ def list_users(
     response_model=UserRead,
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(require_admin)],
+    summary="Crear usuario",
+    description="Crea un usuario. Requiere rol administrador.",
 )
 def create_user(data: UserCreate, db: Session = Depends(get_db)) -> UserRead:
     return user_service.create_user(db, data)
 
 
-@router.get("/{user_id}", response_model=UserRead)
+@router.get(
+    "/{user_id}",
+    response_model=UserRead,
+    summary="Obtener usuario",
+    description="Devuelve un usuario por id. Solo el propio usuario o un administrador.",
+)
 def get_user(
     user_id: int,
     current_user: User = Depends(get_current_user),
@@ -53,7 +68,15 @@ def get_user(
     return user_service.get_user(db, user_id)
 
 
-@router.put("/{user_id}", response_model=UserRead)
+@router.put(
+    "/{user_id}",
+    response_model=UserRead,
+    summary="Actualizar usuario",
+    description=(
+        "Actualiza un usuario. Requiere rol administrador; no permite desactivarse "
+        "a sí mismo."
+    ),
+)
 def update_user(
     user_id: int,
     data: UserUpdate,
@@ -65,18 +88,30 @@ def update_user(
     return user_service.update_user(db, user_id, data)
 
 
-@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Desactivar usuario",
+    description=(
+        "Da de baja a un usuario: la cuenta se desactiva, nunca se borra, para conservar "
+        "su historial. Requiere rol administrador."
+    ),
+)
 def deactivate_user(
     user_id: int,
     current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ) -> None:
-    """Sign a user off: the account is deactivated, never deleted, so its history is kept."""
     access_service.ensure_not_own_account(current_user, user_id)
     user_service.deactivate_user(db, user_id)
 
 
-@router.get("/{user_id}/memberships", response_model=Page[MembershipRead])
+@router.get(
+    "/{user_id}/memberships",
+    response_model=Page[MembershipRead],
+    summary="Membresías de un usuario",
+    description="Lista las membresías de un usuario. Solo el propio usuario o un administrador.",
+)
 def list_user_memberships(
     user_id: int,
     pagination: Pagination = Depends(),
@@ -91,7 +126,12 @@ def list_user_memberships(
     return build_page(items, total, pagination)
 
 
-@router.get("/{user_id}/bookings", response_model=Page[BookingRead])
+@router.get(
+    "/{user_id}/bookings",
+    response_model=Page[BookingRead],
+    summary="Reservas de un usuario",
+    description="Lista las reservas de un usuario. Solo el propio usuario o un administrador.",
+)
 def list_user_bookings(
     user_id: int,
     pagination: Pagination = Depends(),

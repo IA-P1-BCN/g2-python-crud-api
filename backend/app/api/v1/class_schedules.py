@@ -20,7 +20,15 @@ from app.services import (
 router = APIRouter(prefix="/class-schedules", tags=["class-schedules"])
 
 
-@router.get("", response_model=Page[ClassScheduleRead])
+@router.get(
+    "",
+    response_model=Page[ClassScheduleRead],
+    summary="Listar horarios",
+    description=(
+        "Lista los horarios semanales. Se puede filtrar por `class_id` "
+        "y `day_of_week` (0 = lunes, 6 = domingo)."
+    ),
+)
 def list_schedules(
     pagination: Pagination = Depends(),
     class_id: int | None = None,
@@ -37,7 +45,13 @@ def list_schedules(
     return build_page(items, total, pagination)
 
 
-@router.post("", response_model=ClassScheduleRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=ClassScheduleRead,
+    status_code=status.HTTP_201_CREATED,
+    summary="Crear horario",
+    description="Crea un horario semanal para una clase. Requiere rol administrador o entrenador.",
+)
 def create_schedule(
     data: ClassScheduleCreate,
     current_user: User = Depends(require_staff),
@@ -47,12 +61,22 @@ def create_schedule(
     return class_schedule_service.create_schedule(db, data)
 
 
-@router.get("/{schedule_id}", response_model=ClassScheduleRead)
+@router.get(
+    "/{schedule_id}",
+    response_model=ClassScheduleRead,
+    summary="Obtener horario",
+    description="Devuelve un horario por id.",
+)
 def get_schedule(schedule_id: int, db: Session = Depends(get_db)) -> ClassScheduleRead:
     return class_schedule_service.get_schedule(db, schedule_id)
 
 
-@router.put("/{schedule_id}", response_model=ClassScheduleRead)
+@router.put(
+    "/{schedule_id}",
+    response_model=ClassScheduleRead,
+    summary="Actualizar horario",
+    description="Actualiza un horario. Requiere rol administrador o ser el entrenador de la clase.",
+)
 def update_schedule(
     schedule_id: int,
     data: ClassScheduleUpdate,
@@ -68,7 +92,12 @@ def update_schedule(
     return class_schedule_service.update_schedule(db, schedule_id, data)
 
 
-@router.delete("/{schedule_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{schedule_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Eliminar horario",
+    description="Elimina un horario. Requiere rol administrador o ser el entrenador de la clase.",
+)
 def delete_schedule(
     schedule_id: int,
     current_user: User = Depends(require_staff),
@@ -79,7 +108,12 @@ def delete_schedule(
     class_schedule_service.delete_schedule(db, schedule_id)
 
 
-@router.get("/{schedule_id}/bookings", response_model=Page[BookingRead])
+@router.get(
+    "/{schedule_id}/bookings",
+    response_model=Page[BookingRead],
+    summary="Reservas de un horario",
+    description="Lista las reservas de un horario. Requiere rol administrador o entrenador.",
+)
 def list_schedule_bookings(
     schedule_id: int,
     pagination: Pagination = Depends(),
