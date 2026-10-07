@@ -1,9 +1,27 @@
-from fastapi import Query
+from fastapi import Depends, Query
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.orm import Session
 
+from app.core.exceptions import AuthenticationError
 from app.db.session import get_db
+from app.models.user import User
 from app.schemas.common import Page
+from app.services import auth_service
 
-__all__ = ["Pagination", "build_page", "get_db"]
+__all__ = ["Pagination", "build_page", "get_current_user", "get_db"]
+
+# auto_error=False so a missing token goes through our own error format (401, not 403).
+bearer_scheme = HTTPBearer(auto_error=False, description="Token devuelto por /auth/login")
+
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    db: Session = Depends(get_db),
+) -> User:
+    """Return the user identified by the Bearer token, or raise 401."""
+    if credentials is None:
+        raise AuthenticationError("Falta el token de acceso")
+    return auth_service.get_user_from_token(db, credentials.credentials)
 
 
 class Pagination:
