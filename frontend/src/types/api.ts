@@ -29,10 +29,6 @@ export type BookingCreate = Schemas['BookingCreate']
 export type BookingStatus = Schemas['BookingStatus']
 export type BookingPage = Schemas['Page_BookingRead_']
 
-/**
- * Provisional auth contract. The backend does not expose JWT endpoints yet
- * (issues #82-#86), so these types cannot be generated from the OpenAPI schema.
- */
-export type LoginRequest = { email: string; password: string }
-export type RegisterRequest = { email: string; full_name: string; password: string }
-export type Token = { access_token: string; token_type: string; user: User }
+export type LoginRequest = Schemas['LoginRequest']
+export type RegisterRequest = Schemas['RegisterRequest']
+export type Token = Schemas['Token']

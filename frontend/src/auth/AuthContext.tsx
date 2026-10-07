@@ -31,6 +31,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => setUnauthorizedHandler(null)
   }, [navigate])
 
+  // Restaura la sesión guardada validando el token contra el backend (/auth/me).
+  useEffect(() => {
+    if (!tokenStorage.getToken()) return
+    let active = true
+    authApi
+      .me()
+      .then((current) => {
+        if (!active) return
+        tokenStorage.setUser(current)
+        setUser(current)
+      })
+      .catch(() => {
+        // Un 401 lo gestiona el interceptor (borra la sesión y redirige al login).
+      })
+    return () => {
+      active = false
+    }
+  }, [])
+
   const startSession = useCallback((result: Token) => {
     tokenStorage.setSession(result.access_token, result.user)
     setToken(result.access_token)

@@ -1,6 +1,6 @@
-import type { AxiosAdapter } from 'axios'
-import { afterEach, describe, expect, it } from 'vitest'
-import { apiClient, toApiError } from '@/api/client'
+import { AxiosError, type AxiosAdapter } from 'axios'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { apiClient, setUnauthorizedHandler, toApiError } from '@/api/client'
 import { tokenStorage } from '@/auth/tokenStorage'
 import type { User } from '@/types/api'
 
@@ -14,7 +14,10 @@ const user: User = {
 }
 
 describe('apiClient', () => {
-  afterEach(() => tokenStorage.clear())
+  afterEach(() => {
+    tokenStorage.clear()
+    setUnauthorizedHandler(null)
+  })
 
   it('añade la cabecera Authorization con el token guardado', async () => {
     tokenStorage.setSession('token-123', user)
@@ -45,5 +48,30 @@ describe('apiClient', () => {
 
   it('toApiError devuelve un mensaje genérico para errores desconocidos', () => {
     expect(toApiError(new Error('boom'))).toEqual({ status: 0, message: 'Error inesperado' })
+  })
+
+  it('un 401 borra la sesión y avisa al handler', async () => {
+    tokenStorage.setSession('token-123', user)
+    const onUnauthorized = vi.fn()
+    setUnauthorizedHandler(onUnauthorized)
+
+    const originalAdapter = apiClient.defaults.adapter
+    const adapter: AxiosAdapter = async (config) => {
+      throw new AxiosError('Unauthorized', 'ERR_BAD_REQUEST', config, undefined, {
+        status: 401,
+        statusText: 'Unauthorized',
+        headers: {},
+        config,
+        data: { detail: 'No autenticado' },
+      })
+    }
+    apiClient.defaults.adapter = adapter
+
+    await expect(apiClient.get('/auth/me')).rejects.toBeInstanceOf(AxiosError)
+
+    expect(onUnauthorized).toHaveBeenCalledTimes(1)
+    expect(tokenStorage.getToken()).toBeNull()
+
+    apiClient.defaults.adapter = originalAdapter
   })
 })
