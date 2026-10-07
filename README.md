@@ -3,9 +3,14 @@
 Aplicación de gestión de un gimnasio: socios, membresías, clases y reservas.
 Monorepo con una API REST en FastAPI (`backend/`) y una web en React (`frontend/`).
 
-> **Estado:** el backend tiene la estructura de carpetas y las dependencias, todavía sin
-> código. El frontend ya arranca. Este README se irá completando (usuarios demo, Docker,
-> enlaces a Swagger y al diagrama ER).
+> **Estado:** el backend tiene la estructura de carpetas y las dependencias. El frontend ya
+> arranca. Este README se irá completando (usuarios demo, Docker y enlaces a Swagger).
+
+## Documentación
+
+- **Diagrama ER:** [docs/er-diagram.pdf](docs/er-diagram.pdf) — diseño relacional (8 tablas:
+  `users`, `membership_plans`, `memberships`, `payments`, `rooms`, `classes`,
+  `class_schedules` y `bookings`).
 
 ## Requisitos
 
