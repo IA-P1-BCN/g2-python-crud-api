@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import date, datetime, time
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -74,3 +74,13 @@ class ClassScheduleRead(BaseModel):
     end_time: time
     room_id: int | None
     created_at: datetime
+
+
+class ScheduleAvailability(BaseModel):
+    """Spots of one session: a schedule on a given date."""
+
+    schedule_id: int
+    on_date: date
+    capacity: int
+    booked: int
+    available: int

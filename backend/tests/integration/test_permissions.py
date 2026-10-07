@@ -33,6 +33,7 @@ MATRIX = [
     ("DELETE", "/classes/9999", *STAFF),
     ("GET", "/class-schedules", *PUBLIC),
     ("GET", "/class-schedules/9999", *PUBLIC),
+    ("GET", "/class-schedules/9999/availability?on_date=2026-10-12", *PUBLIC),
     ("POST", "/class-schedules", *STAFF),
     ("PUT", "/class-schedules/9999", *STAFF),
     ("DELETE", "/class-schedules/9999", *STAFF),
