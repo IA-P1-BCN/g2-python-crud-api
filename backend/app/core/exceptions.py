@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = logging.getLogger(__name__)
 
@@ -51,12 +52,38 @@ class PermissionDeniedError(AppError):
     code = "forbidden"
 
 
+# Errors raised by the framework itself (unknown route, wrong method...), in the API's format
+HTTP_ERRORS = {
+    401: ("unauthorized", "No autenticado"),
+    403: ("forbidden", "Acceso denegado"),
+    404: ("not_found", "Recurso no encontrado"),
+    405: ("method_not_allowed", "Método no permitido"),
+}
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
-    async def handle_app_error(_: Request, exc: AppError) -> JSONResponse:
+    async def handle_app_error(request: Request, exc: AppError) -> JSONResponse:
+        logger.warning(
+            "%s %s -> %s %s: %s",
+            request.method,
+            request.url.path,
+            exc.status_code,
+            exc.code,
+            exc.detail,
+        )
         return JSONResponse(
             status_code=exc.status_code,
             content={"detail": exc.detail, "code": exc.code},
+        )
+
+    @app.exception_handler(StarletteHTTPException)
+    async def handle_http_error(_: Request, exc: StarletteHTTPException) -> JSONResponse:
+        code, detail = HTTP_ERRORS.get(exc.status_code, ("http_error", str(exc.detail)))
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": detail, "code": code},
+            headers=exc.headers,
         )
 
     @app.exception_handler(RequestValidationError)
