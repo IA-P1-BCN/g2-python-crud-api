@@ -1,13 +1,20 @@
+from datetime import timedelta
+
 import pytest
 
-from app.core.security import decode_access_token
+from app.core.security import create_access_token, decode_access_token
 from app.models.user import User
 
 REGISTER_URL = "/api/v1/auth/register"
 LOGIN_URL = "/api/v1/auth/login"
+ME_URL = "/api/v1/auth/me"
 
 # Password used by the user fixtures in conftest.py
 FIXTURE_PASSWORD = "password123"
+
+
+def _bearer(token: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {token}"}
 
 
 def _register_payload(**overrides) -> dict:
@@ -150,3 +157,82 @@ def test_login_requires_email_and_password(client, payload: dict) -> None:
     response = client.post(LOGIN_URL, json=payload)
 
     assert response.status_code == 422
+
+
+# GET /auth/me
+
+
+def test_me_returns_the_user_of_the_token(client, trainer) -> None:
+    token = create_access_token(trainer.id, trainer.role.value)
+
+    response = client.get(ME_URL, headers=_bearer(token))
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["id"] == trainer.id
+    assert body["email"] == trainer.email
+    assert body["role"] == "trainer"
+    assert "hashed_password" not in body
+
+
+def test_me_works_with_the_token_returned_by_login(client, member) -> None:
+    login = client.post(LOGIN_URL, json={"email": member.email, "password": FIXTURE_PASSWORD})
+
+    response = client.get(ME_URL, headers=_bearer(login.json()["access_token"]))
+
+    assert response.status_code == 200
+    assert response.json()["id"] == member.id
+
+
+def test_me_without_token_returns_401(client) -> None:
+    response = client.get(ME_URL)
+
+    assert response.status_code == 401
+    assert response.json()["code"] == "unauthorized"
+
+
+def test_me_with_expired_token_returns_401(client, member) -> None:
+    token = create_access_token(member.id, "member", expires_delta=timedelta(seconds=-1))
+
+    response = client.get(ME_URL, headers=_bearer(token))
+
+    assert response.status_code == 401
+    assert response.json()["code"] == "unauthorized"
+
+
+def test_me_with_tampered_token_returns_401(client, member) -> None:
+    token = create_access_token(member.id, "member")
+    tampered = token[:-4] + ("AAAA" if not token.endswith("AAAA") else "BBBB")
+
+    response = client.get(ME_URL, headers=_bearer(tampered))
+
+    assert response.status_code == 401
+    assert response.json()["code"] == "unauthorized"
+
+
+@pytest.mark.parametrize("header", ["Bearer not-a-token", "Basic abc123", "not-a-header"])
+def test_me_with_malformed_authorization_returns_401(client, header: str) -> None:
+    response = client.get(ME_URL, headers={"Authorization": header})
+
+    assert response.status_code == 401
+    assert response.json()["code"] == "unauthorized"
+
+
+def test_me_with_token_of_a_deleted_user_returns_401(client) -> None:
+    token = create_access_token(9999, "member")
+
+    response = client.get(ME_URL, headers=_bearer(token))
+
+    assert response.status_code == 401
+    assert response.json()["code"] == "unauthorized"
+
+
+def test_me_with_token_of_a_deactivated_user_returns_401(client, db_session, member) -> None:
+    token = create_access_token(member.id, "member")
+    member.is_active = False
+    db_session.commit()
+
+    response = client.get(ME_URL, headers=_bearer(token))
+
+    assert response.status_code == 401
+    assert response.json()["code"] == "unauthorized"
