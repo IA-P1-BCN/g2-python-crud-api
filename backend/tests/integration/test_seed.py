@@ -21,11 +21,11 @@ def test_seed_loads_demo_data(db_session: Session) -> None:
     seed(db_session)
 
     users = {user.email: user for user in db_session.execute(select(User)).scalars()}
-    assert set(users) == {"admin@gymflow.dev", "trainer@gymflow.dev", "member@gymflow.dev"}
-    assert users["admin@gymflow.dev"].role is UserRole.admin
-    assert users["trainer@gymflow.dev"].role is UserRole.trainer
-    assert users["member@gymflow.dev"].role is UserRole.member
-    assert verify_password(DEMO_PASSWORD, users["admin@gymflow.dev"].hashed_password)
+    assert set(users) == {"admin@athletica.dev", "trainer@athletica.dev", "member@athletica.dev"}
+    assert users["admin@athletica.dev"].role is UserRole.admin
+    assert users["trainer@athletica.dev"].role is UserRole.trainer
+    assert users["member@athletica.dev"].role is UserRole.member
+    assert verify_password(DEMO_PASSWORD, users["admin@athletica.dev"].hashed_password)
 
     assert _count(db_session, MembershipPlan) == 1
     assert _count(db_session, Room) == 1
@@ -36,7 +36,7 @@ def test_seed_loads_demo_data(db_session: Session) -> None:
 
     membership = db_session.execute(select(Membership)).scalar_one()
     assert membership.status is MembershipStatus.active
-    assert membership.user_id == users["member@gymflow.dev"].id
+    assert membership.user_id == users["member@athletica.dev"].id
 
     booking = db_session.execute(select(Booking)).scalar_one()
     assert booking.status is BookingStatus.confirmed
@@ -44,7 +44,7 @@ def test_seed_loads_demo_data(db_session: Session) -> None:
     gym_class = db_session.execute(select(GymClass)).scalar_one()
     schedule = db_session.execute(select(ClassSchedule)).scalar_one()
     assert schedule.class_id == gym_class.id
-    assert gym_class.trainer_id == users["trainer@gymflow.dev"].id
+    assert gym_class.trainer_id == users["trainer@athletica.dev"].id
 
 
 def test_seed_is_idempotent(db_session: Session) -> None:

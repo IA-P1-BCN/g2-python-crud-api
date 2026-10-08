@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     configure_logging(settings.log_level, settings.log_file)
-    logger.info("GymFlow API started (log_level=%s)", settings.log_level)
+    logger.info("Athletica API started (log_level=%s)", settings.log_level)
     if settings.auto_create_tables:
         try:
             Base.metadata.create_all(bind=engine)
@@ -29,12 +29,12 @@ async def lifespan(_: FastAPI):
                 exc_info=True,
             )
     yield
-    logger.info("GymFlow API stopped")
+    logger.info("Athletica API stopped")
 
 
 def create_app() -> FastAPI:
     application = FastAPI(
-        title="GymFlow API",
+        title="Athletica API",
         version="0.1.0",
         summary="API REST para la gestión de un gimnasio",
         description=(
