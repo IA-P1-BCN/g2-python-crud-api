@@ -15,6 +15,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/member/membership', label: 'Mi membresía', roles: ['member'] },
   { to: '/trainer/sessions', label: 'Mis sesiones', roles: ['trainer'] },
   { to: '/trainer/members', label: 'Mis socios', roles: ['trainer'] },
+  { to: '/admin/dashboard', label: 'Resumen', roles: ['admin'] },
   { to: '/admin/plans', label: 'Planes', roles: ['admin'] },
   { to: '/admin/members', label: 'Socios', roles: ['admin'] },
 ]

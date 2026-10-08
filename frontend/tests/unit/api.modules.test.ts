@@ -1,6 +1,7 @@
 import type { AxiosAdapter } from 'axios'
 import { afterEach, describe, expect, it } from 'vitest'
 import {
+  adminApi,
   authApi,
   bookingsApi,
   classesApi,
@@ -43,6 +44,19 @@ describe('api modules', () => {
     await authApi.register({ email: 'a@b.c', full_name: 'A', password: 'secret123' })
 
     expect(captured).toMatchObject({ url: '/auth/register', method: 'post' })
+  })
+
+  it('adminApi.dashboard hace GET a /admin/dashboard con el periodo', async () => {
+    const captured: Captured = {}
+    apiClient.defaults.adapter = captureAdapter(captured)
+
+    await adminApi.dashboard('30d')
+
+    expect(captured).toMatchObject({
+      url: '/admin/dashboard',
+      method: 'get',
+      params: { period: '30d' },
+    })
   })
 
   it('schedulesApi.list hace GET a /class-schedules', async () => {

@@ -26,6 +26,7 @@ const trainer: User = {
   role: 'trainer',
   is_active: true,
   created_at: '2026-10-01T10:00:00Z',
+  deactivated_at: null,
 }
 
 const gymClass: GymClass = {
@@ -64,6 +65,7 @@ const member: User = {
   role: 'member',
   is_active: true,
   created_at: '2026-10-01T10:00:00Z',
+  deactivated_at: null,
 }
 
 function authValue(partial: Partial<AuthContextValue>): AuthContextValue {

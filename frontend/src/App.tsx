@@ -13,6 +13,7 @@ import { BookingsPage } from '@/pages/member/BookingsPage'
 import { MembershipPage } from '@/pages/member/MembershipPage'
 import { TrainerSessionsPage } from '@/pages/trainer/TrainerSessionsPage'
 import { TrainerMembersPage } from '@/pages/trainer/TrainerMembersPage'
+import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
 import { PlansPage } from '@/pages/admin/PlansPage'
 import { AdminMembersPage } from '@/pages/admin/AdminMembersPage'
 
@@ -44,7 +45,8 @@ export function App() {
           </Route>
 
           <Route path="admin" element={<ProtectedRoute allowedRoles={['admin']} />}>
-            <Route index element={<Navigate to="/admin/plans" replace />} />
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="plans" element={<PlansPage />} />
             <Route path="members" element={<AdminMembersPage />} />
           </Route>
