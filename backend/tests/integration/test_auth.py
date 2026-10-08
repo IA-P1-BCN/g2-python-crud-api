@@ -21,7 +21,7 @@ def _register_payload(**overrides) -> dict:
     return {
         "email": "nueva@test.dev",
         "full_name": "Socia Nueva",
-        "password": "password123",
+        "password": "Password123!",
     } | overrides
 
 
@@ -117,7 +117,7 @@ def test_login_after_register(anon_client) -> None:
     anon_client.post(REGISTER_URL, json=_register_payload())
 
     response = anon_client.post(
-        LOGIN_URL, json={"email": "nueva@test.dev", "password": "password123"}
+        LOGIN_URL, json={"email": "nueva@test.dev", "password": "Password123!"}
     )
 
     assert response.status_code == 200

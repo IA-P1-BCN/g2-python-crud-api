@@ -3,6 +3,7 @@ from datetime import date, datetime
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from app.models.user import UserRole
+from app.schemas.password import StrongPassword
 
 
 class UserBase(BaseModel):
@@ -13,7 +14,7 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    password: str = Field(min_length=8, max_length=128)
+    password: StrongPassword
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -35,7 +36,7 @@ class UserUpdate(BaseModel):
     full_name: str | None = Field(default=None, min_length=1, max_length=255)
     role: UserRole | None = None
     is_active: bool | None = None
-    password: str | None = Field(default=None, min_length=8, max_length=128)
+    password: StrongPassword | None = None
 
 
 class ProfileUpdate(BaseModel):
@@ -45,7 +46,7 @@ class ProfileUpdate(BaseModel):
 
 class PasswordChange(BaseModel):
     current_password: str = Field(min_length=8, max_length=128)
-    new_password: str = Field(min_length=8, max_length=128)
+    new_password: StrongPassword
 
 
 class UserFilters(BaseModel):
