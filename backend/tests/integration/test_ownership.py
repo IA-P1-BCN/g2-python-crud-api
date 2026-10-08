@@ -123,11 +123,13 @@ def test_member_reads_own_membership_but_not_another(
     assert anon_client.get(url, headers=_auth(other_member)).status_code == 403
 
 
-def test_member_books_for_themselves(anon_client, member, schedule, active_membership) -> None:
+def test_member_books_for_themselves(
+    anon_client, member, schedule, active_membership, next_date_for_weekday
+) -> None:
     payload = {
         "member_id": member.id,
         "schedule_id": schedule.id,
-        "booking_date": date.today().isoformat(),
+        "booking_date": next_date_for_weekday(schedule.day_of_week).isoformat(),
     }
 
     response = anon_client.post(f"{API}/bookings", json=payload, headers=_auth(member))
