@@ -10,7 +10,7 @@ def _user_payload(email: str = "nuevo@test.dev") -> dict:
         "email": email,
         "full_name": "Usuario Nuevo",
         "role": "member",
-        "password": "password123",
+        "password": "Password123!",
     }
 
 
@@ -190,7 +190,7 @@ def test_member_can_change_own_password(anon_client, member) -> None:
         f"/api/v1/users/{member.id}/password",
         json={
             "current_password": "password123",
-            "new_password": "nuevaPassword123",
+            "new_password": "NuevaPassword123!",
         },
         headers=headers,
     )
@@ -199,7 +199,7 @@ def test_member_can_change_own_password(anon_client, member) -> None:
 
     login = anon_client.post(
         "/api/v1/auth/login",
-        json={"email": member.email, "password": "nuevaPassword123"},
+        json={"email": member.email, "password": "NuevaPassword123!"},
     )
 
     assert login.status_code == 200
@@ -212,7 +212,7 @@ def test_member_cannot_change_password_with_wrong_current_password(anon_client, 
         f"/api/v1/users/{member.id}/password",
         json={
             "current_password": "contraseñaIncorrecta123",
-            "new_password": "nuevaPassword123",
+            "new_password": "NuevaPassword123!",
         },
         headers=headers,
     )
@@ -347,3 +347,58 @@ def test_trainer_filters_still_see_members_only(anon_client, trainer, member, ad
     response = anon_client.get("/api/v1/users", params={"is_active": True}, headers=headers)
 
     assert _emails(response) == [member.email]
+
+
+# Password strength rule (#333)
+
+WEAK_PASSWORD = "password123"
+
+
+def _assert_weak_password(response) -> None:
+    assert response.status_code == 422
+    body = response.json()
+    assert body["code"] == "validation_error"
+    assert body["detail"][0]["type"] == "weak_password"
+    assert "mayúscula" in body["detail"][0]["msg"]
+
+
+def test_register_rejects_a_weak_password(anon_client) -> None:
+    response = anon_client.post(
+        "/api/v1/auth/register",
+        json={"email": "debil@test.dev", "full_name": "Débil", "password": WEAK_PASSWORD},
+    )
+
+    _assert_weak_password(response)
+
+
+def test_admin_cannot_create_a_user_with_a_weak_password(client) -> None:
+    response = client.post("/api/v1/users", json=_user_payload() | {"password": WEAK_PASSWORD})
+
+    _assert_weak_password(response)
+
+
+def test_admin_cannot_set_a_weak_password_on_update(client, member) -> None:
+    response = client.put(f"/api/v1/users/{member.id}", json={"password": WEAK_PASSWORD})
+
+    _assert_weak_password(response)
+
+
+def test_member_cannot_change_to_a_weak_password(anon_client, member) -> None:
+    headers = {"Authorization": f"Bearer {create_access_token(member.id, member.role.value)}"}
+
+    response = anon_client.put(
+        f"/api/v1/users/{member.id}/password",
+        json={"current_password": "password123", "new_password": WEAK_PASSWORD},
+        headers=headers,
+    )
+
+    _assert_weak_password(response)
+
+
+def test_accounts_with_an_old_weak_password_can_still_log_in(anon_client, member) -> None:
+    # The member fixture was created before the rule, with "password123".
+    response = anon_client.post(
+        "/api/v1/auth/login", json={"email": member.email, "password": WEAK_PASSWORD}
+    )
+
+    assert response.status_code == 200
