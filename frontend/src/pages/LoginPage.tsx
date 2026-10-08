@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { Alert, Button } from '@/components/ui'
+import { Button } from '@/ui/atoms/Button'
+import { Alert } from '@/ui/molecules/Alert'
 import { homePathForRole, useAuth } from '@/auth'
 
 type LocationState = {
