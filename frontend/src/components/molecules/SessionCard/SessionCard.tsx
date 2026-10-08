@@ -83,7 +83,7 @@ export function SessionCard({
         {enrolled} / {capacity} inscritos
       </p>
       <progress
-        className="session-card__progress"
+        className="progress"
         value={enrolled}
         max={capacity}
         aria-label="Ocupación de la sesión"
