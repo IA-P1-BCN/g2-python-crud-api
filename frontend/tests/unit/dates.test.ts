@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { currentPeriodRange, toIsoDate } from '@/lib/dates'
+import { addDays, currentPeriodRange, parseIsoDate, startOfWeek, toIsoDate } from '@/lib/dates'
 
 // Thursday 8 October 2026
 const TODAY = new Date(2026, 9, 8, 18, 30)
@@ -26,5 +26,23 @@ describe('dates', () => {
 
   it('el año empieza el 1 de enero', () => {
     expect(currentPeriodRange('year', TODAY)).toEqual({ from: '2026-01-01', to: '2026-10-08' })
+  })
+
+  it('parseIsoDate devuelve una fecha local', () => {
+    const date = parseIsoDate('2026-10-08')
+
+    expect(date.getFullYear()).toBe(2026)
+    expect(date.getMonth()).toBe(9)
+    expect(date.getDate()).toBe(8)
+  })
+
+  it('startOfWeek devuelve el lunes de la semana', () => {
+    expect(startOfWeek('2026-10-08')).toBe('2026-10-05')
+    expect(startOfWeek('2026-10-11')).toBe('2026-10-05')
+  })
+
+  it('addDays suma o resta días', () => {
+    expect(addDays('2026-10-05', 7)).toBe('2026-10-12')
+    expect(addDays('2026-10-05', -7)).toBe('2026-09-28')
   })
 })

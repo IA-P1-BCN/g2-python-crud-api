@@ -1,8 +1,14 @@
 const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+const SHORT_DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 
 /** Maps the numeric `day_of_week` (0 = Monday) to its Spanish label. */
 export function dayLabel(day: number): string {
   return DAYS[day] ?? `Día ${day}`
+}
+
+/** Maps the numeric `day_of_week` (0 = Monday) to its short Spanish label. */
+export function shortDayLabel(day: number): string {
+  return SHORT_DAYS[day] ?? `Día ${day}`
 }
 
 /** Trims "HH:MM:SS" to "HH:MM". */
