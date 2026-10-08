@@ -24,19 +24,21 @@ def _create_schedule(client, trainer, room, capacity: int = 5) -> int:
     return schedule["id"]
 
 
-def test_full_booking_flow_and_cancel(client, member, plan, trainer, room) -> None:
+def test_full_booking_flow_and_cancel(
+    client, member, plan, trainer, room, next_date_for_weekday
+) -> None:
     schedule_id = _create_schedule(client, trainer, room)
-    today = date.today().isoformat()
+    booking_date = next_date_for_weekday(0).isoformat()
 
     membership = client.post(
         "/api/v1/memberships",
-        json={"user_id": member.id, "plan_id": plan.id, "start_date": today},
+        json={"user_id": member.id, "plan_id": plan.id, "start_date": date.today().isoformat()},
     )
     assert membership.status_code == 201
 
     created = client.post(
         "/api/v1/bookings",
-        json={"member_id": member.id, "schedule_id": schedule_id, "booking_date": today},
+        json={"member_id": member.id, "schedule_id": schedule_id, "booking_date": booking_date},
     )
     assert created.status_code == 201
     booking_id = created.json()["id"]
@@ -48,18 +50,39 @@ def test_full_booking_flow_and_cancel(client, member, plan, trainer, room) -> No
     assert fetched.json()["status"] == "cancelled"
 
 
-def test_booking_without_membership_returns_400(client, member, schedule) -> None:
+def test_booking_without_membership_returns_400(
+    client, member, schedule, next_date_for_weekday
+) -> None:
     response = client.post(
         "/api/v1/bookings",
         json={
             "member_id": member.id,
             "schedule_id": schedule.id,
-            "booking_date": date.today().isoformat(),
+            "booking_date": next_date_for_weekday(schedule.day_of_week).isoformat(),
         },
     )
 
     assert response.status_code == 400
     assert response.json()["code"] == "business_rule"
+
+
+def test_booking_date_must_match_schedule_weekday(
+    client, member, plan, trainer, room, next_date_for_weekday
+) -> None:
+    schedule_id = _create_schedule(client, trainer, room)
+    client.post(
+        "/api/v1/memberships",
+        json={"user_id": member.id, "plan_id": plan.id, "start_date": date.today().isoformat()},
+    )
+    wrong_date = next_date_for_weekday(1).isoformat()
+
+    response = client.post(
+        "/api/v1/bookings",
+        json={"member_id": member.id, "schedule_id": schedule_id, "booking_date": wrong_date},
+    )
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "validation_error"
 
 
 def test_booking_invalid_schedule_returns_404(client, member) -> None:
