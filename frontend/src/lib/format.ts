@@ -15,6 +15,13 @@ export function formatPrice(cents: number): string {
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100)
 }
 
+/** "39,99" or "39.99" → 3999; null when it is not a positive amount. */
+export function parsePriceCents(value: string): number | null {
+  const amount = Number(value.replace(',', '.'))
+  if (!Number.isFinite(amount) || amount <= 0) return null
+  return Math.round(amount * 100)
+}
+
 export function formatDate(value: string): string {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
