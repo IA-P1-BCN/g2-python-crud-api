@@ -9,6 +9,7 @@
   --color-danger: #dc2626;
   --color-success: #16a34a;
   --color-warning: #d97706;
+  --color-lime: #a3e635;
   font-family:
     system-ui,
     -apple-system,
@@ -330,6 +331,67 @@ body {
   flex-wrap: wrap;
   gap: 0.5rem;
   margin: 1rem 0;
+}
+
+.day-chip {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 3rem;
+  padding: 0.4rem 0.55rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.day-chip:hover:not(.day-chip--selected) {
+  border-color: var(--color-lime);
+}
+
+.day-chip:focus-visible {
+  outline: 2px solid var(--color-lime);
+  outline-offset: 2px;
+}
+
+.day-chip--selected {
+  background: var(--color-lime);
+  border-color: var(--color-lime);
+}
+
+.day-chip__day {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.day-chip--selected .day-chip__day {
+  color: var(--color-text);
+}
+
+.day-chip__date {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.day-chip__marker {
+  position: absolute;
+  bottom: 0.25rem;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.day-chip--selected .day-chip__marker {
+  background: var(--color-text);
 }
 
 .session-detail {
