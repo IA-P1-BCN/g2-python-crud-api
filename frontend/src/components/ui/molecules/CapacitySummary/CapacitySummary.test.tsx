@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { CapacitySummary } from '@/components/molecules/CapacitySummary'
+import { CapacitySummary } from '@/components/ui/molecules/CapacitySummary'
 
 describe('CapacitySummary', () => {
   it('muestra la ocupación y el porcentaje', () => {

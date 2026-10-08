@@ -1,4 +1,4 @@
-import { DayChip } from '@/components/molecules/DayChip'
+import { DayChip } from '@/components/ui/molecules/DayChip'
 import { addDays, parseIsoDate, startOfWeek } from '@/lib/dates'
 import { formatDate, shortDayLabel } from '@/lib/format'
 

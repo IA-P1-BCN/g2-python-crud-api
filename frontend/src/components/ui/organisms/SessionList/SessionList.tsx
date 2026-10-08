@@ -2,7 +2,7 @@ import {
   SessionCard,
   type SessionCardProps,
   type SessionRole,
-} from '@/components/molecules/SessionCard'
+} from '@/components/ui/molecules/SessionCard'
 import { Alert } from '@/components/ui'
 
 export type SessionListItem = Omit<SessionCardProps, 'role' | 'onAction' | 'className'> & {

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { SessionList, type SessionListItem } from '@/components/organisms/SessionList'
+import { SessionList, type SessionListItem } from '@/components/ui/organisms/SessionList'
 
 const sessions: SessionListItem[] = [
   { id: 1, title: 'Yoga', time: '10:00 – 11:00', room: 'Sala 1', enrolled: 12, capacity: 20 },

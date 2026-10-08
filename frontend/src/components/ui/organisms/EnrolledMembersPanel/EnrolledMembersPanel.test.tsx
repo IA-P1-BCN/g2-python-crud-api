@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   EnrolledMembersPanel,
   type EnrolledMember,
-} from '@/components/organisms/EnrolledMembersPanel'
+} from '@/components/ui/organisms/EnrolledMembersPanel'
 
 const members: EnrolledMember[] = [
   { id: 1, name: 'Socio Uno', memberNumber: 1, time: '09:00' },

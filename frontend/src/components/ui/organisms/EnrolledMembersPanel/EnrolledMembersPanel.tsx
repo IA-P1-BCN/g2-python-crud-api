@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
-import { CapacitySummary } from '@/components/molecules/CapacitySummary'
-import { EnrolledMemberRow } from '@/components/molecules/EnrolledMemberRow'
-import { Alert } from '@/components/ui'
+import { CapacitySummary } from '@/components/ui/molecules/CapacitySummary'
+import { EnrolledMemberRow } from '@/components/ui/molecules/EnrolledMemberRow'
+import { Alert } from '@/components/ui/molecules/Alert'
 
 export type EnrolledMember = {
   id: number

@@ -634,7 +634,12 @@ body {
 .session-list__skeleton {
   height: 8rem;
   border-radius: 8px;
-  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-line) 37%, var(--color-surface) 63%);
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-line) 37%,
+    var(--color-surface) 63%
+  );
   background-size: 400% 100%;
   animation: session-list-pulse 1.4s ease infinite;
 }

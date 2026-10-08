@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { DayChip } from '@/components/molecules/DayChip'
+import { DayChip } from '@/components/ui/molecules/DayChip'
 
 describe('DayChip', () => {
   it('muestra la abreviatura del día y el número', () => {

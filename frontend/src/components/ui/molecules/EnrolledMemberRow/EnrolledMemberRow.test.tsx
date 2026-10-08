@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { EnrolledMemberRow } from '@/components/molecules/EnrolledMemberRow'
+import { EnrolledMemberRow } from '@/components/ui/molecules/EnrolledMemberRow'
 
 describe('EnrolledMemberRow', () => {
   it('muestra el avatar, el nombre, el número de socio y la hora', () => {

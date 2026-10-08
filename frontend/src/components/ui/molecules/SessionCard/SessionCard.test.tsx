@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { SessionCard, type SessionAttendee } from '@/components/molecules/SessionCard'
+import { SessionCard, type SessionAttendee } from '@/components/ui/molecules/SessionCard'
 
 const attendees: SessionAttendee[] = [
   { id: 1, name: 'Socio Uno' },

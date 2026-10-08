@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { WeekSelector } from '@/components/organisms/WeekSelector'
+import { WeekSelector } from '@/components/ui/organisms/WeekSelector'
 
 // Thursday 8 October 2026 → week from Monday 5 to Sunday 11 October.
 const SELECTED = '2026-10-08'
