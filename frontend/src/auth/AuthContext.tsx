@@ -20,6 +20,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     navigate('/login', { replace: true })
   }, [navigate])
 
+  const updateUser = useCallback((updatedUser: User) => {
+    tokenStorage.setUser(updatedUser)
+    setUser(updatedUser)
+  }, [])
+
   // Cuando el cliente axios recibe un 401 (token caducado), cerramos sesión.
   useEffect(() => {
     setUnauthorizedHandler(() => {
@@ -106,9 +111,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
+      updateUser,
       hasRole,
     }),
-    [user, token, isLoading, error, login, register, logout, hasRole],
+    [user, token, isLoading, error, login, register, logout, updateUser, hasRole],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

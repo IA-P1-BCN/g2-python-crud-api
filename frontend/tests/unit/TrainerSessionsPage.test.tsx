@@ -78,6 +78,7 @@ function authValue(partial: Partial<AuthContextValue>): AuthContextValue {
     login: vi.fn(),
     register: vi.fn(),
     logout: vi.fn(),
+    updateUser: vi.fn(),
     hasRole: vi.fn(),
     ...partial,
   }
