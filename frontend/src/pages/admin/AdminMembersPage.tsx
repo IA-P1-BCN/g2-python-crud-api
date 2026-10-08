@@ -1,13 +1,15 @@
 import { useState, type FormEvent } from 'react'
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Alert, Badge, Button, Pagination, Table, type Column } from '@/components/ui'
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query'
+import { Alert, Button, Pagination, Table, type Column } from '@/components/ui'
 import { toApiError, usersApi } from '@/api'
 import { downloadBlob } from '@/lib/download'
 import { formatDate } from '@/lib/format'
 import type { User } from '@/types/api'
 import { MemberDetail } from './members/MemberDetail'
-import { MemberForm } from './members/MemberForm'
 import { MovementsReport } from './members/MovementsReport'
+import { UserForm } from './users/UserForm'
+import { UserStatusBadge } from './users/UserStatusBadge'
+import { useToggleUserActive } from './users/useToggleUserActive'
 
 const PAGE_SIZE = 10
 
@@ -29,7 +31,6 @@ const IS_ACTIVE: Record<StatusFilter, boolean | undefined> = {
 type Panel = { kind: 'create' } | { kind: 'edit'; member: User } | { kind: 'detail'; member: User }
 
 export function AdminMembersPage() {
-  const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
   const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
@@ -49,15 +50,7 @@ export function AdminMembersPage() {
     placeholderData: keepPreviousData,
   })
 
-  const toggleActive = useMutation({
-    mutationFn: async (member: User): Promise<void> => {
-      if (member.is_active) await usersApi.deactivate(member.id)
-      else await usersApi.reactivate(member.id)
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['users'] })
-    },
-  })
+  const toggleActive = useToggleUserActive()
 
   const exportCsv = useMutation({
     mutationFn: () => usersApi.exportMembersCsv(),
@@ -75,13 +68,6 @@ export function AdminMembersPage() {
     setStatus(value)
   }
 
-  function handleToggle(member: User) {
-    const question = member.is_active
-      ? `¿Dar de baja a ${member.full_name}? Se conserva su historial.`
-      : `¿Reactivar a ${member.full_name}?`
-    if (window.confirm(question)) toggleActive.mutate(member)
-  }
-
   const columns: Column<User>[] = [
     { key: 'full_name', header: 'Nombre' },
     { key: 'email', header: 'Email' },
@@ -89,14 +75,7 @@ export function AdminMembersPage() {
     {
       key: 'is_active',
       header: 'Estado',
-      render: (row) =>
-        row.is_active ? (
-          <Badge tone="success">Activo</Badge>
-        ) : (
-          <Badge tone="danger">
-            Baja{row.deactivated_at ? ` · ${formatDate(row.deactivated_at)}` : ''}
-          </Badge>
-        ),
+      render: (row) => <UserStatusBadge user={row} />,
     },
     {
       key: 'actions',
@@ -109,7 +88,10 @@ export function AdminMembersPage() {
           <Button variant="secondary" onClick={() => setPanel({ kind: 'edit', member: row })}>
             Editar
           </Button>
-          <Button variant={row.is_active ? 'danger' : 'primary'} onClick={() => handleToggle(row)}>
+          <Button
+            variant={row.is_active ? 'danger' : 'primary'}
+            onClick={() => toggleActive.toggle(row)}
+          >
             {row.is_active ? 'Dar de baja' : 'Reactivar'}
           </Button>
         </div>
@@ -157,7 +139,7 @@ export function AdminMembersPage() {
       </div>
 
       {members.isError ? <Alert variant="error">{toApiError(members.error).message}</Alert> : null}
-      {toggleActive.isError ? (
+      {toggleActive.error ? (
         <Alert variant="error">{toApiError(toggleActive.error).message}</Alert>
       ) : null}
       {exportCsv.isError ? (
@@ -176,9 +158,17 @@ export function AdminMembersPage() {
         <Pagination page={page} pages={members.data.pages} onChange={setPage} />
       ) : null}
 
-      {panel?.kind === 'create' ? <MemberForm onDone={() => setPanel(null)} /> : null}
+      {panel?.kind === 'create' ? (
+        <UserForm roles={['member']} noun="socio" onDone={() => setPanel(null)} />
+      ) : null}
       {panel?.kind === 'edit' ? (
-        <MemberForm key={panel.member.id} member={panel.member} onDone={() => setPanel(null)} />
+        <UserForm
+          key={panel.member.id}
+          user={panel.member}
+          roles={['member']}
+          noun="socio"
+          onDone={() => setPanel(null)}
+        />
       ) : null}
       {panel?.kind === 'detail' ? (
         <MemberDetail member={panel.member} onClose={() => setPanel(null)} />

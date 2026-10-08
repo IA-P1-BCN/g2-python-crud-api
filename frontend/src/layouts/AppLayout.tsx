@@ -18,6 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/admin/dashboard', label: 'Resumen', roles: ['admin'] },
   { to: '/admin/plans', label: 'Planes', roles: ['admin'] },
   { to: '/admin/members', label: 'Socios', roles: ['admin'] },
+  { to: '/admin/users', label: 'Usuarios', roles: ['admin'] },
 ]
 
 export function AppLayout() {
