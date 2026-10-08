@@ -3,7 +3,12 @@ from datetime import date
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
+from app.core.exceptions import (
+    BusinessRuleError,
+    ConflictError,
+    InvalidDataError,
+    NotFoundError,
+)
 from app.models.booking import Booking, BookingStatus
 from app.models.class_schedule import ClassSchedule
 from app.models.gym_class import GymClass
@@ -85,6 +90,10 @@ def get_availability(db: Session, schedule_id: int, on_date: date) -> ScheduleAv
 def create_booking(db: Session, data: BookingCreate) -> Booking:
     user_service.get_user(db, data.member_id)
     schedule = class_schedule_service.get_schedule(db, data.schedule_id)
+    if data.booking_date.weekday() != schedule.day_of_week:
+        raise InvalidDataError(
+            "La fecha de la reserva debe caer en el día de la semana del horario"
+        )
     gym_class = schedule.gym_class
 
     if membership_service.get_active_for_user(db, data.member_id, data.booking_date) is None:

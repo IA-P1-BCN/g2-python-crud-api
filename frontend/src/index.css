@@ -221,7 +221,8 @@ body {
   flex: 1;
 }
 
-.field input {
+.field input,
+.field select {
   padding: 0.5rem;
   border: 1px solid var(--color-line);
   border-radius: 6px;
@@ -315,6 +316,336 @@ body {
   flex-wrap: wrap;
   gap: 0.5rem;
   margin: 1rem 0;
+}
+
+.day-chip {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 3rem;
+  padding: 0.4rem 0.55rem 0.7rem;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.day-chip:hover:not(.day-chip--selected) {
+  border-color: var(--color-primary);
+}
+
+.day-chip:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.day-chip--selected {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.day-chip__day {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.day-chip--selected .day-chip__day {
+  color: var(--color-ink);
+}
+
+.day-chip__date {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.day-chip__marker {
+  position: absolute;
+  bottom: 0.25rem;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.day-chip--selected .day-chip__marker {
+  background: var(--color-ink);
+}
+
+.session-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.session-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.session-card__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.session-card__meta {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.session-card__capacity {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.progress {
+  width: 100%;
+  height: 0.5rem;
+  border: none;
+  border-radius: 999px;
+  overflow: hidden;
+  appearance: none;
+}
+
+.progress::-webkit-progress-bar {
+  background: var(--color-line);
+  border-radius: 999px;
+}
+
+.progress::-webkit-progress-value {
+  background: var(--color-primary);
+  border-radius: 999px;
+}
+
+.progress::-moz-progress-bar {
+  background: var(--color-primary);
+  border-radius: 999px;
+}
+
+.session-card__attendees {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-ink);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.session-card__avatar {
+  margin-left: -0.5rem;
+  border: 2px solid var(--color-surface);
+}
+
+.session-card__avatar:first-child {
+  margin-left: 0;
+}
+
+.session-card__avatar--more {
+  background: var(--color-line);
+  color: var(--color-text-muted);
+}
+
+.enrolled-member-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+}
+
+.enrolled-member-row__info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.enrolled-member-row__name {
+  font-weight: 600;
+}
+
+.enrolled-member-row__number {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.enrolled-member-row__time {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.enrolled-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.enrolled-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.enrolled-panel__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.enrolled-panel__close {
+  padding: 0 0.25rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.enrolled-panel__status {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.enrolled-panel__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  max-height: 24rem;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.enrolled-panel__list li + li {
+  border-top: 1px solid var(--color-line);
+}
+
+.session-card__status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.capacity-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.capacity-summary__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.capacity-summary__count {
+  font-weight: 600;
+}
+
+.week-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.week-selector__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.week-selector__range {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.week-selector__days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.week-selector__nav {
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-line);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.week-selector__nav:hover {
+  border-color: var(--color-primary);
+}
+
+.week-selector__nav:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.session-list {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.session-list .card {
+  margin-bottom: 0;
+}
+
+.session-list__empty {
+  color: var(--color-text-muted);
+  margin: 1rem 0;
+}
+
+.session-list__skeleton {
+  height: 8rem;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--color-surface) 25%, var(--color-line) 37%, var(--color-surface) 63%);
+  background-size: 400% 100%;
+  animation: session-list-pulse 1.4s ease infinite;
+}
+
+@keyframes session-list-pulse {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
 }
 
 .session-detail {

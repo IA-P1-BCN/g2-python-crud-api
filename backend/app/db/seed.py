@@ -14,7 +14,7 @@ from app.models.payment import Payment, PaymentStatus
 from app.models.room import Room
 from app.models.user import User, UserRole
 
-DEMO_PASSWORD = "gymflow123"
+DEMO_PASSWORD = "Athletica123!"
 
 
 def seed(db: Session) -> None:
@@ -23,19 +23,19 @@ def seed(db: Session) -> None:
         return
 
     admin = User(
-        email="admin@gymflow.dev",
+        email="admin@athletica.dev",
         full_name="Admin Demo",
         role=UserRole.admin,
         hashed_password=hash_password(DEMO_PASSWORD),
     )
     trainer = User(
-        email="trainer@gymflow.dev",
+        email="trainer@athletica.dev",
         full_name="Entrenador Demo",
         role=UserRole.trainer,
         hashed_password=hash_password(DEMO_PASSWORD),
     )
     member = User(
-        email="member@gymflow.dev",
+        email="member@athletica.dev",
         full_name="Socio Demo",
         role=UserRole.member,
         hashed_password=hash_password(DEMO_PASSWORD),
@@ -64,9 +64,11 @@ def seed(db: Session) -> None:
     db.add(gym_class)
     db.flush()
 
+    # The demo booking is for today, so the schedule must fall on today's weekday.
+    today = date.today()
     schedule = ClassSchedule(
         class_id=gym_class.id,
-        day_of_week=0,
+        day_of_week=today.weekday(),
         start_time=time(10, 0),
         end_time=time(11, 0),
         room_id=room.id,
@@ -74,7 +76,6 @@ def seed(db: Session) -> None:
     db.add(schedule)
     db.flush()
 
-    today = date.today()
     membership = Membership(
         user_id=member.id,
         plan_id=plan.id,

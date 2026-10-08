@@ -4,6 +4,8 @@ type Schemas = components['schemas']
 
 export type Role = Schemas['UserRole']
 export type User = Schemas['UserRead']
+export type UserCreate = Schemas['UserCreate']
+export type UserUpdate = Schemas['UserUpdate']
 export type UserPage = Schemas['Page_UserRead_']
 
 export type MembershipPlan = Schemas['MembershipPlanRead']

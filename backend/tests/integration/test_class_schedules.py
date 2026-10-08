@@ -430,16 +430,20 @@ def test_availability_of_a_full_session_is_zero(
 
 
 def test_availability_matches_what_booking_allows(
-    client, schedule, member, active_membership
+    client, schedule, member, active_membership, next_date_for_weekday
 ) -> None:
-    today = date.today()
-    before = _availability(client, schedule.id, today).json()
+    booking_date = next_date_for_weekday(schedule.day_of_week)
+    before = _availability(client, schedule.id, booking_date).json()
 
     created = client.post(
         "/api/v1/bookings",
-        json={"member_id": member.id, "schedule_id": schedule.id, "booking_date": str(today)},
+        json={
+            "member_id": member.id,
+            "schedule_id": schedule.id,
+            "booking_date": str(booking_date),
+        },
     )
-    after = _availability(client, schedule.id, today).json()
+    after = _availability(client, schedule.id, booking_date).json()
 
     assert created.status_code == 201
     assert after["available"] == before["available"] - 1

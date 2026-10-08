@@ -7,6 +7,7 @@ from app.api.v1 import (
     class_schedules,
     classes,
     export,
+    me,
     membership_plans,
     memberships,
     payments,
@@ -26,3 +27,4 @@ api_router.include_router(bookings.router)
 api_router.include_router(payments.router)
 api_router.include_router(export.router)
 api_router.include_router(admin.router)
+api_router.include_router(me.router)

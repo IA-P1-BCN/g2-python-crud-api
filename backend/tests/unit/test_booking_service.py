@@ -3,7 +3,7 @@ from datetime import date, time, timedelta
 import pytest
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import BusinessRuleError, ConflictError
+from app.core.exceptions import BusinessRuleError, ConflictError, InvalidDataError
 from app.core.security import hash_password
 from app.models.booking import BookingStatus
 from app.models.class_schedule import ClassSchedule
@@ -39,35 +39,59 @@ def _member_with_membership(db: Session, plan: MembershipPlan, email: str) -> Us
     return user
 
 
-def test_booking_requires_active_membership(db_session, member, schedule) -> None:
+def test_booking_requires_active_membership(
+    db_session, member, schedule, next_date_for_weekday
+) -> None:
     with pytest.raises(BusinessRuleError):
         booking_service.create_booking(
             db_session,
             BookingCreate(
                 member_id=member.id,
                 schedule_id=schedule.id,
-                booking_date=date.today(),
+                booking_date=next_date_for_weekday(schedule.day_of_week),
             ),
         )
 
 
-def test_booking_is_confirmed(db_session, member, schedule, active_membership) -> None:
+def test_booking_date_must_match_schedule_weekday(
+    db_session, member, schedule, active_membership, next_date_for_weekday
+) -> None:
+    other_weekday = (schedule.day_of_week + 1) % 7
+    with pytest.raises(InvalidDataError):
+        booking_service.create_booking(
+            db_session,
+            BookingCreate(
+                member_id=member.id,
+                schedule_id=schedule.id,
+                booking_date=next_date_for_weekday(other_weekday),
+            ),
+        )
+
+
+def test_booking_is_confirmed(
+    db_session, member, schedule, active_membership, next_date_for_weekday
+) -> None:
     booking = booking_service.create_booking(
         db_session,
         BookingCreate(
-            member_id=member.id, schedule_id=schedule.id, booking_date=date.today()
+            member_id=member.id,
+            schedule_id=schedule.id,
+            booking_date=next_date_for_weekday(schedule.day_of_week),
         ),
     )
     assert booking.status == BookingStatus.confirmed
 
 
-def test_capacity_rule(db_session, plan, schedule) -> None:
+def test_capacity_rule(db_session, plan, schedule, next_date_for_weekday) -> None:
     # gym_class.capacity == 2
     first = _member_with_membership(db_session, plan, "a@test.dev")
     second = _member_with_membership(db_session, plan, "b@test.dev")
     third = _member_with_membership(db_session, plan, "c@test.dev")
 
-    payload = {"schedule_id": schedule.id, "booking_date": date.today()}
+    payload = {
+        "schedule_id": schedule.id,
+        "booking_date": next_date_for_weekday(schedule.day_of_week),
+    }
     booking_service.create_booking(db_session, BookingCreate(member_id=first.id, **payload))
     booking_service.create_booking(db_session, BookingCreate(member_id=second.id, **payload))
 
@@ -77,7 +101,10 @@ def test_capacity_rule(db_session, plan, schedule) -> None:
         )
 
 
-def test_overlap_rule(db_session, member, active_membership, gym_class) -> None:
+def test_overlap_rule(
+    db_session, member, active_membership, gym_class, next_date_for_weekday
+) -> None:
+    booking_date = next_date_for_weekday(0)
     first = ClassSchedule(
         class_id=gym_class.id,
         day_of_week=0,
@@ -99,22 +126,24 @@ def test_overlap_rule(db_session, member, active_membership, gym_class) -> None:
 
     booking_service.create_booking(
         db_session,
-        BookingCreate(member_id=member.id, schedule_id=first.id, booking_date=date.today()),
+        BookingCreate(member_id=member.id, schedule_id=first.id, booking_date=booking_date),
     )
     with pytest.raises(ConflictError):
         booking_service.create_booking(
             db_session,
-            BookingCreate(
-                member_id=member.id, schedule_id=second.id, booking_date=date.today()
-            ),
+            BookingCreate(member_id=member.id, schedule_id=second.id, booking_date=booking_date),
         )
 
 
-def test_cancel_booking(db_session, member, schedule, active_membership) -> None:
+def test_cancel_booking(
+    db_session, member, schedule, active_membership, next_date_for_weekday
+) -> None:
     booking = booking_service.create_booking(
         db_session,
         BookingCreate(
-            member_id=member.id, schedule_id=schedule.id, booking_date=date.today()
+            member_id=member.id,
+            schedule_id=schedule.id,
+            booking_date=next_date_for_weekday(schedule.day_of_week),
         ),
     )
     cancelled = booking_service.cancel_booking(db_session, booking.id)

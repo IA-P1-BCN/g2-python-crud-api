@@ -23,7 +23,7 @@ class UserCreate(UserBase):
                     "full_name": "Socio Uno",
                     "role": "member",
                     "is_active": True,
-                    "password": "gymflow123",
+                    "password": "Athletica123!",
                 }
             ]
         }

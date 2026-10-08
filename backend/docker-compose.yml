@@ -2,15 +2,15 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: gymflow
-      POSTGRES_PASSWORD: gymflow
-      POSTGRES_DB: gymflow
+      POSTGRES_USER: athletica
+      POSTGRES_PASSWORD: athletica
+      POSTGRES_DB: athletica
     ports:
       - '5432:5432'
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - athletica_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U gymflow']
+      test: ['CMD-SHELL', 'pg_isready -U athletica']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -18,7 +18,7 @@ services:
   api:
     build: .
     environment:
-      DATABASE_URL: postgresql+psycopg://gymflow:gymflow@db:5432/gymflow
+      DATABASE_URL: postgresql+psycopg://athletica:athletica@db:5432/athletica
       SECRET_KEY: change-me
       CORS_ORIGINS: http://localhost:5173
       LOG_LEVEL: INFO
@@ -33,4 +33,4 @@ services:
         condition: service_healthy
 
 volumes:
-  pgdata:
+  athletica_pgdata:

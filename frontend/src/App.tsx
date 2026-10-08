@@ -11,11 +11,13 @@ import { PublicPlansPage } from '@/pages/public/PublicPlansPage'
 import { ClassesPage } from '@/pages/member/ClassesPage'
 import { BookingsPage } from '@/pages/member/BookingsPage'
 import { MembershipPage } from '@/pages/member/MembershipPage'
+import { ProfilePage } from '@/pages/member/ProfilePage'
 import { TrainerSessionsPage } from '@/pages/trainer/TrainerSessionsPage'
 import { TrainerMembersPage } from '@/pages/trainer/TrainerMembersPage'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
 import { PlansPage } from '@/pages/admin/PlansPage'
 import { AdminMembersPage } from '@/pages/admin/AdminMembersPage'
+import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
 
 export function App() {
   return (
@@ -36,6 +38,7 @@ export function App() {
             <Route path="classes" element={<ClassesPage />} />
             <Route path="bookings" element={<BookingsPage />} />
             <Route path="membership" element={<MembershipPage />} />
+            <Route path="profile" element={<ProfilePage />} />
           </Route>
 
           <Route path="trainer" element={<ProtectedRoute allowedRoles={['trainer']} />}>
@@ -49,6 +52,7 @@ export function App() {
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="plans" element={<PlansPage />} />
             <Route path="members" element={<AdminMembersPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
           </Route>
         </Route>
       </Route>
