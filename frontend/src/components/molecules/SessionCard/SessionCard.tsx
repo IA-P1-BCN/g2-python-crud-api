@@ -92,12 +92,15 @@ export function SessionCard({
       {shown.length > 0 ? (
         <div className="session-card__attendees" aria-label={`${attendees.length} inscritos`}>
           {shown.map((attendee) => (
-            <span key={attendee.id} className="session-card__avatar" aria-hidden="true">
+            <span key={attendee.id} className="avatar session-card__avatar" aria-hidden="true">
               {initials(attendee.name)}
             </span>
           ))}
           {hidden > 0 ? (
-            <span className="session-card__avatar session-card__avatar--more" aria-hidden="true">
+            <span
+              className="avatar session-card__avatar session-card__avatar--more"
+              aria-hidden="true"
+            >
               +{hidden}
             </span>
           ) : null}
