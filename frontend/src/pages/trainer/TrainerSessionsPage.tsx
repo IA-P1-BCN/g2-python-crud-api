@@ -1,42 +1,18 @@
 import { useMemo, useState } from 'react'
-import { useQueries, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { Alert, Badge, Button, Table, type Column } from '@/components/ui'
-import { bookingsApi, classesApi, schedulesApi, toApiError, usersApi } from '@/api'
-import { useAuth } from '@/auth'
+import { bookingsApi, toApiError, usersApi } from '@/api'
 import { dayLabel, formatTime } from '@/lib/format'
-import type { Booking, ClassSchedule, GymClass } from '@/types/api'
+import type { Booking } from '@/types/api'
+import { useTrainerSessions, type TrainerSession } from './useTrainerSessions'
 
 const PAGE_SIZE = 100
 
-type Session = {
-  gymClass: GymClass
-  schedule: ClassSchedule
-}
-
 export function TrainerSessionsPage() {
-  const { user } = useAuth()
-  const trainerId = user?.id ?? 0
   const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(null)
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10))
 
-  const classes = useQuery({
-    queryKey: ['trainer', trainerId, 'classes'],
-    enabled: user !== null,
-    queryFn: () => classesApi.list({ trainer_id: trainerId, size: PAGE_SIZE }),
-  })
-
-  const classList = classes.data?.items ?? []
-
-  const scheduleQueries = useQueries({
-    queries: classList.map((gymClass) => ({
-      queryKey: ['trainer', trainerId, 'schedules', gymClass.id],
-      queryFn: () => schedulesApi.list({ class_id: gymClass.id, size: PAGE_SIZE }),
-    })),
-  })
-
-  const sessions: Session[] = classList.flatMap((gymClass, index) =>
-    (scheduleQueries[index]?.data?.items ?? []).map((schedule) => ({ gymClass, schedule })),
-  )
+  const { sessions, isLoading, isError, error } = useTrainerSessions()
 
   const selectedSession =
     sessions.find((session) => session.schedule.id === selectedScheduleId) ?? sessions[0] ?? null
@@ -63,12 +39,10 @@ export function TrainerSessionsPage() {
     [users.data],
   )
 
-  const scheduleError = scheduleQueries.find((query) => query.isError)?.error
-  const isLoading = classes.isLoading || scheduleQueries.some((query) => query.isLoading)
   const activeMembers = members.data?.items ?? []
   const enrolledCount = activeMembers.filter((booking) => booking.status === 'confirmed').length
 
-  const sessionColumns: Column<Session>[] = [
+  const sessionColumns: Column<TrainerSession>[] = [
     { key: 'class', header: 'Clase', render: (session) => session.gymClass.name },
     { key: 'day', header: 'Día', render: (session) => dayLabel(session.schedule.day_of_week) },
     {
@@ -122,8 +96,7 @@ export function TrainerSessionsPage() {
         <h1>Mis sesiones</h1>
       </div>
 
-      {classes.isError ? <Alert variant="error">{toApiError(classes.error).message}</Alert> : null}
-      {scheduleError ? <Alert variant="error">{toApiError(scheduleError).message}</Alert> : null}
+      {isError ? <Alert variant="error">{toApiError(error).message}</Alert> : null}
 
       <h2>Mis clases y horarios</h2>
       <Table
