@@ -9,6 +9,7 @@
   --color-danger: #dc2626;
   --color-success: #16a34a;
   --color-warning: #d97706;
+  --color-lime: #a3e635;
   font-family:
     system-ui,
     -apple-system,
@@ -236,7 +237,8 @@ body {
   flex: 1;
 }
 
-.field input {
+.field input,
+.field select {
   padding: 0.5rem;
   border: 1px solid var(--color-border);
   border-radius: 6px;
@@ -330,6 +332,237 @@ body {
   flex-wrap: wrap;
   gap: 0.5rem;
   margin: 1rem 0;
+}
+
+.day-chip {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 3rem;
+  padding: 0.4rem 0.55rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.day-chip:hover:not(.day-chip--selected) {
+  border-color: var(--color-lime);
+}
+
+.day-chip:focus-visible {
+  outline: 2px solid var(--color-lime);
+  outline-offset: 2px;
+}
+
+.day-chip--selected {
+  background: var(--color-lime);
+  border-color: var(--color-lime);
+}
+
+.day-chip__day {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.day-chip--selected .day-chip__day {
+  color: var(--color-text);
+}
+
+.day-chip__date {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.day-chip__marker {
+  position: absolute;
+  bottom: 0.25rem;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.day-chip--selected .day-chip__marker {
+  background: var(--color-text);
+}
+
+.session-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.session-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.session-card__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.session-card__meta {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.session-card__capacity {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.session-card__progress {
+  width: 100%;
+  height: 0.5rem;
+  border: none;
+  border-radius: 999px;
+  overflow: hidden;
+  appearance: none;
+}
+
+.session-card__progress::-webkit-progress-bar {
+  background: #eef1f5;
+  border-radius: 999px;
+}
+
+.session-card__progress::-webkit-progress-value {
+  background: var(--color-primary);
+  border-radius: 999px;
+}
+
+.session-card__progress::-moz-progress-bar {
+  background: var(--color-primary);
+  border-radius: 999px;
+}
+
+.session-card__attendees {
+  display: flex;
+  align-items: center;
+}
+
+.session-card__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin-left: -0.5rem;
+  border: 2px solid var(--color-surface);
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.session-card__avatar:first-child {
+  margin-left: 0;
+}
+
+.session-card__avatar--more {
+  background: #eef1f5;
+  color: var(--color-muted);
+}
+
+.session-card__status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.week-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.week-selector__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.week-selector__range {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.week-selector__days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.week-selector__nav {
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.week-selector__nav:hover {
+  border-color: var(--color-lime);
+}
+
+.week-selector__nav:focus-visible {
+  outline: 2px solid var(--color-lime);
+  outline-offset: 2px;
+}
+
+.session-list {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.session-list .card {
+  margin-bottom: 0;
+}
+
+.session-list__empty {
+  color: var(--color-muted);
+  margin: 1rem 0;
+}
+
+.session-list__skeleton {
+  height: 8rem;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #eef1f5 25%, #e2e8f0 37%, #eef1f5 63%);
+  background-size: 400% 100%;
+  animation: session-list-pulse 1.4s ease infinite;
+}
+
+@keyframes session-list-pulse {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
 }
 
 .session-detail {

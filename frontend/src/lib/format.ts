@@ -1,8 +1,14 @@
 const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+const SHORT_DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 
 /** Maps the numeric `day_of_week` (0 = Monday) to its Spanish label. */
 export function dayLabel(day: number): string {
   return DAYS[day] ?? `Día ${day}`
+}
+
+/** Maps the numeric `day_of_week` (0 = Monday) to its short Spanish label. */
+export function shortDayLabel(day: number): string {
+  return SHORT_DAYS[day] ?? `Día ${day}`
 }
 
 /** Trims "HH:MM:SS" to "HH:MM". */
@@ -13,6 +19,13 @@ export function formatTime(value: string): string {
 /** Formats an amount in cents as a euro currency string (e.g. 3999 → "39,99 €"). */
 export function formatPrice(cents: number): string {
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100)
+}
+
+/** "39,99" or "39.99" → 3999; null when it is not a positive amount. */
+export function parsePriceCents(value: string): number | null {
+  const amount = Number(value.replace(',', '.'))
+  if (!Number.isFinite(amount) || amount <= 0) return null
+  return Math.round(amount * 100)
 }
 
 export function formatDate(value: string): string {
