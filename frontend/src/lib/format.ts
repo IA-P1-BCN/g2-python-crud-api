@@ -38,6 +38,13 @@ export function formatDate(value: string): string {
   })
 }
 
+/** Local "HH:MM" for an ISO datetime, e.g. "2026-10-06T09:15:00Z". */
+export function formatClock(value: string): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+}
+
 export function formatDateTime(value: string): string {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
