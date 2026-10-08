@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { Alert, Badge, Button, Table, type Column } from '@/components/ui'
+import { Alert, Button, Table, type Column } from '@/components/ui'
 import { bookingsApi, membershipsApi, toApiError } from '@/api'
 import { formatDate } from '@/lib/format'
 import type { Booking, Membership, User } from '@/types/api'
+import { UserStatusBadge } from '../users/UserStatusBadge'
 
 const MEMBERSHIP_STATUS: Record<Membership['status'], string> = {
   active: 'Activa',
@@ -52,14 +53,7 @@ export function MemberDetail({ member, onClose }: MemberDetailProps) {
         </Button>
       </div>
       <p className="card__meta">
-        {member.email} · Alta el {formatDate(member.created_at)} ·{' '}
-        {member.is_active ? (
-          <Badge tone="success">Activo</Badge>
-        ) : (
-          <Badge tone="danger">
-            Baja{member.deactivated_at ? ` el ${formatDate(member.deactivated_at)}` : ''}
-          </Badge>
-        )}
+        {member.email} · Alta el {formatDate(member.created_at)} · <UserStatusBadge user={member} />
       </p>
 
       <h3>Membresías</h3>

@@ -2,35 +2,40 @@ import { useState, type FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Alert, Button } from '@/components/ui'
 import { toApiError, usersApi } from '@/api'
-import type { User } from '@/types/api'
+import type { Role, User } from '@/types/api'
+import { ROLE_LABELS } from './roleLabels'
 
 const MIN_PASSWORD_LENGTH = 8
 
-type MemberFormProps = {
-  /** Member to edit; without it the form creates a new member. */
-  member?: User
+type UserFormProps = {
+  /** User to edit; without it the form creates a new one. */
+  user?: User
+  /** Roles the form can assign; with only one, no role selector is shown. */
+  roles: Role[]
+  /** Word used in the title: "Nuevo socio", "Editar usuario"... */
+  noun: string
   onDone: () => void
 }
 
-export function MemberForm({ member, onDone }: MemberFormProps) {
+export function UserForm({ user, roles, noun, onDone }: UserFormProps) {
   const queryClient = useQueryClient()
-  const isEdit = member !== undefined
-  const [fullName, setFullName] = useState(member?.full_name ?? '')
-  const [email, setEmail] = useState(member?.email ?? '')
+  const isEdit = user !== undefined
+  const canChooseRole = roles.length > 1
+  const [fullName, setFullName] = useState(user?.full_name ?? '')
+  const [email, setEmail] = useState(user?.email ?? '')
+  const [role, setRole] = useState<Role>(user?.role ?? roles[0])
   const [password, setPassword] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
 
   const save = useMutation({
     mutationFn: () =>
       isEdit
-        ? usersApi.update(member.id, { full_name: fullName, email })
-        : usersApi.create({
+        ? usersApi.update(user.id, {
             full_name: fullName,
             email,
-            password,
-            role: 'member',
-            is_active: true,
-          }),
+            ...(canChooseRole ? { role } : {}),
+          })
+        : usersApi.create({ full_name: fullName, email, password, role, is_active: true }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['users'] })
       onDone()
@@ -47,13 +52,11 @@ export function MemberForm({ member, onDone }: MemberFormProps) {
     save.mutate()
   }
 
+  const title = `${isEdit ? 'Editar' : 'Nuevo'} ${noun}`
+
   return (
-    <form
-      className="form card"
-      onSubmit={handleSubmit}
-      aria-label={isEdit ? 'Editar socio' : 'Nuevo socio'}
-    >
-      <h2 className="card__title">{isEdit ? 'Editar socio' : 'Nuevo socio'}</h2>
+    <form className="form card" onSubmit={handleSubmit} aria-label={title}>
+      <h2 className="card__title">{title}</h2>
 
       {formError ? <Alert variant="error">{formError}</Alert> : null}
       {save.isError ? <Alert variant="error">{toApiError(save.error).message}</Alert> : null}
@@ -71,6 +74,18 @@ export function MemberForm({ member, onDone }: MemberFormProps) {
           required
         />
       </label>
+      {canChooseRole ? (
+        <label className="field">
+          Rol
+          <select value={role} onChange={(event) => setRole(event.target.value as Role)}>
+            {roles.map((option) => (
+              <option key={option} value={option}>
+                {ROLE_LABELS[option]}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       {isEdit ? null : (
         <label className="field">
           Contraseña inicial
