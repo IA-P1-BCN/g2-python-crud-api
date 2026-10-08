@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { bookingsApi, classesApi, schedulesApi, usersApi } from '@/api'
+import { bookingsApi, classesApi, roomsApi, schedulesApi } from '@/api'
 import { useAuth, type AuthContextValue } from '@/auth'
 import { TrainerSessionsPage } from '@/pages/trainer/TrainerSessionsPage'
-import type { Booking, ClassSchedule, GymClass, User } from '@/types/api'
+import type { ClassSchedule, GymClass, Room, User } from '@/types/api'
 
 vi.mock('@/auth', () => ({ useAuth: vi.fn() }))
 
@@ -13,7 +13,7 @@ vi.mock('@/api', () => ({
   classesApi: { list: vi.fn() },
   schedulesApi: { list: vi.fn() },
   bookingsApi: { list: vi.fn() },
-  usersApi: { list: vi.fn() },
+  roomsApi: { list: vi.fn() },
   toApiError: (error: unknown) => ({ status: 0, message: String(error) }),
 }))
 
@@ -39,6 +39,7 @@ const gymClass: GymClass = {
   created_at: '2026-10-01T10:00:00Z',
 }
 
+// Monday, so clicking the "Lun" chip selects it deterministically.
 const schedule: ClassSchedule = {
   id: 10,
   class_id: 1,
@@ -49,24 +50,7 @@ const schedule: ClassSchedule = {
   created_at: '2026-10-01T10:00:00Z',
 }
 
-const booking: Booking = {
-  id: 100,
-  member_id: 1,
-  schedule_id: 10,
-  booking_date: '2026-10-06',
-  status: 'confirmed',
-  created_at: '2026-10-06T09:00:00Z',
-}
-
-const member: User = {
-  id: 1,
-  email: 'socio@example.com',
-  full_name: 'Socio Uno',
-  role: 'member',
-  is_active: true,
-  created_at: '2026-10-01T10:00:00Z',
-  deactivated_at: null,
-}
+const room: Room = { id: 1, name: 'Sala 1', capacity: 20 }
 
 function authValue(partial: Partial<AuthContextValue>): AuthContextValue {
   return {
@@ -87,9 +71,7 @@ function renderPage() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter>
-        <TrainerSessionsPage />
-      </MemoryRouter>
+      <TrainerSessionsPage />
     </QueryClientProvider>,
   )
 }
@@ -115,14 +97,14 @@ describe('TrainerSessionsPage', () => {
       pages: 1,
     })
     vi.mocked(bookingsApi.list).mockResolvedValue({
-      items: [booking],
-      total: 1,
+      items: [],
+      total: 0,
       page: 1,
       size: 100,
       pages: 1,
     })
-    vi.mocked(usersApi.list).mockResolvedValue({
-      items: [member],
+    vi.mocked(roomsApi.list).mockResolvedValue({
+      items: [room],
       total: 1,
       page: 1,
       size: 100,
@@ -130,23 +112,29 @@ describe('TrainerSessionsPage', () => {
     })
   })
 
-  it('muestra solo las clases del propio entrenador', async () => {
+  it('muestra solo las clases del propio entrenador para el día elegido', async () => {
     renderPage()
 
+    await userEvent.click(await screen.findByRole('button', { name: /^Lun / }))
+
     expect(await screen.findByText('Yoga')).toBeInTheDocument()
+    expect(screen.getByText('10:00 – 11:00 · Sala 1')).toBeInTheDocument()
     expect(classesApi.list).toHaveBeenCalledWith({ trainer_id: trainer.id, size: 100 })
   })
 
-  it('lista los miembros inscritos en la sesión seleccionada', async () => {
+  it('muestra el estado vacío cuando no hay sesiones ese día', async () => {
+    vi.mocked(schedulesApi.list).mockResolvedValue({
+      items: [],
+      total: 0,
+      page: 1,
+      size: 100,
+      pages: 1,
+    })
+
     renderPage()
 
-    expect(await screen.findByText('Socio Uno')).toBeInTheDocument()
-    expect(screen.getByText('socio@example.com')).toBeInTheDocument()
-    expect(screen.getByText('Confirmada')).toBeInTheDocument()
-    expect(bookingsApi.list).toHaveBeenCalledWith({
-      schedule_id: schedule.id,
-      on_date: expect.any(String),
-      size: 100,
-    })
+    await userEvent.click(await screen.findByRole('button', { name: /^Lun / }))
+
+    expect(await screen.findByText('No tienes sesiones para este día.')).toBeInTheDocument()
   })
 })
