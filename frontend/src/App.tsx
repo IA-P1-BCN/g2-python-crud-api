@@ -11,6 +11,7 @@ import { PublicPlansPage } from '@/pages/public/PublicPlansPage'
 import { ClassesPage } from '@/pages/member/ClassesPage'
 import { BookingsPage } from '@/pages/member/BookingsPage'
 import { MembershipPage } from '@/pages/member/MembershipPage'
+import { ProfilePage } from '@/pages/member/ProfilePage'
 import { TrainerSessionsPage } from '@/pages/trainer/TrainerSessionsPage'
 import { TrainerMembersPage } from '@/pages/trainer/TrainerMembersPage'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
@@ -37,6 +38,7 @@ export function App() {
             <Route path="classes" element={<ClassesPage />} />
             <Route path="bookings" element={<BookingsPage />} />
             <Route path="membership" element={<MembershipPage />} />
+            <Route path="profile" element={<ProfilePage />} />
           </Route>
 
           <Route path="trainer" element={<ProtectedRoute allowedRoles={['trainer']} />}>

@@ -47,4 +47,16 @@ export const usersApi = {
     })
     return data
   },
+
+  async updateProfile(id: number, payload: { email?: string; full_name?: string }): Promise<User> {
+    const { data } = await apiClient.put<User>(`/users/${id}/profile`, payload)
+    return data
+  },
+
+  async changePassword(
+    id: number,
+    payload: { current_password: string; new_password: string },
+  ): Promise<void> {
+    await apiClient.put(`/users/${id}/password`, payload)
+  },
 }
