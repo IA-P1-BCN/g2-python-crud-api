@@ -9,6 +9,7 @@ import {
   membershipsApi,
   roomsApi,
   schedulesApi,
+  usersApi,
 } from '@/api'
 import { apiClient } from '@/api/client'
 import { tokenStorage } from '@/auth/tokenStorage'
@@ -56,6 +57,43 @@ describe('api modules', () => {
       url: '/admin/dashboard',
       method: 'get',
       params: { period: '30d' },
+    })
+  })
+
+  it('usersApi.list envía los filtros como parámetros', async () => {
+    const captured: Captured = {}
+    apiClient.defaults.adapter = captureAdapter(captured, { items: [], total: 0, pages: 1 })
+
+    await usersApi.list({ role: 'member', search: 'ana', is_active: false })
+
+    expect(captured).toMatchObject({
+      url: '/users',
+      method: 'get',
+      params: { role: 'member', search: 'ana', is_active: false },
+    })
+  })
+
+  it('usersApi.deactivate hace DELETE y reactivate hace PUT con is_active', async () => {
+    const captured: Captured = {}
+    apiClient.defaults.adapter = captureAdapter(captured)
+
+    await usersApi.deactivate(5)
+    expect(captured).toMatchObject({ url: '/users/5', method: 'delete' })
+
+    await usersApi.reactivate(5)
+    expect(captured).toMatchObject({ url: '/users/5', method: 'put' })
+  })
+
+  it('usersApi.exportMembersCsv pide el CSV de socios', async () => {
+    const captured: Captured = {}
+    apiClient.defaults.adapter = captureAdapter(captured, new Blob(['id']))
+
+    await usersApi.exportMembersCsv()
+
+    expect(captured).toMatchObject({
+      url: '/export/members.csv',
+      method: 'get',
+      params: { role: 'member' },
     })
   })
 
