@@ -394,6 +394,93 @@ body {
   background: var(--color-text);
 }
 
+.session-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.session-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.session-card__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.session-card__meta {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.session-card__capacity {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.session-card__progress {
+  width: 100%;
+  height: 0.5rem;
+  border: none;
+  border-radius: 999px;
+  overflow: hidden;
+  appearance: none;
+}
+
+.session-card__progress::-webkit-progress-bar {
+  background: #eef1f5;
+  border-radius: 999px;
+}
+
+.session-card__progress::-webkit-progress-value {
+  background: var(--color-primary);
+  border-radius: 999px;
+}
+
+.session-card__progress::-moz-progress-bar {
+  background: var(--color-primary);
+  border-radius: 999px;
+}
+
+.session-card__attendees {
+  display: flex;
+  align-items: center;
+}
+
+.session-card__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin-left: -0.5rem;
+  border: 2px solid var(--color-surface);
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.session-card__avatar:first-child {
+  margin-left: 0;
+}
+
+.session-card__avatar--more {
+  background: #eef1f5;
+  color: var(--color-muted);
+}
+
+.session-card__status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .session-detail {
   display: flex;
   flex-direction: column;
