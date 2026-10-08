@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { bookingsApi, roomsApi, toApiError } from '@/api'
+import { EnrolledMembersPanel } from '@/components/organisms/EnrolledMembersPanel'
 import { SessionList, type SessionListItem } from '@/components/organisms/SessionList'
 import { WeekSelector } from '@/components/organisms/WeekSelector'
 import { addDays, parseIsoDate, startOfWeek, toIsoDate } from '@/lib/dates'
-import { formatTime } from '@/lib/format'
+import { formatDate, formatTime } from '@/lib/format'
+import { useEnrolledMembers } from './useEnrolledMembers'
 import { useTrainerSessions } from './useTrainerSessions'
 
 const PAGE_SIZE = 100
@@ -16,6 +18,7 @@ function weekdayOf(isoDate: string): number {
 
 export function TrainerSessionsPage() {
   const [selectedDate, setSelectedDate] = useState(() => toIsoDate(new Date()))
+  const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(null)
 
   const {
     sessions,
@@ -65,6 +68,15 @@ export function TrainerSessionsPage() {
       capacity: gymClass.capacity,
     }))
 
+  const selectedSession = sessions.find((session) => session.schedule.id === selectedScheduleId)
+
+  const {
+    members,
+    isLoading: isLoadingMembers,
+    isError: isMembersError,
+    error: membersError,
+  } = useEnrolledMembers(selectedScheduleId, selectedDate)
+
   const error = isSessionsError
     ? toApiError(sessionsError).message
     : bookings.isError
@@ -72,6 +84,11 @@ export function TrainerSessionsPage() {
       : rooms.isError
         ? toApiError(rooms.error).message
         : null
+
+  function handleSelectDate(isoDate: string) {
+    setSelectedDate(isoDate)
+    setSelectedScheduleId(null)
+  }
 
   return (
     <div className="page">
@@ -81,7 +98,7 @@ export function TrainerSessionsPage() {
 
       <WeekSelector
         selectedDate={selectedDate}
-        onSelectDate={setSelectedDate}
+        onSelectDate={handleSelectDate}
         sessionDates={sessionDates}
       />
 
@@ -91,7 +108,23 @@ export function TrainerSessionsPage() {
         isLoading={isLoadingSessions || bookings.isLoading || rooms.isLoading}
         error={error}
         emptyMessage="No tienes sesiones para este día."
+        onAction={setSelectedScheduleId}
       />
+
+      {selectedSession ? (
+        <section className="members">
+          <EnrolledMembersPanel
+            title={selectedSession.gymClass.name}
+            date={formatDate(selectedDate)}
+            enrolled={members.length}
+            capacity={selectedSession.gymClass.capacity}
+            members={members}
+            isLoading={isLoadingMembers}
+            error={isMembersError ? toApiError(membersError).message : null}
+            onClose={() => setSelectedScheduleId(null)}
+          />
+        </section>
+      ) : null}
     </div>
   )
 }

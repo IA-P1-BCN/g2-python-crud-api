@@ -2,10 +2,10 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { bookingsApi, classesApi, roomsApi, schedulesApi } from '@/api'
+import { bookingsApi, classesApi, roomsApi, schedulesApi, usersApi } from '@/api'
 import { useAuth, type AuthContextValue } from '@/auth'
 import { TrainerSessionsPage } from '@/pages/trainer/TrainerSessionsPage'
-import type { ClassSchedule, GymClass, Room, User } from '@/types/api'
+import type { Booking, ClassSchedule, GymClass, Room, User } from '@/types/api'
 
 vi.mock('@/auth', () => ({ useAuth: vi.fn() }))
 
@@ -14,6 +14,7 @@ vi.mock('@/api', () => ({
   schedulesApi: { list: vi.fn() },
   bookingsApi: { list: vi.fn() },
   roomsApi: { list: vi.fn() },
+  usersApi: { list: vi.fn() },
   toApiError: (error: unknown) => ({ status: 0, message: String(error) }),
 }))
 
@@ -51,6 +52,25 @@ const schedule: ClassSchedule = {
 }
 
 const room: Room = { id: 1, name: 'Sala 1', capacity: 20 }
+
+const booking: Booking = {
+  id: 1,
+  member_id: 1,
+  schedule_id: 10,
+  booking_date: '2026-10-06',
+  status: 'confirmed',
+  created_at: '2026-10-06T09:00:00Z',
+}
+
+const member: User = {
+  id: 1,
+  email: 'socio@example.com',
+  full_name: 'Socio Uno',
+  role: 'member',
+  is_active: true,
+  created_at: '2026-10-01T10:00:00Z',
+  deactivated_at: null,
+}
 
 function authValue(partial: Partial<AuthContextValue>): AuthContextValue {
   return {
@@ -98,14 +118,21 @@ describe('TrainerSessionsPage', () => {
       pages: 1,
     })
     vi.mocked(bookingsApi.list).mockResolvedValue({
-      items: [],
-      total: 0,
+      items: [booking],
+      total: 1,
       page: 1,
       size: 100,
       pages: 1,
     })
     vi.mocked(roomsApi.list).mockResolvedValue({
       items: [room],
+      total: 1,
+      page: 1,
+      size: 100,
+      pages: 1,
+    })
+    vi.mocked(usersApi.list).mockResolvedValue({
+      items: [member],
       total: 1,
       page: 1,
       size: 100,
@@ -137,5 +164,20 @@ describe('TrainerSessionsPage', () => {
     await userEvent.click(await screen.findByRole('button', { name: /^Lun / }))
 
     expect(await screen.findByText('No tienes sesiones para este día.')).toBeInTheDocument()
+  })
+
+  it('abre y cierra el panel de inscritos de la sesión elegida', async () => {
+    renderPage()
+
+    await userEvent.click(await screen.findByRole('button', { name: /^Lun / }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Ver inscritos' }))
+
+    expect(await screen.findByRole('heading', { name: 'Yoga', level: 2 })).toBeInTheDocument()
+    expect(await screen.findByText('Socio Uno')).toBeInTheDocument()
+    expect(screen.getByText('Socio #1')).toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cerrar' }))
+
+    expect(screen.queryByRole('heading', { name: 'Yoga', level: 2 })).not.toBeInTheDocument()
   })
 })
