@@ -452,19 +452,22 @@ body {
   align-items: center;
 }
 
-.session-card__avatar {
+.avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  margin-left: -0.5rem;
-  border: 2px solid var(--color-surface);
   border-radius: 50%;
   background: var(--color-primary);
   color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
+}
+
+.session-card__avatar {
+  margin-left: -0.5rem;
+  border: 2px solid var(--color-surface);
 }
 
 .session-card__avatar:first-child {
@@ -473,6 +476,33 @@ body {
 
 .session-card__avatar--more {
   background: #eef1f5;
+  color: var(--color-muted);
+}
+
+.enrolled-member-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+}
+
+.enrolled-member-row__info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.enrolled-member-row__name {
+  font-weight: 600;
+}
+
+.enrolled-member-row__number {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.enrolled-member-row__time {
+  font-size: 0.8rem;
   color: var(--color-muted);
 }
 
