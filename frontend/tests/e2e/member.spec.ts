@@ -7,6 +7,11 @@ test('el socio reserva desde el calendario, consulta y cancela, y ve su membresÃ
   await mockApi(page, { user: users.member })
   await loginAs(page, 'member')
 
+  // The member lands on their home with the empty next-booking state.
+  await expect(page.getByRole('heading', { name: 'Hola, Socio Uno' })).toBeVisible()
+  await expect(page.getByText('No tienes reservas prÃ³ximas.')).toBeVisible()
+
+  await page.goto('/member/classes')
   await expect(page.getByRole('heading', { name: 'Calendario de clases' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Lunes' }).click()
@@ -43,6 +48,7 @@ test('muestra el mensaje de error de la API al reservar', async ({ page }) => {
   })
   await loginAs(page, 'member')
 
+  await page.goto('/member/classes')
   await page.getByRole('button', { name: 'Lunes' }).click()
   await page.getByRole('row', { name: /Yoga/ }).getByRole('button', { name: 'Ver detalle' }).click()
   await page.getByRole('button', { name: 'Reservar' }).click()
