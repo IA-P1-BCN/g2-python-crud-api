@@ -64,9 +64,15 @@ def get_user_by_email(db: Session, email: str) -> User | None:
     return db.execute(select(User).where(User.email == email)).scalar_one_or_none()
 
 
-def create_user(db: Session, data: UserCreate) -> User:
-    if get_user_by_email(db, data.email) is not None:
+def _ensure_email_is_free(db: Session, email: str, owner_id: int | None = None) -> None:
+    """Raise a conflict if another user has the email; `owner_id` may keep their own."""
+    existing = get_user_by_email(db, email)
+    if existing is not None and existing.id != owner_id:
         raise ConflictError("El email ya está registrado")
+
+
+def create_user(db: Session, data: UserCreate) -> User:
+    _ensure_email_is_free(db, data.email)
     user = User(
         email=data.email,
         full_name=data.full_name,
@@ -86,11 +92,7 @@ def update_user(db: Session, user_id: int, data: UserUpdate) -> User:
     password = payload.pop("password", None)
 
     if "email" in payload:
-        duplicate = db.execute(
-            select(User).where(User.email == payload["email"], User.id != user_id)
-        ).scalar_one_or_none()
-        if duplicate is not None:
-            raise ConflictError("El email ya está registrado")
+        _ensure_email_is_free(db, payload["email"], owner_id=user_id)
 
     is_active = payload.pop("is_active", None)
     for field, value in payload.items():
@@ -110,11 +112,7 @@ def update_profile(db: Session, user_id: int, data: ProfileUpdate) -> User:
     payload = data.model_dump(exclude_unset=True)
 
     if "email" in payload:
-        duplicate = db.execute(
-            select(User).where(User.email == payload["email"], User.id != user_id)
-        ).scalar_one_or_none()
-        if duplicate is not None:
-            raise ConflictError("El email ya está registrado")
+        _ensure_email_is_free(db, payload["email"], owner_id=user_id)
 
     for field, value in payload.items():
         setattr(user, field, value)
