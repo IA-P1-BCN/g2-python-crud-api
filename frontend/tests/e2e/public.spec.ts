@@ -8,7 +8,7 @@ test('la home y la página de planes son accesibles sin sesión', async ({ page 
   await expect(page.getByRole('heading', { name: 'Entrena a tu ritmo' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Crear cuenta' }).first()).toBeVisible()
   await expect(page.getByRole('link', { name: 'Iniciar sesión' }).first()).toBeVisible()
-  await expect(page.getByText('Yoga')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Yoga' })).toBeVisible()
 
   await page.getByRole('link', { name: 'Planes', exact: true }).click()
 
