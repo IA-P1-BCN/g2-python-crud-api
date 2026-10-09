@@ -128,3 +128,17 @@ def test_delete_membership(client, active_membership) -> None:
 
     assert deleted.status_code == 204
     assert client.get(f"/api/v1/memberships/{active_membership.id}").status_code == 404
+
+
+def test_delete_membership_with_payments_returns_409(client, member, active_membership) -> None:
+    payment = client.post(
+        "/api/v1/payments",
+        json={"user_id": member.id, "membership_id": active_membership.id, "amount_cents": 3999},
+    ).json()
+
+    response = client.delete(f"/api/v1/memberships/{active_membership.id}")
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "conflict"
+    assert client.get(f"/api/v1/memberships/{active_membership.id}").status_code == 200
+    assert client.get(f"/api/v1/payments/{payment['id']}").status_code == 200

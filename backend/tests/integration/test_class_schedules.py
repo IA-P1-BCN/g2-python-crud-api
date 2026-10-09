@@ -331,6 +331,24 @@ def test_delete_unknown_schedule_returns_404(client) -> None:
     assert response.status_code == 404
 
 
+@pytest.mark.parametrize("status", [BookingStatus.confirmed, BookingStatus.cancelled])
+def test_delete_schedule_with_bookings_returns_409(
+    client, db_session, schedule, member, status: BookingStatus
+) -> None:
+    booking = Booking(
+        member_id=member.id, schedule_id=schedule.id, booking_date=date(2026, 10, 5), status=status
+    )
+    db_session.add(booking)
+    db_session.commit()
+
+    response = client.delete(f"{SCHEDULES_URL}/{schedule.id}")
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "conflict"
+    assert client.get(f"{SCHEDULES_URL}/{schedule.id}").status_code == 200
+    assert client.get(f"/api/v1/bookings/{booking.id}").status_code == 200
+
+
 # GET /class-schedules/{schedule_id}/bookings
 
 
