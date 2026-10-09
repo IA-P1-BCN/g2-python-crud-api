@@ -3,16 +3,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter } from 'react-router-dom'
 import type { ReactElement } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { classesApi, membershipPlansApi } from '@/api'
+import { classesApi, membershipPlansApi, schedulesApi } from '@/api'
 import { useAuth, type AuthContextValue } from '@/auth'
-import { HomePage } from '@/pages/public/HomePage'
+import { LandingPage } from '@/pages/public/LandingPage'
 import { PublicPlansPage } from '@/pages/public/PublicPlansPage'
-import type { GymClass, MembershipPlan } from '@/types/api'
+import type { ClassSchedule, GymClass, MembershipPlan } from '@/types/api'
 
 vi.mock('@/auth', () => ({ useAuth: vi.fn(), homePathForRole: vi.fn(() => '/') }))
 
 vi.mock('@/api', () => ({
   classesApi: { list: vi.fn() },
+  schedulesApi: { list: vi.fn() },
   membershipPlansApi: { list: vi.fn() },
   toApiError: (error: unknown) => ({ status: 0, message: String(error) }),
 }))
@@ -26,6 +27,16 @@ const gymClass: GymClass = {
   trainer_id: 2,
   room_id: 1,
   is_active: true,
+  created_at: '2026-10-01T10:00:00Z',
+}
+
+const schedule: ClassSchedule = {
+  id: 1,
+  class_id: 1,
+  day_of_week: 0,
+  start_time: '10:00:00',
+  end_time: '11:00:00',
+  room_id: 1,
   created_at: '2026-10-01T10:00:00Z',
 }
 
@@ -72,7 +83,14 @@ describe('public pages', () => {
       items: [gymClass],
       total: 1,
       page: 1,
-      size: 3,
+      size: 6,
+      pages: 1,
+    })
+    vi.mocked(schedulesApi.list).mockResolvedValue({
+      items: [schedule],
+      total: 1,
+      page: 1,
+      size: 1,
       pages: 1,
     })
     vi.mocked(membershipPlansApi.list).mockResolvedValue({
@@ -84,14 +102,17 @@ describe('public pages', () => {
     })
   })
 
-  it('la home muestra la presentación, clases destacadas y CTAs sin sesión', async () => {
-    renderPage(<HomePage />)
+  it('la landing muestra presentación, planes y clases destacadas sin sesión', async () => {
+    renderPage(<LandingPage />)
 
     expect(screen.getByRole('heading', { name: 'Entrena a tu ritmo' })).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'Hazte socio' }).length).toBeGreaterThan(0)
+    expect(screen.getByRole('link', { name: 'Entrar' })).toBeInTheDocument()
+    expect(await screen.findByText('Mensual')).toBeInTheDocument()
     expect(await screen.findByText('Yoga')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Crear cuenta' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Iniciar sesión' })).toBeInTheDocument()
-    expect(classesApi.list).toHaveBeenCalledWith({ active_only: true, size: 3 })
+    expect(screen.getByText('Lunes 10:00 – 11:00')).toBeInTheDocument()
+    expect(classesApi.list).toHaveBeenCalledWith({ active_only: true, size: 6 })
+    expect(membershipPlansApi.list).toHaveBeenCalledWith({ active_only: true, size: 100 })
   })
 
   it('la página de planes lista los planes activos con precio y duración', async () => {

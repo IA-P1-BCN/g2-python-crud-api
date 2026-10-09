@@ -6,7 +6,7 @@ import { LoginPage } from '@/pages/LoginPage'
 import { RegisterPage } from '@/pages/RegisterPage'
 import { ForbiddenPage } from '@/pages/ForbiddenPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
-import { HomePage } from '@/pages/public/HomePage'
+import { LandingPage } from '@/pages/public/LandingPage'
 import { PublicPlansPage } from '@/pages/public/PublicPlansPage'
 import { ClassesPage } from '@/pages/member/ClassesPage'
 import { BookingsPage } from '@/pages/member/BookingsPage'
@@ -23,7 +23,7 @@ export function App() {
   return (
     <Routes>
       <Route element={<PublicLayout />}>
-        <Route index element={<HomePage />} />
+        <Route index element={<LandingPage />} />
         <Route path="plans" element={<PublicPlansPage />} />
       </Route>
 
