@@ -1,6 +1,8 @@
 from datetime import UTC, date, datetime
 
-from app.core.security import create_access_token
+import pytest
+
+from app.core.security import create_access_token, verify_password
 from app.models.booking import Booking
 from app.models.user import User
 
@@ -10,7 +12,7 @@ def _user_payload(email: str = "nuevo@test.dev") -> dict:
         "email": email,
         "full_name": "Usuario Nuevo",
         "role": "member",
-        "password": "password123",
+        "password": "Password123!",
     }
 
 
@@ -190,7 +192,7 @@ def test_member_can_change_own_password(anon_client, member) -> None:
         f"/api/v1/users/{member.id}/password",
         json={
             "current_password": "password123",
-            "new_password": "nuevaPassword123",
+            "new_password": "NuevaPassword123!",
         },
         headers=headers,
     )
@@ -199,7 +201,7 @@ def test_member_can_change_own_password(anon_client, member) -> None:
 
     login = anon_client.post(
         "/api/v1/auth/login",
-        json={"email": member.email, "password": "nuevaPassword123"},
+        json={"email": member.email, "password": "NuevaPassword123!"},
     )
 
     assert login.status_code == 200
@@ -212,7 +214,7 @@ def test_member_cannot_change_password_with_wrong_current_password(anon_client, 
         f"/api/v1/users/{member.id}/password",
         json={
             "current_password": "contraseñaIncorrecta123",
-            "new_password": "nuevaPassword123",
+            "new_password": "NuevaPassword123!",
         },
         headers=headers,
     )
@@ -347,3 +349,163 @@ def test_trainer_filters_still_see_members_only(anon_client, trainer, member, ad
     response = anon_client.get("/api/v1/users", params={"is_active": True}, headers=headers)
 
     assert _emails(response) == [member.email]
+
+
+# Password strength rule (#333)
+
+WEAK_PASSWORD = "password123"
+
+
+def _assert_weak_password(response) -> None:
+    assert response.status_code == 422
+    body = response.json()
+    assert body["code"] == "validation_error"
+    assert body["detail"][0]["type"] == "weak_password"
+    assert "mayúscula" in body["detail"][0]["msg"]
+
+
+def test_register_rejects_a_weak_password(anon_client) -> None:
+    response = anon_client.post(
+        "/api/v1/auth/register",
+        json={"email": "debil@test.dev", "full_name": "Débil", "password": WEAK_PASSWORD},
+    )
+
+    _assert_weak_password(response)
+
+
+def test_admin_cannot_create_a_user_with_a_weak_password(client) -> None:
+    response = client.post("/api/v1/users", json=_user_payload() | {"password": WEAK_PASSWORD})
+
+    _assert_weak_password(response)
+
+
+def test_admin_cannot_set_a_weak_password_on_update(client, member) -> None:
+    response = client.put(f"/api/v1/users/{member.id}", json={"password": WEAK_PASSWORD})
+
+    _assert_weak_password(response)
+
+
+def test_member_cannot_change_to_a_weak_password(anon_client, member) -> None:
+    headers = {"Authorization": f"Bearer {create_access_token(member.id, member.role.value)}"}
+
+    response = anon_client.put(
+        f"/api/v1/users/{member.id}/password",
+        json={"current_password": "password123", "new_password": WEAK_PASSWORD},
+        headers=headers,
+    )
+
+    _assert_weak_password(response)
+
+
+def test_accounts_with_an_old_weak_password_can_still_log_in(anon_client, member) -> None:
+    # The member fixture was created before the rule, with "password123".
+    response = anon_client.post(
+        "/api/v1/auth/login", json={"email": member.email, "password": WEAK_PASSWORD}
+    )
+
+    assert response.status_code == 200
+
+
+# Roles, unknown ids and emails in use on every endpoint
+
+
+@pytest.mark.parametrize("role", ["admin", "trainer", "member"])
+def test_create_user_with_each_valid_role(client, role: str) -> None:
+    response = client.post("/api/v1/users", json=_user_payload() | {"role": role})
+
+    assert response.status_code == 201
+    assert response.json()["role"] == role
+
+
+def test_create_user_without_role_is_a_member(client) -> None:
+    payload = _user_payload()
+    del payload["role"]
+
+    response = client.post("/api/v1/users", json=payload)
+
+    assert response.status_code == 201
+    assert response.json()["role"] == "member"
+
+
+def test_create_user_with_an_invalid_role_returns_422(client) -> None:
+    response = client.post("/api/v1/users", json=_user_payload() | {"role": "superuser"})
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "validation_error"
+
+
+def test_update_user_with_an_invalid_role_returns_422(client, member) -> None:
+    response = client.put(f"/api/v1/users/{member.id}", json={"role": "superuser"})
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "validation_error"
+    assert client.get(f"/api/v1/users/{member.id}").json()["role"] == "member"
+
+
+def test_update_can_change_the_role(client, member) -> None:
+    response = client.put(f"/api/v1/users/{member.id}", json={"role": "trainer"})
+
+    assert response.status_code == 200
+    assert response.json()["role"] == "trainer"
+
+
+def test_create_user_stores_the_password_hashed(client, db_session) -> None:
+    payload = _user_payload()
+
+    client.post("/api/v1/users", json=payload)
+
+    user = db_session.query(User).filter_by(email=payload["email"]).one()
+    assert user.hashed_password != payload["password"]
+    assert verify_password(payload["password"], user.hashed_password) is True
+
+
+def test_list_users_never_exposes_the_password(client, member) -> None:
+    items = client.get("/api/v1/users").json()["items"]
+
+    assert items
+    for item in items:
+        assert "password" not in item
+        assert "hashed_password" not in item
+
+
+@pytest.mark.parametrize(
+    ("method", "path", "payload"),
+    [
+        ("PUT", "/users/999999", {"full_name": "Nadie"}),
+        ("PUT", "/users/999999/profile", {"full_name": "Nadie"}),
+        (
+            "PUT",
+            "/users/999999/password",
+            {"current_password": "password123", "new_password": "Password123!"},
+        ),
+        ("GET", "/users/999999/memberships", None),
+        ("GET", "/users/999999/bookings", None),
+    ],
+)
+def test_unknown_user_returns_404_on_every_endpoint(
+    client, method: str, path: str, payload: dict | None
+) -> None:
+    response = client.request(method, f"/api/v1{path}", json=payload)
+
+    assert response.status_code == 404
+    assert response.json()["code"] == "not_found"
+
+
+@pytest.mark.parametrize("path", ["/users/{id}", "/users/{id}/profile"])
+def test_update_with_an_email_in_use_returns_409(client, member, trainer, path: str) -> None:
+    url = f"/api/v1{path.format(id=member.id)}"
+
+    response = client.put(url, json={"email": trainer.email})
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "conflict"
+
+
+@pytest.mark.parametrize("path", ["/users/{id}", "/users/{id}/profile"])
+def test_update_keeping_the_same_email_is_allowed(client, member, path: str) -> None:
+    url = f"/api/v1{path.format(id=member.id)}"
+
+    response = client.put(url, json={"email": member.email, "full_name": "Mismo Email"})
+
+    assert response.status_code == 200
+    assert response.json()["full_name"] == "Mismo Email"

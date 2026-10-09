@@ -187,6 +187,23 @@ def test_delete_unknown_class_returns_404(client) -> None:
     assert response.status_code == 404
 
 
+def test_delete_class_with_schedules_returns_409(client, gym_class, schedule) -> None:
+    response = client.delete(f"{CLASSES_URL}/{gym_class.id}")
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "conflict"
+    assert client.get(f"{CLASSES_URL}/{gym_class.id}").status_code == 200
+    assert client.get(f"/api/v1/class-schedules/{schedule.id}").status_code == 200
+
+
+def test_class_can_be_deleted_after_its_schedules(client, gym_class, schedule) -> None:
+    client.delete(f"/api/v1/class-schedules/{schedule.id}")
+
+    response = client.delete(f"{CLASSES_URL}/{gym_class.id}")
+
+    assert response.status_code == 204
+
+
 # GET /classes/{class_id}/schedules
 
 

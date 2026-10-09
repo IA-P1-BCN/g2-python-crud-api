@@ -31,6 +31,11 @@ export type BookingCreate = Schemas['BookingCreate']
 export type BookingStatus = Schemas['BookingStatus']
 export type BookingPage = Schemas['Page_BookingRead_']
 
+export type Payment = Schemas['PaymentRead']
+export type PaymentCreate = Schemas['PaymentCreate']
+export type PaymentStatus = Schemas['PaymentStatus']
+export type PaymentPage = Schemas['Page_PaymentRead_']
+
 export type LoginRequest = Schemas['LoginRequest']
 export type RegisterRequest = Schemas['RegisterRequest']
 export type Token = Schemas['Token']

@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from app.schemas.password import StrongPassword
 from app.schemas.user import UserRead
 
 
@@ -17,7 +18,7 @@ class LoginRequest(BaseModel):
 class RegisterRequest(BaseModel):
     email: EmailStr
     full_name: str = Field(min_length=1, max_length=255)
-    password: str = Field(min_length=8, max_length=128)
+    password: StrongPassword
 
     model_config = ConfigDict(
         json_schema_extra={

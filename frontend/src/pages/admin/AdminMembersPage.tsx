@@ -6,15 +6,12 @@ import { Pagination } from '@/components/ui/molecules/Pagination'
 import { Table, type Column } from '@/components/ui/organisms/Table'
 import { toApiError, usersApi } from '@/api'
 import { downloadBlob } from '@/lib/download'
-import { formatDate } from '@/lib/format'
 import type { User } from '@/types/api'
 import { MemberDetail } from './members/MemberDetail'
 import { MovementsReport } from './members/MovementsReport'
+import { useAdminMembers } from './members/useAdminMembers'
 import { UserForm } from './users/UserForm'
-import { UserStatusBadge } from './users/UserStatusBadge'
 import { useToggleUserActive } from './users/useToggleUserActive'
-
-const PAGE_SIZE = 10
 
 type StatusFilter = 'all' | 'active' | 'inactive'
 
@@ -30,28 +27,16 @@ const IS_ACTIVE: Record<StatusFilter, boolean | undefined> = {
   inactive: false,
 }
 
-/** Which panel is open below the table. */
+/** Which panel is open below the list. */
 type Panel = { kind: 'create' } | { kind: 'edit'; member: User } | { kind: 'detail'; member: User }
 
 export function AdminMembersPage() {
   const [page, setPage] = useState(1)
-  const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<StatusFilter>('all')
   const [panel, setPanel] = useState<Panel | null>(null)
 
-  const members = useQuery({
-    queryKey: ['users', 'members', { page, search, status }],
-    queryFn: () =>
-      usersApi.list({
-        role: 'member',
-        page,
-        size: PAGE_SIZE,
-        search: search || undefined,
-        is_active: IS_ACTIVE[status],
-      }),
-    placeholderData: keepPreviousData,
-  })
+  const members = useAdminMembers({ page, search, isActive: IS_ACTIVE[status] })
 
   const toggleActive = useToggleUserActive()
 
@@ -60,47 +45,15 @@ export function AdminMembersPage() {
     onSuccess: (blob) => downloadBlob(blob, 'socios.csv'),
   })
 
-  function handleSearch(event: FormEvent) {
-    event.preventDefault()
+  function handleSearch(value: string) {
     setPage(1)
-    setSearch(searchInput.trim())
+    setSearch(value)
   }
 
   function handleStatus(value: StatusFilter) {
     setPage(1)
     setStatus(value)
   }
-
-  const columns: Column<User>[] = [
-    { key: 'full_name', header: 'Nombre' },
-    { key: 'email', header: 'Email' },
-    { key: 'created_at', header: 'Alta', render: (row) => formatDate(row.created_at) },
-    {
-      key: 'is_active',
-      header: 'Estado',
-      render: (row) => <UserStatusBadge user={row} />,
-    },
-    {
-      key: 'actions',
-      header: 'Acciones',
-      render: (row) => (
-        <div className="table-actions">
-          <Button variant="ghost" onClick={() => setPanel({ kind: 'detail', member: row })}>
-            Ver
-          </Button>
-          <Button variant="secondary" onClick={() => setPanel({ kind: 'edit', member: row })}>
-            Editar
-          </Button>
-          <Button
-            variant={row.is_active ? 'danger' : 'primary'}
-            onClick={() => toggleActive.toggle(row)}
-          >
-            {row.is_active ? 'Dar de baja' : 'Reactivar'}
-          </Button>
-        </div>
-      ),
-    },
-  ]
 
   return (
     <div className="page">
@@ -118,16 +71,6 @@ export function AdminMembersPage() {
         </div>
       </div>
 
-      <form className="form form--inline" onSubmit={handleSearch} role="search">
-        <label className="field field--grow">
-          Buscar por nombre o email
-          <input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} />
-        </label>
-        <Button type="submit" variant="secondary">
-          Buscar
-        </Button>
-      </form>
-
       <div className="form__actions" role="group" aria-label="Estado">
         {STATUS_FILTERS.map((option) => (
           <Button
@@ -141,7 +84,6 @@ export function AdminMembersPage() {
         ))}
       </div>
 
-      {members.isError ? <Alert variant="error">{toApiError(members.error).message}</Alert> : null}
       {toggleActive.error ? (
         <Alert variant="error">{toApiError(toggleActive.error).message}</Alert>
       ) : null}
@@ -149,17 +91,39 @@ export function AdminMembersPage() {
         <Alert variant="error">{toApiError(exportCsv.error).message}</Alert>
       ) : null}
 
-      <Table
-        columns={columns}
-        rows={members.data?.items ?? []}
-        rowKey={(row) => row.id}
+      <MembersList
+        members={members.members}
         isLoading={members.isLoading}
+        error={members.isError ? toApiError(members.error).message : null}
         emptyMessage="No hay socios con estos filtros."
+        search={search}
+        onSearch={handleSearch}
+        page={page}
+        pages={members.pages}
+        onPageChange={setPage}
+        renderActions={(member) => (
+          <div className="table-actions">
+            <Button
+              variant="ghost"
+              onClick={() => setPanel({ kind: 'detail', member: member.user })}
+            >
+              Ver
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setPanel({ kind: 'edit', member: member.user })}
+            >
+              Editar
+            </Button>
+            <Button
+              variant={member.user.is_active ? 'danger' : 'primary'}
+              onClick={() => toggleActive.toggle(member.user)}
+            >
+              {member.user.is_active ? 'Dar de baja' : 'Reactivar'}
+            </Button>
+          </div>
+        )}
       />
-
-      {members.data && members.data.pages > 1 ? (
-        <Pagination page={page} pages={members.data.pages} onChange={setPage} />
-      ) : null}
 
       {panel?.kind === 'create' ? (
         <UserForm roles={['member']} noun="socio" onDone={() => setPanel(null)} />
