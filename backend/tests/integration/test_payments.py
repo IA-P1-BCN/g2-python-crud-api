@@ -92,6 +92,16 @@ def test_create_payment_for_an_unknown_user_or_membership_returns_404(
     assert response.json()["code"] == "not_found"
 
 
+def test_create_payment_on_the_membership_of_another_user_returns_422(
+    client, trainer, active_membership
+) -> None:
+    response = client.post(PAYMENTS_URL, json=_payment_payload(trainer, active_membership))
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "validation_error"
+    assert client.get(PAYMENTS_URL).json()["total"] == 0
+
+
 # GET /payments
 
 
@@ -186,6 +196,15 @@ def test_update_payment_validates_fields(client, payment, payload: dict) -> None
 
     assert response.status_code == 422
     assert response.json()["code"] == "validation_error"
+
+
+@pytest.mark.parametrize("field", ["amount_cents", "status"])
+def test_update_payment_with_a_null_field_returns_422(client, payment, field: str) -> None:
+    response = client.put(f"{PAYMENTS_URL}/{payment['id']}", json={field: None})
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "validation_error"
+    assert client.get(f"{PAYMENTS_URL}/{payment['id']}").json() == payment
 
 
 def test_update_unknown_payment_returns_404(client) -> None:
