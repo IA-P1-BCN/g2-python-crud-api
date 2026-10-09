@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { Alert, Button, Table, type Column } from '@/components/ui'
+import { Button } from '@/components/ui/atoms/Button'
+import { Alert } from '@/components/ui/molecules/Alert'
+import { Table, type Column } from '@/components/ui/organisms/Table'
 import { bookingsApi, membershipsApi, toApiError } from '@/api'
 import { formatDate } from '@/lib/format'
 import type { Booking, Membership, User } from '@/types/api'

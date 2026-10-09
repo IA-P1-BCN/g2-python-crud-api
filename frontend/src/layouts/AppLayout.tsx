@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { Button } from '@/components/ui'
+import { Button } from '@/components/ui/atoms/Button'
 import { useAuth } from '@/auth'
 import type { Role } from '@/types/api'
 

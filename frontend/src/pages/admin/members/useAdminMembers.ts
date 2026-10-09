@@ -1,6 +1,6 @@
 import { keepPreviousData, useQueries, useQuery } from '@tanstack/react-query'
 import { membershipPlansApi, membershipsApi, paymentsApi, usersApi } from '@/api'
-import type { MemberListEntry } from '@/components/organisms/MembersList'
+import type { MemberListEntry } from '@/components/ui/organisms/MembersList'
 import type { Membership, Payment, User } from '@/types/api'
 
 const PAGE_SIZE = 10

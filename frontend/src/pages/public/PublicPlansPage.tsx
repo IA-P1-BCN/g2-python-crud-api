@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Alert } from '@/components/ui'
+import { Alert } from '@/components/ui/molecules/Alert'
 import { membershipPlansApi, toApiError } from '@/api'
 import { homePathForRole, useAuth } from '@/auth'
 import { formatPrice } from '@/lib/format'

@@ -1,4 +1,4 @@
-# Gym · Frontend
+# Athletica · Frontend
 
 React + Vite + TypeScript. Consume la API FastAPI del repositorio.
 
@@ -37,18 +37,61 @@ npm run dev          # http://localhost:5173 (proxy /api -> localhost:8000)
 src/
 ├── api/            # ÚNICO sitio que llama a la API (axios + interceptores)
 ├── auth/           # AuthContext, ProtectedRoute, tokenStorage, roles
-├── components/ui/  # Button, Table, Pagination, Alert reutilizables
+├── components/ui/  # Componentes: atoms/, molecules/, organisms/ (atomic design)
 ├── layouts/        # AppLayout (cabecera + navegación por rol)
 ├── pages/
 │   ├── member/     # Pantallas del socio
 │   ├── trainer/    # Pantallas del entrenador (HU-29)
 │   └── admin/      # Pantallas del admin, planes (HU-28)
 ├── types/          # schema.d.ts generado desde OpenAPI
-└── lib/            # queryClient
+├── lib/            # queryClient, cn
+└── styles/         # theme.css (design tokens de Figma)
 tests/
 ├── unit/           # Vitest
 └── e2e/            # Playwright
 ```
+
+## Convenciones de componentes
+
+**Carpetas.** Los componentes viven en `src/components/ui/` siguiendo atomic design, con una
+carpeta por componente: `src/components/ui/<nivel>/<Nombre>/{Nombre.tsx, Nombre.test.tsx, index.ts}`.
+
+- `atoms/`: piezas independientes (Button, Badge, Icon).
+- `molecules/`: composiciones simples (Alert, Pagination, CapacitySummary, DayChip, EnrolledMemberRow, SessionCard).
+- `organisms/`: bloques completos (Table, EnrolledMembersPanel, SessionList, WeekSelector).
+
+El `index.ts` solo re-exporta el componente y sus tipos; los consumidores importan
+con el alias: `import { Button } from '@/components/ui/atoms/Button'`.
+
+**Naming.** Componentes en PascalCase con named export (nunca export default),
+props como `NombreProps` y variantes como union types (`ButtonVariant`, `AlertVariant`,
+`BadgeTone`). Un componente = un fichero = un test colocado al lado.
+
+**Tokens.** Colores, espaciado, radios y tipografías salen SOLO de los tokens
+(`src/styles/theme.css`, documentados en `docs/design-tokens.md` en la raíz):
+
+- Sin hex ni valores arbitrarios: `bg-surface`, `text-text-muted`, `rounded-card`,
+  `p-4` — nunca `bg-[#26282b]` ni `p-[10px]`.
+- Espaciado en múltiplos de 4 px (paso de Tailwind: `p-1`=4, `p-4`=16, `p-8`=32…).
+- Solo hay modo oscuro. Si falta un valor, se añade a `theme.css` y se documenta.
+
+**Iconos.** Siempre con el átomo `Icon` (lucide-react), nunca SVGs sueltos:
+
+```tsx
+<Icon name="dumbbell" size={20} />
+```
+
+Tamaños: 16, 20 y 24 px (`size-4`, `size-5`, `size-6`). Un nombre nuevo se registra
+en `src/components/ui/atoms/Icon/Icon.tsx` (tipo `IconName`).
+
+**Cómo añadir un componente:**
+
+1. Crear la carpeta en el nivel que corresponda: `src/components/ui/<nivel>/<Nombre>/`.
+2. Escribir `Nombre.tsx` con props tipadas y named export.
+3. Re-exportar desde `index.ts` (`export { Nombre } from './Nombre'` y sus tipos).
+4. Añadir `Nombre.test.tsx` con Testing Library.
+5. Importar donde haga falta: `import { Nombre } from '@/components/ui/<nivel>/<Nombre>'`.
+6. Pasar `npm run lint`, `npm run format`, `npm run test` y `npm run build`.
 
 ## Cómo encajan front y back
 

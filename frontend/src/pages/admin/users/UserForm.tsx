@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Alert, Button } from '@/components/ui'
+import { Button } from '@/components/ui/atoms/Button'
+import { Alert } from '@/components/ui/molecules/Alert'
 import { toApiError, usersApi } from '@/api'
 import type { Role, User } from '@/types/api'
 import { ROLE_LABELS } from './roleLabels'

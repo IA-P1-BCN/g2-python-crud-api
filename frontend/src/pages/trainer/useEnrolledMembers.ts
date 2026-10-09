@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { bookingsApi, usersApi } from '@/api'
-import type { EnrolledMember } from '@/components/organisms/EnrolledMembersPanel'
+import type { EnrolledMember } from '@/components/ui/organisms/EnrolledMembersPanel'
 import { formatClock } from '@/lib/format'
 
 const PAGE_SIZE = 100
