@@ -323,6 +323,44 @@ export async function mockApi(page: Page, options: MockApiOptions) {
       return route.fulfill({ status: 204, body: '' })
     }
 
+    if (path === '/api/v1/me/dashboard' && method === 'GET') {
+      const confirmed = bookings.filter((item) => item.status === 'confirmed')
+      return json(route, 200, {
+        membership: membership
+          ? {
+              membership_id: membership.id,
+              plan_id: membership.plan_id,
+              plan_name:
+                defaultPlans.find((plan) => plan.id === membership.plan_id)?.name ?? 'Plan',
+              start_date: membership.start_date,
+              end_date: membership.end_date,
+              status: membership.status,
+              days_left: 60,
+            }
+          : null,
+        upcoming_bookings: confirmed.map((item) => {
+          const schedule = schedules.find((entry) => entry.id === item.schedule_id)
+          const gymClass = classes.find((entry) => entry.id === schedule?.class_id)
+          const room = rooms.find((entry) => entry.id === schedule?.room_id)
+          return {
+            booking_id: item.id,
+            booking_date: item.booking_date,
+            schedule_id: item.schedule_id,
+            class_id: schedule?.class_id ?? 0,
+            class_name: gymClass?.name ?? 'Clase',
+            start_time: schedule?.start_time ?? '00:00:00',
+            end_time: schedule?.end_time ?? '00:00:00',
+            room_name: room?.name ?? null,
+            trainer_name: users.trainer.full_name,
+          }
+        }),
+        stats: {
+          bookings_this_month: confirmed.length,
+          total_bookings: bookings.length,
+        },
+      })
+    }
+
     return json(route, 404, { detail: `No mockeado: ${method} ${path}` })
   })
 }

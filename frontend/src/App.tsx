@@ -8,6 +8,7 @@ import { ForbiddenPage } from '@/pages/ForbiddenPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { LandingPage } from '@/pages/public/LandingPage'
 import { PublicPlansPage } from '@/pages/public/PublicPlansPage'
+import { MemberHomePage } from '@/pages/member/MemberHomePage'
 import { ClassesPage } from '@/pages/member/ClassesPage'
 import { BookingsPage } from '@/pages/member/BookingsPage'
 import { MembershipPage } from '@/pages/member/MembershipPage'
@@ -34,7 +35,7 @@ export function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="member" element={<ProtectedRoute allowedRoles={['member']} />}>
-            <Route index element={<Navigate to="/member/classes" replace />} />
+            <Route index element={<MemberHomePage />} />
             <Route path="classes" element={<ClassesPage />} />
             <Route path="bookings" element={<BookingsPage />} />
             <Route path="membership" element={<MembershipPage />} />

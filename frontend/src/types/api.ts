@@ -40,6 +40,41 @@ export type LoginRequest = Schemas['LoginRequest']
 export type RegisterRequest = Schemas['RegisterRequest']
 export type Token = Schemas['Token']
 
+// Member dashboard (`GET /me/dashboard`). Hand-written because `schema.d.ts` is stale
+// and does not include this endpoint yet; regenerate the types to replace them.
+export type MemberCurrentMembership = {
+  membership_id: number
+  plan_id: number
+  plan_name: string
+  start_date: string
+  end_date: string
+  status: MembershipStatus
+  days_left: number
+}
+
+export type MemberUpcomingBooking = {
+  booking_id: number
+  booking_date: string
+  schedule_id: number
+  class_id: number
+  class_name: string
+  start_time: string
+  end_time: string
+  room_name: string | null
+  trainer_name: string
+}
+
+export type MemberDashboardStats = {
+  bookings_this_month: number
+  total_bookings: number
+}
+
+export type MemberDashboard = {
+  membership: MemberCurrentMembership | null
+  upcoming_bookings: MemberUpcomingBooking[]
+  stats: MemberDashboardStats
+}
+
 export type DashboardPeriod = Schemas['PeriodRange']['key']
 export type DashboardSummary = Schemas['DashboardSummary']
 export type WeeklyMovement = Schemas['WeeklyMovement']
