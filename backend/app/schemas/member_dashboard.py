@@ -2,16 +2,10 @@ from datetime import date, time
 
 from pydantic import BaseModel
 
-from app.models.membership import MembershipStatus
+from app.schemas.membership import MembershipSummary
 
 
-class CurrentMembership(BaseModel):
-    membership_id: int
-    plan_id: int
-    plan_name: str
-    start_date: date
-    end_date: date
-    status: MembershipStatus
+class CurrentMembership(MembershipSummary):
     days_left: int
 
 

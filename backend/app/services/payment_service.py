@@ -35,6 +35,19 @@ def get_payment(db: Session, payment_id: int) -> Payment:
     return payment
 
 
+def get_last_for_users(db: Session, user_ids: list[int]) -> dict[int, Payment]:
+    """The most recent payment of each user that has any."""
+    stmt = (
+        select(Payment)
+        .where(Payment.user_id.in_(user_ids))
+        .order_by(Payment.created_at.desc(), Payment.id.desc())
+    )
+    last: dict[int, Payment] = {}
+    for payment in db.execute(stmt).scalars():
+        last.setdefault(payment.user_id, payment)
+    return last
+
+
 def create_payment(db: Session, data: PaymentCreate) -> Payment:
     user_service.get_user(db, data.user_id)
     membership = membership_service.get_membership(db, data.membership_id)

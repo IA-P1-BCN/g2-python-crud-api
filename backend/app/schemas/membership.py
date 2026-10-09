@@ -47,3 +47,14 @@ class MembershipRead(BaseModel):
     end_date: date
     status: MembershipStatus
     created_at: datetime
+
+
+class MembershipSummary(BaseModel):
+    """A membership with the name of its plan, as the member and admin screens show it."""
+
+    membership_id: int
+    plan_id: int
+    plan_name: str
+    start_date: date
+    end_date: date
+    status: MembershipStatus

@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 
-from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy import ColumnElement, and_, case, func, select
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.exceptions import BusinessRuleError, NotFoundError
 from app.models.membership import Membership, MembershipStatus
@@ -107,16 +107,37 @@ def delete_membership(db: Session, membership_id: int) -> None:
     db.commit()
 
 
+def _in_force(on_date: date) -> list[ColumnElement[bool]]:
+    return [
+        Membership.status != MembershipStatus.cancelled,
+        Membership.start_date <= on_date,
+        Membership.end_date >= on_date,
+    ]
+
+
+def get_current_for_users(db: Session, user_ids: list[int], on_date: date) -> dict[int, Membership]:
+    """For each user, the membership in force on the date or, failing that, the last to end.
+
+    Plans come loaded, so reading `membership.plan` does not query again.
+    """
+    in_force_first = case((and_(*_in_force(on_date)), 0), else_=1)
+    stmt = (
+        select(Membership)
+        .options(selectinload(Membership.plan))
+        .where(Membership.user_id.in_(user_ids))
+        .order_by(in_force_first, Membership.end_date.desc(), Membership.id.desc())
+    )
+    current: dict[int, Membership] = {}
+    for membership in db.execute(stmt).scalars():
+        current.setdefault(membership.user_id, membership)
+    return current
+
+
 def get_active_for_user(db: Session, user_id: int, on_date: date) -> Membership | None:
     """Devuelve la membresía vigente de un socio en una fecha, si existe."""
     stmt = (
         select(Membership)
-        .where(
-            Membership.user_id == user_id,
-            Membership.status != MembershipStatus.cancelled,
-            Membership.start_date <= on_date,
-            Membership.end_date >= on_date,
-        )
+        .where(Membership.user_id == user_id, *_in_force(on_date))
         .order_by(Membership.end_date.desc())
     )
     return db.execute(stmt).scalars().first()

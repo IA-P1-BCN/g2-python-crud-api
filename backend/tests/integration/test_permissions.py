@@ -72,6 +72,7 @@ MATRIX = [
     ("DELETE", "/payments/9999", *ADMIN),
     ("GET", "/export/members.csv", *ADMIN),
     ("GET", "/admin/dashboard", *ADMIN),
+    ("GET", "/admin/members", *ADMIN),
     ("GET", "/export/bookings.csv", *ADMIN),
 ]
 
