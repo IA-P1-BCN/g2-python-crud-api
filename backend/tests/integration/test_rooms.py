@@ -155,6 +155,33 @@ def test_delete_room(client, room) -> None:
     assert client.get(f"{ROOMS_URL}/{room.id}").status_code == 404
 
 
+def test_delete_room_used_by_a_class_returns_409(client, room, gym_class) -> None:
+    response = client.delete(f"{ROOMS_URL}/{room.id}")
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "conflict"
+    assert client.get(f"{ROOMS_URL}/{room.id}").status_code == 200
+    assert client.get(f"/api/v1/classes/{gym_class.id}").json()["room_id"] == room.id
+
+
+def test_delete_room_used_only_by_a_schedule_returns_409(client, room, gym_class, schedule) -> None:
+    client.put(f"/api/v1/classes/{gym_class.id}", json={"room_id": None})
+
+    response = client.delete(f"{ROOMS_URL}/{room.id}")
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "conflict"
+    assert client.get(f"/api/v1/class-schedules/{schedule.id}").json()["room_id"] == room.id
+
+
+def test_room_can_be_deleted_once_nothing_uses_it(client, room, gym_class) -> None:
+    client.delete(f"/api/v1/classes/{gym_class.id}")
+
+    response = client.delete(f"{ROOMS_URL}/{room.id}")
+
+    assert response.status_code == 204
+
+
 def test_delete_unknown_room_returns_404(client) -> None:
     response = client.delete(UNKNOWN_ROOM_URL)
 
