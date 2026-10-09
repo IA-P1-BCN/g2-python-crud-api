@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { Badge, type BadgeTone } from '@/ui/atoms/Badge'
-import { Alert } from '@/ui/molecules/Alert'
+import { Badge, type BadgeTone } from '@/components/ui/atoms/Badge'
+import { Alert } from '@/components/ui/molecules/Alert'
 import { membershipPlansApi, membershipsApi, toApiError } from '@/api'
 import { useAuth } from '@/auth'
 import { formatDate } from '@/lib/format'

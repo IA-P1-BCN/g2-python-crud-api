@@ -3,7 +3,7 @@ import {
   type SessionCardProps,
   type SessionRole,
 } from '@/components/ui/molecules/SessionCard'
-import { Alert } from '@/components/ui'
+import { Alert } from '@/components/ui/molecules/Alert'
 
 export type SessionListItem = Omit<SessionCardProps, 'role' | 'onAction' | 'className'> & {
   id: number

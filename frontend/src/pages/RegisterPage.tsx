@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { Button } from '@/ui/atoms/Button'
-import { Alert } from '@/ui/molecules/Alert'
+import { Button } from '@/components/ui/atoms/Button'
+import { Alert } from '@/components/ui/molecules/Alert'
 import { homePathForRole, useAuth } from '@/auth'
 
 export function RegisterPage() {

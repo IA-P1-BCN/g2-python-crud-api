@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Button } from '@/ui/atoms/Button'
-import { Alert } from '@/ui/molecules/Alert'
-import { Table, type Column } from '@/ui/organisms/Table'
+import { Button } from '@/components/ui/atoms/Button'
+import { Alert } from '@/components/ui/molecules/Alert'
+import { Table, type Column } from '@/components/ui/organisms/Table'
 import { adminApi, toApiError } from '@/api'
 import { formatDate, formatPrice } from '@/lib/format'
 import type {

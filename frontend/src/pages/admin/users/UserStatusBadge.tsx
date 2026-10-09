@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui'
+import { Badge } from '@/components/ui/atoms/Badge'
 import { formatDate } from '@/lib/format'
 import type { User } from '@/types/api'
 

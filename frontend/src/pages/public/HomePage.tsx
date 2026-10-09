@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { Alert } from '@/ui/molecules/Alert'
+import { Alert } from '@/components/ui/molecules/Alert'
 import { classesApi, toApiError } from '@/api'
 import { homePathForRole, useAuth } from '@/auth'
 

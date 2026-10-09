@@ -37,7 +37,7 @@ npm run dev          # http://localhost:5173 (proxy /api -> localhost:8000)
 src/
 ├── api/            # ÚNICO sitio que llama a la API (axios + interceptores)
 ├── auth/           # AuthContext, ProtectedRoute, tokenStorage, roles
-├── ui/             # Componentes: atoms/ (Button, Badge, Icon), molecules/ (Alert, Pagination), organisms/ (Table)
+├── components/ui/  # Componentes: atoms/, molecules/, organisms/ (atomic design)
 ├── layouts/        # AppLayout (cabecera + navegación por rol)
 ├── pages/
 │   ├── member/     # Pantallas del socio
@@ -53,15 +53,15 @@ tests/
 
 ## Convenciones de componentes
 
-**Carpetas.** Los componentes viven en `src/ui/` siguiendo atomic design, con una
-carpeta por componente: `src/ui/<nivel>/<Nombre>/{Nombre.tsx, Nombre.test.tsx, index.ts}`.
+**Carpetas.** Los componentes viven en `src/components/ui/` siguiendo atomic design, con una
+carpeta por componente: `src/components/ui/<nivel>/<Nombre>/{Nombre.tsx, Nombre.test.tsx, index.ts}`.
 
 - `atoms/`: piezas independientes (Button, Badge, Icon).
-- `molecules/`: composiciones simples (Alert, Pagination).
-- `organisms/`: bloques completos (Table).
+- `molecules/`: composiciones simples (Alert, Pagination, CapacitySummary, DayChip, EnrolledMemberRow, SessionCard).
+- `organisms/`: bloques completos (Table, EnrolledMembersPanel, SessionList, WeekSelector).
 
 El `index.ts` solo re-exporta el componente y sus tipos; los consumidores importan
-con el alias: `import { Button } from '@/ui/atoms/Button'`.
+con el alias: `import { Button } from '@/components/ui/atoms/Button'`.
 
 **Naming.** Componentes en PascalCase con named export (nunca export default),
 props como `NombreProps` y variantes como union types (`ButtonVariant`, `AlertVariant`,
@@ -82,15 +82,15 @@ props como `NombreProps` y variantes como union types (`ButtonVariant`, `AlertVa
 ```
 
 Tamaños: 16, 20 y 24 px (`size-4`, `size-5`, `size-6`). Un nombre nuevo se registra
-en `src/ui/atoms/Icon/Icon.tsx` (tipo `IconName`).
+en `src/components/ui/atoms/Icon/Icon.tsx` (tipo `IconName`).
 
 **Cómo añadir un componente:**
 
-1. Crear la carpeta en el nivel que corresponda: `src/ui/<nivel>/<Nombre>/`.
+1. Crear la carpeta en el nivel que corresponda: `src/components/ui/<nivel>/<Nombre>/`.
 2. Escribir `Nombre.tsx` con props tipadas y named export.
 3. Re-exportar desde `index.ts` (`export { Nombre } from './Nombre'` y sus tipos).
 4. Añadir `Nombre.test.tsx` con Testing Library.
-5. Importar donde haga falta: `import { Nombre } from '@/ui/<nivel>/<Nombre>'`.
+5. Importar donde haga falta: `import { Nombre } from '@/components/ui/<nivel>/<Nombre>'`.
 6. Pasar `npm run lint`, `npm run format`, `npm run test` y `npm run build`.
 
 ## Cómo encajan front y back

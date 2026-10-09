@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui'
+import { Badge } from '@/components/ui/atoms/Badge'
 
 export type CapacitySummaryProps = {
   /** Confirmed bookings for the session. */

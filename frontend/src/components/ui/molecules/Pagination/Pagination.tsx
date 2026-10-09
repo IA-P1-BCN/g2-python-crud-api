@@ -1,4 +1,4 @@
-import { Button } from '@/ui/atoms/Button'
+import { Button } from '@/components/ui/atoms/Button'
 
 export type PaginationProps = {
   page: number

@@ -1,4 +1,5 @@
-import { Badge, Button } from '@/components/ui'
+import { Badge } from '@/components/ui/atoms/Badge'
+import { Button } from '@/components/ui/atoms/Button'
 
 export type SessionAttendee = {
   id: number
