@@ -558,6 +558,73 @@ body {
   border-top: 1px solid var(--color-border);
 }
 
+.members-list {
+  margin-top: 1rem;
+}
+
+.members-list__items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+}
+
+.member-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.member-item__identity {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.member-item__name {
+  font-weight: 600;
+}
+
+.member-item__email {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.member-item__plan,
+.member-item__payment {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.member-item__amount {
+  font-weight: 600;
+}
+
+.member-item__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .member-item {
+    grid-template-columns: auto 1fr;
+  }
+
+  .member-item__plan,
+  .member-item__payment,
+  .member-item__actions {
+    grid-column: 1 / -1;
+  }
+}
+
 .session-card__status {
   display: flex;
   align-items: center;

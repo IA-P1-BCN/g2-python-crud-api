@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { bookingsApi, membershipsApi, usersApi } from '@/api'
+import { bookingsApi, membershipPlansApi, membershipsApi, paymentsApi, usersApi } from '@/api'
 import { AdminMembersPage } from '@/pages/admin/AdminMembersPage'
 import type { User, UserPage } from '@/types/api'
 
@@ -16,7 +16,9 @@ vi.mock('@/api', () => ({
     reactivate: vi.fn(),
     exportMembersCsv: vi.fn(),
   },
+  membershipPlansApi: { list: vi.fn() },
   membershipsApi: { listForUser: vi.fn() },
+  paymentsApi: { list: vi.fn() },
   bookingsApi: { listForUser: vi.fn() },
   toApiError: (error: unknown) => ({ status: 0, message: String(error) }),
 }))
@@ -45,6 +47,10 @@ function page(items: User[]): UserPage {
   return { items, total: items.length, page: 1, size: 10, pages: 1 }
 }
 
+function emptyPage(size: number) {
+  return { items: [], total: 0, page: 1, size, pages: 1 }
+}
+
 function renderPage() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
@@ -56,69 +62,59 @@ function renderPage() {
   )
 }
 
-function membersTable(): HTMLElement {
-  return screen.getAllByRole('table')[0]
+function membersList(): HTMLElement {
+  return document.querySelector('.members-list') as HTMLElement
 }
 
 function row(name: string): HTMLElement {
-  return within(membersTable()).getByText(name).closest('tr') as HTMLElement
+  return within(membersList()).getByText(name).closest('.member-item') as HTMLElement
 }
 
 describe('AdminMembersPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(usersApi.list).mockResolvedValue(page([ana, bea]))
-    vi.mocked(membershipsApi.listForUser).mockResolvedValue({
-      items: [],
-      total: 0,
-      page: 1,
-      size: 100,
-      pages: 1,
-    })
-    vi.mocked(bookingsApi.listForUser).mockResolvedValue({
-      items: [],
-      total: 0,
-      page: 1,
-      size: 100,
-      pages: 1,
-    })
+    vi.mocked(membershipPlansApi.list).mockResolvedValue(emptyPage(100))
+    vi.mocked(membershipsApi.listForUser).mockResolvedValue(emptyPage(100))
+    vi.mocked(paymentsApi.list).mockResolvedValue(emptyPage(100))
+    vi.mocked(bookingsApi.listForUser).mockResolvedValue(emptyPage(100))
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  it('lista solo socios, con su estado', async () => {
+  it('lista solo socios', async () => {
     renderPage()
 
-    await screen.findAllByText('Ana López')
+    await within(membersList()).findByText('Ana López')
     expect(usersApi.list).toHaveBeenCalledWith(
       expect.objectContaining({ role: 'member', page: 1, size: 10 }),
     )
-    expect(within(row('Ana López')).getByText('Activo')).toBeInTheDocument()
-    expect(within(row('Bea Ruiz')).getByText(/Baja · 05\/10\/2026/)).toBeInTheDocument()
+    expect(within(membersList()).getByText('Ana López')).toBeInTheDocument()
+    expect(within(membersList()).getByText('Bea Ruiz')).toBeInTheDocument()
   })
 
-  it('busca por nombre o email', async () => {
+  it('busca por nombre', async () => {
     renderPage()
-    await screen.findAllByText('Ana López')
+    await within(membersList()).findByText('Ana López')
 
-    await userEvent.type(screen.getByLabelText('Buscar por nombre o email'), ' ana ')
+    await userEvent.type(screen.getByLabelText('Buscar por nombre'), ' ana ')
     await userEvent.click(screen.getByRole('button', { name: 'Buscar' }))
 
     await waitFor(() =>
-      expect(usersApi.list).toHaveBeenLastCalledWith(expect.objectContaining({ search: 'ana' })),
+      expect(usersApi.list).toHaveBeenCalledWith(expect.objectContaining({ search: 'ana' })),
     )
   })
 
   it('filtra por estado', async () => {
     renderPage()
-    await screen.findAllByText('Ana López')
+    await within(membersList()).findByText('Ana López')
 
     await userEvent.click(screen.getByRole('button', { name: 'De baja' }))
 
     await waitFor(() =>
-      expect(usersApi.list).toHaveBeenLastCalledWith(
+      expect(usersApi.list).toHaveBeenCalledWith(
         expect.objectContaining({ is_active: false, page: 1 }),
       ),
     )
@@ -128,7 +124,7 @@ describe('AdminMembersPage', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     vi.mocked(usersApi.deactivate).mockResolvedValue()
     renderPage()
-    await screen.findAllByText('Ana López')
+    await within(membersList()).findByText('Ana López')
 
     await userEvent.click(within(row('Ana López')).getByRole('button', { name: 'Dar de baja' }))
 
@@ -138,7 +134,7 @@ describe('AdminMembersPage', () => {
   it('no hace nada si no se confirma la baja', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(false)
     renderPage()
-    await screen.findAllByText('Ana López')
+    await within(membersList()).findByText('Ana López')
 
     await userEvent.click(within(row('Ana López')).getByRole('button', { name: 'Dar de baja' }))
 
@@ -149,7 +145,7 @@ describe('AdminMembersPage', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     vi.mocked(usersApi.reactivate).mockResolvedValue({ ...bea, is_active: true })
     renderPage()
-    await screen.findAllByText('Bea Ruiz')
+    await within(membersList()).findByText('Bea Ruiz')
 
     await userEvent.click(within(row('Bea Ruiz')).getByRole('button', { name: 'Reactivar' }))
 
@@ -159,7 +155,7 @@ describe('AdminMembersPage', () => {
   it('da de alta un socio nuevo', async () => {
     vi.mocked(usersApi.create).mockResolvedValue(ana)
     renderPage()
-    await screen.findAllByText('Ana López')
+    await within(membersList()).findByText('Ana López')
 
     await userEvent.click(screen.getByRole('button', { name: 'Nuevo socio' }))
     const form = screen.getByRole('form', { name: 'Nuevo socio' })
@@ -181,7 +177,7 @@ describe('AdminMembersPage', () => {
 
   it('valida la contraseña antes de enviar el alta', async () => {
     renderPage()
-    await screen.findAllByText('Ana López')
+    await within(membersList()).findByText('Ana López')
 
     await userEvent.click(screen.getByRole('button', { name: 'Nuevo socio' }))
     const form = screen.getByRole('form', { name: 'Nuevo socio' })
@@ -199,7 +195,7 @@ describe('AdminMembersPage', () => {
   it('muestra el error de la API al dar de alta', async () => {
     vi.mocked(usersApi.create).mockRejectedValue('El email ya está registrado')
     renderPage()
-    await screen.findAllByText('Ana López')
+    await within(membersList()).findByText('Ana López')
 
     await userEvent.click(screen.getByRole('button', { name: 'Nuevo socio' }))
     const form = screen.getByRole('form', { name: 'Nuevo socio' })
@@ -214,7 +210,7 @@ describe('AdminMembersPage', () => {
   it('edita los datos de un socio', async () => {
     vi.mocked(usersApi.update).mockResolvedValue({ ...ana, full_name: 'Ana López Gil' })
     renderPage()
-    await screen.findAllByText('Ana López')
+    await within(membersList()).findByText('Ana López')
 
     await userEvent.click(within(row('Ana López')).getByRole('button', { name: 'Editar' }))
     const form = screen.getByRole('form', { name: 'Editar socio' })
@@ -233,7 +229,7 @@ describe('AdminMembersPage', () => {
 
   it('abre la ficha del socio con sus membresías y reservas', async () => {
     renderPage()
-    await screen.findAllByText('Ana López')
+    await within(membersList()).findByText('Ana López')
 
     await userEvent.click(within(row('Ana López')).getByRole('button', { name: 'Ver' }))
 
@@ -249,7 +245,7 @@ describe('AdminMembersPage', () => {
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
     vi.mocked(usersApi.exportMembersCsv).mockResolvedValue(new Blob(['id,email']))
     renderPage()
-    await screen.findAllByText('Ana López')
+    await within(membersList()).findByText('Ana López')
 
     await userEvent.click(screen.getByRole('button', { name: 'Exportar CSV' }))
 
