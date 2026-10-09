@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { MemberListItem } from '@/components/molecules/MemberListItem'
+import { MemberListItem } from '@/components/ui/molecules/MemberListItem'
 
 describe('MemberListItem', () => {
   it('muestra nombre, email, plan, membresía y último pago', () => {

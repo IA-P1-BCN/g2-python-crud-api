@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Badge, type BadgeTone } from '@/components/ui'
+import { Badge, type BadgeTone } from '@/components/ui/atoms/Badge'
 import { formatDate, formatPrice } from '@/lib/format'
 import type { MembershipStatus, PaymentStatus } from '@/types/api'
 

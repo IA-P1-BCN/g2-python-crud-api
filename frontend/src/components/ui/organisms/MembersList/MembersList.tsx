@@ -1,6 +1,8 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
-import { MemberListItem, type MemberListItemProps } from '@/components/molecules/MemberListItem'
-import { Alert, Button, Pagination } from '@/components/ui'
+import { Button } from '@/components/ui/atoms/Button'
+import { Alert } from '@/components/ui/molecules/Alert'
+import { MemberListItem, type MemberListItemProps } from '@/components/ui/molecules/MemberListItem'
+import { Pagination } from '@/components/ui/molecules/Pagination'
 
 export type MemberListEntry = MemberListItemProps & { id: number }
 

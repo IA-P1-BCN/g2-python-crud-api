@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import { MembersList, type MemberListEntry } from '@/components/organisms/MembersList'
+import { MembersList, type MemberListEntry } from '@/components/ui/organisms/MembersList'
 
 const members: MemberListEntry[] = [
   {
