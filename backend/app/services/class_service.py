@@ -2,10 +2,12 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import BusinessRuleError, NotFoundError
+from app.models.class_schedule import ClassSchedule
 from app.models.gym_class import GymClass
 from app.models.user import UserRole
 from app.schemas.gym_class import GymClassCreate, GymClassUpdate
 from app.services import room_service, user_service
+from app.services.dependents import ensure_no_dependents
 
 
 def list_classes(
@@ -69,5 +71,11 @@ def update_class(db: Session, class_id: int, data: GymClassUpdate) -> GymClass:
 
 def delete_class(db: Session, class_id: int) -> None:
     gym_class = get_class(db, class_id)
+    ensure_no_dependents(
+        db,
+        ClassSchedule.class_id,
+        class_id,
+        "No se puede borrar una clase con horarios; borra antes sus horarios",
+    )
     db.delete(gym_class)
     db.commit()

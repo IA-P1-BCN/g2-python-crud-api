@@ -5,8 +5,10 @@ from sqlalchemy.orm import Session
 
 from app.core.exceptions import BusinessRuleError, NotFoundError
 from app.models.membership import Membership, MembershipStatus
+from app.models.payment import Payment
 from app.schemas.membership import MembershipCreate, MembershipUpdate
 from app.services import membership_plan_service, user_service
+from app.services.dependents import ensure_no_dependents
 
 
 def compute_status(
@@ -95,6 +97,12 @@ def update_membership(
 
 def delete_membership(db: Session, membership_id: int) -> None:
     membership = get_membership(db, membership_id)
+    ensure_no_dependents(
+        db,
+        Payment.membership_id,
+        membership_id,
+        "No se puede borrar una membresía con pagos; cancélala en su lugar",
+    )
     db.delete(membership)
     db.commit()
 
