@@ -1,6 +1,8 @@
 from datetime import UTC, date, datetime
 
-from app.core.security import create_access_token
+import pytest
+
+from app.core.security import create_access_token, verify_password
 from app.models.booking import Booking
 from app.models.user import User
 
@@ -402,3 +404,108 @@ def test_accounts_with_an_old_weak_password_can_still_log_in(anon_client, member
     )
 
     assert response.status_code == 200
+
+
+# Roles, unknown ids and emails in use on every endpoint
+
+
+@pytest.mark.parametrize("role", ["admin", "trainer", "member"])
+def test_create_user_with_each_valid_role(client, role: str) -> None:
+    response = client.post("/api/v1/users", json=_user_payload() | {"role": role})
+
+    assert response.status_code == 201
+    assert response.json()["role"] == role
+
+
+def test_create_user_without_role_is_a_member(client) -> None:
+    payload = _user_payload()
+    del payload["role"]
+
+    response = client.post("/api/v1/users", json=payload)
+
+    assert response.status_code == 201
+    assert response.json()["role"] == "member"
+
+
+def test_create_user_with_an_invalid_role_returns_422(client) -> None:
+    response = client.post("/api/v1/users", json=_user_payload() | {"role": "superuser"})
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "validation_error"
+
+
+def test_update_user_with_an_invalid_role_returns_422(client, member) -> None:
+    response = client.put(f"/api/v1/users/{member.id}", json={"role": "superuser"})
+
+    assert response.status_code == 422
+    assert response.json()["code"] == "validation_error"
+    assert client.get(f"/api/v1/users/{member.id}").json()["role"] == "member"
+
+
+def test_update_can_change_the_role(client, member) -> None:
+    response = client.put(f"/api/v1/users/{member.id}", json={"role": "trainer"})
+
+    assert response.status_code == 200
+    assert response.json()["role"] == "trainer"
+
+
+def test_create_user_stores_the_password_hashed(client, db_session) -> None:
+    payload = _user_payload()
+
+    client.post("/api/v1/users", json=payload)
+
+    user = db_session.query(User).filter_by(email=payload["email"]).one()
+    assert user.hashed_password != payload["password"]
+    assert verify_password(payload["password"], user.hashed_password) is True
+
+
+def test_list_users_never_exposes_the_password(client, member) -> None:
+    items = client.get("/api/v1/users").json()["items"]
+
+    assert items
+    for item in items:
+        assert "password" not in item
+        assert "hashed_password" not in item
+
+
+@pytest.mark.parametrize(
+    ("method", "path", "payload"),
+    [
+        ("PUT", "/users/999999", {"full_name": "Nadie"}),
+        ("PUT", "/users/999999/profile", {"full_name": "Nadie"}),
+        (
+            "PUT",
+            "/users/999999/password",
+            {"current_password": "password123", "new_password": "Password123!"},
+        ),
+        ("GET", "/users/999999/memberships", None),
+        ("GET", "/users/999999/bookings", None),
+    ],
+)
+def test_unknown_user_returns_404_on_every_endpoint(
+    client, method: str, path: str, payload: dict | None
+) -> None:
+    response = client.request(method, f"/api/v1{path}", json=payload)
+
+    assert response.status_code == 404
+    assert response.json()["code"] == "not_found"
+
+
+@pytest.mark.parametrize("path", ["/users/{id}", "/users/{id}/profile"])
+def test_update_with_an_email_in_use_returns_409(client, member, trainer, path: str) -> None:
+    url = f"/api/v1{path.format(id=member.id)}"
+
+    response = client.put(url, json={"email": trainer.email})
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "conflict"
+
+
+@pytest.mark.parametrize("path", ["/users/{id}", "/users/{id}/profile"])
+def test_update_keeping_the_same_email_is_allowed(client, member, path: str) -> None:
+    url = f"/api/v1{path.format(id=member.id)}"
+
+    response = client.put(url, json={"email": member.email, "full_name": "Mismo Email"})
+
+    assert response.status_code == 200
+    assert response.json()["full_name"] == "Mismo Email"
