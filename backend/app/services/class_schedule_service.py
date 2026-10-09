@@ -2,9 +2,11 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import ConflictError, InvalidDataError, NotFoundError
+from app.models.booking import Booking
 from app.models.class_schedule import ClassSchedule
 from app.schemas.class_schedule import ClassScheduleCreate, ClassScheduleUpdate
 from app.services import class_service, room_service
+from app.services.dependents import ensure_no_dependents
 
 
 def list_schedules(
@@ -106,5 +108,8 @@ def update_schedule(
 
 def delete_schedule(db: Session, schedule_id: int) -> None:
     schedule = get_schedule(db, schedule_id)
+    ensure_no_dependents(
+        db, Booking.schedule_id, schedule_id, "No se puede borrar un horario con reservas"
+    )
     db.delete(schedule)
     db.commit()
