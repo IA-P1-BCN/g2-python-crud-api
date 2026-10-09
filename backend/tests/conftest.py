@@ -3,7 +3,7 @@ from datetime import date, time, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -29,6 +29,10 @@ settings.log_file = ""
 settings.secret_key = "test-secret-key-0123456789-abcdefghij"
 
 
+def _enforce_foreign_keys(dbapi_connection, _connection_record) -> None:
+    dbapi_connection.execute("PRAGMA foreign_keys=ON")
+
+
 @pytest.fixture()
 def db_session() -> Generator[Session, None, None]:
     engine = create_engine(
@@ -36,6 +40,8 @@ def db_session() -> Generator[Session, None, None]:
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+    # SQLite ignores foreign keys unless each connection turns them on; PostgreSQL always checks.
+    event.listen(engine, "connect", _enforce_foreign_keys)
     Base.metadata.create_all(bind=engine)
     testing_session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
     db = testing_session()
