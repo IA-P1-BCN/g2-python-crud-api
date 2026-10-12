@@ -90,7 +90,10 @@ def get_booking(
     "/{booking_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Cancelar reserva",
-    description="Cancela una reserva. Solo el socio propietario o un administrador.",
+    description=(
+        "Cancela una reserva. Solo el socio propietario o un administrador. El socio puede "
+        "cancelar hasta 2 horas antes del inicio de la sesión; el administrador, siempre."
+    ),
 )
 def cancel_booking(
     booking_id: int,
@@ -99,4 +102,4 @@ def cancel_booking(
 ) -> None:
     booking = booking_service.get_booking(db, booking_id)
     access_service.ensure_self_or_admin(current_user, booking.member_id)
-    booking_service.cancel_booking(db, booking_id)
+    booking_service.cancel_booking(db, booking_id, cancelled_by=current_user)

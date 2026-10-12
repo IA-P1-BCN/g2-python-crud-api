@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timedelta
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -12,9 +12,13 @@ from app.core.exceptions import (
 from app.models.booking import Booking, BookingStatus
 from app.models.class_schedule import ClassSchedule
 from app.models.gym_class import GymClass
+from app.models.user import User, UserRole
 from app.schemas.booking import BookingCreate
 from app.schemas.class_schedule import ScheduleAvailability
 from app.services import class_schedule_service, membership_service, user_service
+
+# A member can cancel until this long before the session starts
+CANCELLATION_DEADLINE = timedelta(hours=2)
 
 
 def list_bookings(
@@ -87,14 +91,23 @@ def get_availability(db: Session, schedule_id: int, on_date: date) -> ScheduleAv
     )
 
 
-def create_booking(db: Session, data: BookingCreate) -> Booking:
+def _session_start(booking_date: date, schedule: ClassSchedule) -> datetime:
+    return datetime.combine(booking_date, schedule.start_time)
+
+
+def create_booking(db: Session, data: BookingCreate, now: datetime | None = None) -> Booking:
+    now = now or datetime.now()
     user_service.get_user(db, data.member_id)
     schedule = class_schedule_service.get_schedule(db, data.schedule_id)
     if data.booking_date.weekday() != schedule.day_of_week:
         raise InvalidDataError(
             "La fecha de la reserva debe caer en el día de la semana del horario"
         )
+    if _session_start(data.booking_date, schedule) <= now:
+        raise InvalidDataError("Esa sesión ya ha empezado o ya ha pasado")
     gym_class = schedule.gym_class
+    if not gym_class.is_active:
+        raise BusinessRuleError("La clase no está activa")
 
     if membership_service.get_active_for_user(db, data.member_id, data.booking_date) is None:
         raise BusinessRuleError("El socio no tiene una membresía activa en esa fecha")
@@ -129,10 +142,20 @@ def create_booking(db: Session, data: BookingCreate) -> Booking:
     return booking
 
 
-def cancel_booking(db: Session, booking_id: int) -> Booking:
+def cancel_booking(
+    db: Session, booking_id: int, cancelled_by: User, now: datetime | None = None
+) -> Booking:
+    """Cancel a booking. Members must respect the deadline; an admin can always cancel."""
+    now = now or datetime.now()
     booking = get_booking(db, booking_id)
     if booking.status == BookingStatus.cancelled:
         raise ConflictError("La reserva ya estaba cancelada")
+    deadline = _session_start(booking.booking_date, booking.schedule) - CANCELLATION_DEADLINE
+    if cancelled_by.role != UserRole.admin and now > deadline:
+        hours = int(CANCELLATION_DEADLINE.total_seconds() // 3600)
+        raise BusinessRuleError(
+            f"Las reservas se pueden cancelar hasta {hours} horas antes de la clase"
+        )
     booking.status = BookingStatus.cancelled
     db.commit()
     db.refresh(booking)
