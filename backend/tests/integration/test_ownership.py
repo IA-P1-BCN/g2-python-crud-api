@@ -70,11 +70,15 @@ def other_schedule(db_session, other_class, room) -> ClassSchedule:
 
 
 @pytest.fixture()
-def booking(db_session, member, schedule) -> Booking:
-    """Booking of `member` in a class taught by `trainer`."""
+def booking(db_session, member, schedule, next_date_for_weekday) -> Booking:
+    """Booking of `member` in a class taught by `trainer`, for a session still to come."""
     return _add(
         db_session,
-        Booking(member_id=member.id, schedule_id=schedule.id, booking_date=date(2026, 10, 5)),
+        Booking(
+            member_id=member.id,
+            schedule_id=schedule.id,
+            booking_date=next_date_for_weekday(schedule.day_of_week),
+        ),
     )
 
 

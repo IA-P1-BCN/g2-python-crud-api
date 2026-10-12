@@ -48,12 +48,29 @@ def _available(client, schedule_id: int, on_date: date) -> int:
     return response.json()["available"]
 
 
-def _other_schedule(client, trainer, start_time: str, end_time: str) -> int:
-    """A second Monday session in another room, so only the member's agenda can clash."""
+def _other_schedule(client, start_time: str, end_time: str) -> int:
+    """A second Monday session, in another room and with another trainer.
+
+    That way only the member's own agenda can clash.
+    """
     room = client.post(f"{API}/rooms", json={"name": "Sala 2", "capacity": 20}).json()
+    trainer = client.post(
+        f"{API}/users",
+        json={
+            "email": "otra-entrenadora@test.dev",
+            "full_name": "Otra Entrenadora",
+            "role": "trainer",
+            "password": "Password123!",
+        },
+    ).json()
     gym_class = client.post(
         f"{API}/classes",
-        json={"name": "Pilates", "capacity": 10, "trainer_id": trainer.id, "room_id": room["id"]},
+        json={
+            "name": "Pilates",
+            "capacity": 10,
+            "trainer_id": trainer["id"],
+            "room_id": room["id"],
+        },
     ).json()
     schedule = client.post(
         f"{API}/class-schedules",
@@ -157,10 +174,10 @@ def test_a_member_cannot_book_the_same_session_twice(client, plan, schedule, ses
     ],
 )
 def test_a_member_cannot_book_two_sessions_that_overlap(
-    client, plan, schedule, session_date, trainer, start_time: str, end_time: str
+    client, plan, schedule, session_date, start_time: str, end_time: str
 ) -> None:
     member_id = _new_member(client, plan, "a@test.dev")
-    other_schedule_id = _other_schedule(client, trainer, start_time, end_time)
+    other_schedule_id = _other_schedule(client, start_time, end_time)
     _book(client, member_id, schedule.id, session_date)
 
     response = _book(client, member_id, other_schedule_id, session_date)
@@ -173,10 +190,10 @@ def test_a_member_cannot_book_two_sessions_that_overlap(
     ("start_time", "end_time"), [("11:00:00", "12:00:00"), ("09:00:00", "10:00:00")]
 )
 def test_a_member_can_book_sessions_that_follow_each_other(
-    client, plan, schedule, session_date, trainer, start_time: str, end_time: str
+    client, plan, schedule, session_date, start_time: str, end_time: str
 ) -> None:
     member_id = _new_member(client, plan, "a@test.dev")
-    other_schedule_id = _other_schedule(client, trainer, start_time, end_time)
+    other_schedule_id = _other_schedule(client, start_time, end_time)
     _book(client, member_id, schedule.id, session_date)
 
     response = _book(client, member_id, other_schedule_id, session_date)
@@ -185,10 +202,10 @@ def test_a_member_can_book_sessions_that_follow_each_other(
 
 
 def test_overlapping_sessions_on_different_dates_do_not_clash(
-    client, plan, schedule, session_date, trainer
+    client, plan, schedule, session_date
 ) -> None:
     member_id = _new_member(client, plan, "a@test.dev")
-    other_schedule_id = _other_schedule(client, trainer, "10:30:00", "11:30:00")
+    other_schedule_id = _other_schedule(client, "10:30:00", "11:30:00")
     _book(client, member_id, schedule.id, session_date)
 
     response = _book(client, member_id, other_schedule_id, session_date + timedelta(days=7))
@@ -197,10 +214,10 @@ def test_overlapping_sessions_on_different_dates_do_not_clash(
 
 
 def test_a_cancelled_booking_does_not_block_an_overlapping_one(
-    client, plan, schedule, session_date, trainer
+    client, plan, schedule, session_date
 ) -> None:
     member_id = _new_member(client, plan, "a@test.dev")
-    other_schedule_id = _other_schedule(client, trainer, "10:30:00", "11:30:00")
+    other_schedule_id = _other_schedule(client, "10:30:00", "11:30:00")
     booking = _book(client, member_id, schedule.id, session_date).json()
     client.delete(f"{BOOKINGS_URL}/{booking['id']}")
 
@@ -210,11 +227,11 @@ def test_a_cancelled_booking_does_not_block_an_overlapping_one(
 
 
 def test_two_members_can_book_overlapping_sessions(
-    client, plan, schedule, session_date, trainer
+    client, plan, schedule, session_date
 ) -> None:
     first = _new_member(client, plan, "a@test.dev")
     second = _new_member(client, plan, "b@test.dev")
-    other_schedule_id = _other_schedule(client, trainer, "10:30:00", "11:30:00")
+    other_schedule_id = _other_schedule(client, "10:30:00", "11:30:00")
     _book(client, first, schedule.id, session_date)
 
     response = _book(client, second, other_schedule_id, session_date)

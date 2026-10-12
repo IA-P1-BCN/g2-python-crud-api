@@ -8,6 +8,7 @@ from app.models.user import UserRole
 from app.schemas.gym_class import GymClassCreate, GymClassUpdate
 from app.services import room_service, user_service
 from app.services.dependents import ensure_no_dependents
+from app.services.schedule_conflicts import ensure_trainer_is_free
 
 
 def list_classes(
@@ -58,8 +59,19 @@ def create_class(db: Session, data: GymClassCreate) -> GymClass:
 def update_class(db: Session, class_id: int, data: GymClassUpdate) -> GymClass:
     gym_class = get_class(db, class_id)
     payload = data.model_dump(exclude_unset=True)
-    if payload.get("trainer_id") is not None:
-        _validate_trainer(db, payload["trainer_id"])
+    new_trainer_id = payload.get("trainer_id")
+    if new_trainer_id is not None:
+        _validate_trainer(db, new_trainer_id)
+        if new_trainer_id != gym_class.trainer_id:
+            for schedule in gym_class.schedules:
+                ensure_trainer_is_free(
+                    db,
+                    new_trainer_id,
+                    day_of_week=schedule.day_of_week,
+                    start_time=schedule.start_time,
+                    end_time=schedule.end_time,
+                    exclude_class_id=gym_class.id,
+                )
     if payload.get("room_id") is not None:
         room_service.get_room(db, payload["room_id"])
     for field, value in payload.items():

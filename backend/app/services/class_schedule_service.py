@@ -1,12 +1,13 @@
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import ConflictError, InvalidDataError, NotFoundError
+from app.core.exceptions import InvalidDataError, NotFoundError
 from app.models.booking import Booking
 from app.models.class_schedule import ClassSchedule
 from app.schemas.class_schedule import ClassScheduleCreate, ClassScheduleUpdate
 from app.services import class_service, room_service
 from app.services.dependents import ensure_no_dependents
+from app.services.schedule_conflicts import ensure_room_is_free, ensure_trainer_is_free
 
 
 def list_schedules(
@@ -37,36 +38,16 @@ def get_schedule(db: Session, schedule_id: int) -> ClassSchedule:
     return schedule
 
 
-def _check_room_overlap(
-    db: Session,
-    *,
-    room_id: int,
-    day_of_week: int,
-    start_time,
-    end_time,
-    exclude_id: int | None = None,
-) -> None:
-    stmt = select(ClassSchedule).where(
-        ClassSchedule.room_id == room_id,
-        ClassSchedule.day_of_week == day_of_week,
-    )
-    for other in db.execute(stmt).scalars().all():
-        if exclude_id is not None and other.id == exclude_id:
-            continue
-        if start_time < other.end_time and other.start_time < end_time:
-            raise ConflictError("El aula ya está ocupada en ese horario")
-
-
 def create_schedule(db: Session, data: ClassScheduleCreate) -> ClassSchedule:
-    class_service.get_class(db, data.class_id)
+    gym_class = class_service.get_class(db, data.class_id)
     room_service.get_room(db, data.room_id)
-    _check_room_overlap(
-        db,
-        room_id=data.room_id,
-        day_of_week=data.day_of_week,
-        start_time=data.start_time,
-        end_time=data.end_time,
-    )
+    slot = {
+        "day_of_week": data.day_of_week,
+        "start_time": data.start_time,
+        "end_time": data.end_time,
+    }
+    ensure_room_is_free(db, data.room_id, **slot)
+    ensure_trainer_is_free(db, gym_class.trainer_id, **slot)
     schedule = ClassSchedule(**data.model_dump())
     db.add(schedule)
     db.commit()
@@ -85,19 +66,19 @@ def update_schedule(
     start_time = payload.get("start_time", schedule.start_time)
     end_time = payload.get("end_time", schedule.end_time)
 
-    class_service.get_class(db, class_id)
+    gym_class = class_service.get_class(db, class_id)
     if start_time >= end_time:
         raise InvalidDataError("start_time debe ser anterior a end_time")
+    slot = {
+        "day_of_week": day_of_week,
+        "start_time": start_time,
+        "end_time": end_time,
+        "exclude_schedule_id": schedule_id,
+    }
     if room_id is not None:
         room_service.get_room(db, room_id)
-        _check_room_overlap(
-            db,
-            room_id=room_id,
-            day_of_week=day_of_week,
-            start_time=start_time,
-            end_time=end_time,
-            exclude_id=schedule_id,
-        )
+        ensure_room_is_free(db, room_id, **slot)
+    ensure_trainer_is_free(db, gym_class.trainer_id, **slot)
 
     for field, value in payload.items():
         setattr(schedule, field, value)

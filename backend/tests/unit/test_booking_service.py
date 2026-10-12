@@ -146,8 +146,8 @@ def test_cancel_booking(
             booking_date=next_date_for_weekday(schedule.day_of_week),
         ),
     )
-    cancelled = booking_service.cancel_booking(db_session, booking.id)
+    cancelled = booking_service.cancel_booking(db_session, booking.id, cancelled_by=member)
     assert cancelled.status == BookingStatus.cancelled
 
     with pytest.raises(ConflictError):
-        booking_service.cancel_booking(db_session, booking.id)
+        booking_service.cancel_booking(db_session, booking.id, cancelled_by=member)

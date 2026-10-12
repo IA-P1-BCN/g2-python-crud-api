@@ -157,11 +157,28 @@ def test_create_schedule_same_slot_on_another_day_is_allowed(
     assert response.status_code == 201
 
 
-def test_create_schedule_same_slot_in_another_room_is_allowed(
-    client, gym_class, schedule, other_room
+def _class_of_another_trainer(client, room_id: int) -> int:
+    trainer = client.post(
+        "/api/v1/users",
+        json={
+            "email": "otra-entrenadora@test.dev",
+            "full_name": "Otra Entrenadora",
+            "role": "trainer",
+            "password": "Password123!",
+        },
+    ).json()
+    gym_class = client.post(
+        "/api/v1/classes",
+        json={"name": "Pilates", "capacity": 10, "trainer_id": trainer["id"], "room_id": room_id},
+    ).json()
+    return gym_class["id"]
+
+
+def test_create_schedule_same_slot_in_another_room_with_another_trainer_is_allowed(
+    client, schedule, other_room
 ) -> None:
     payload = _schedule_payload(
-        gym_class.id,
+        _class_of_another_trainer(client, other_room.id),
         other_room.id,
         day_of_week=schedule.day_of_week,
         start_time="10:00:00",
@@ -171,6 +188,97 @@ def test_create_schedule_same_slot_in_another_room_is_allowed(
     response = client.post(SCHEDULES_URL, json=payload)
 
     assert response.status_code == 201
+
+
+# A trainer cannot teach two sessions at once (the `schedule` fixture is Monday 10:00-11:00)
+
+
+@pytest.mark.parametrize(
+    ("start_time", "end_time"),
+    [("10:00:00", "11:00:00"), ("10:30:00", "11:30:00"), ("09:00:00", "12:00:00")],
+)
+def test_create_schedule_that_overlaps_another_session_of_the_trainer_returns_409(
+    client, gym_class, schedule, other_room, start_time: str, end_time: str
+) -> None:
+    payload = _schedule_payload(
+        gym_class.id,
+        other_room.id,
+        day_of_week=schedule.day_of_week,
+        start_time=start_time,
+        end_time=end_time,
+    )
+
+    response = client.post(SCHEDULES_URL, json=payload)
+
+    assert response.status_code == 409
+    assert response.json()["code"] == "conflict"
+    assert "entrenador" in response.json()["detail"]
+
+
+def test_trainer_overlap_counts_across_the_classes_of_the_trainer(
+    client, schedule, trainer, other_room
+) -> None:
+    second_class = client.post(
+        "/api/v1/classes",
+        json={"name": "Core", "capacity": 8, "trainer_id": trainer.id, "room_id": other_room.id},
+    ).json()
+    payload = _schedule_payload(
+        second_class["id"],
+        other_room.id,
+        day_of_week=schedule.day_of_week,
+        start_time="10:30:00",
+        end_time="11:30:00",
+    )
+
+    response = client.post(SCHEDULES_URL, json=payload)
+
+    assert response.status_code == 409
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        {"start_time": "11:00:00", "end_time": "12:00:00"},
+        {"start_time": "09:00:00", "end_time": "10:00:00"},
+        {"day_of_week": 1, "start_time": "10:00:00", "end_time": "11:00:00"},
+    ],
+)
+def test_trainer_can_teach_sessions_that_do_not_overlap(
+    client, gym_class, schedule, other_room, overrides: dict
+) -> None:
+    payload = _schedule_payload(gym_class.id, other_room.id, **overrides)
+
+    response = client.post(SCHEDULES_URL, json=payload)
+
+    assert response.status_code == 201
+
+
+def test_update_schedule_onto_another_session_of_the_trainer_returns_409(
+    client, gym_class, schedule, other_room
+) -> None:
+    later = client.post(
+        SCHEDULES_URL,
+        json=_schedule_payload(
+            gym_class.id,
+            other_room.id,
+            day_of_week=schedule.day_of_week,
+            start_time="12:00:00",
+            end_time="13:00:00",
+        ),
+    ).json()
+
+    response = client.put(
+        f"{SCHEDULES_URL}/{later['id']}", json={"start_time": "10:30:00", "end_time": "11:30:00"}
+    )
+
+    assert response.status_code == 409
+    assert client.get(f"{SCHEDULES_URL}/{later['id']}").json()["start_time"] == "12:00:00"
+
+
+def test_update_schedule_keeping_its_own_slot_is_allowed(client, schedule) -> None:
+    response = client.put(f"{SCHEDULES_URL}/{schedule.id}", json={"end_time": "11:30:00"})
+
+    assert response.status_code == 200
 
 
 # GET /class-schedules

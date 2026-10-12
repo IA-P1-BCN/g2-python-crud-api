@@ -145,15 +145,15 @@ def schedule(db_session: Session, gym_class: GymClass, room: Room) -> ClassSched
 
 @pytest.fixture()
 def next_date_for_weekday():
-    """Map a backend weekday (0 = Monday) to today or the next matching calendar date.
+    """Map a backend weekday (0 = Monday) to the next calendar date that falls on it.
 
-    Mirrors the frontend calendar, so booking dates stay coherent with the schedule's
-    ``day_of_week`` (see ``booking_service.create_booking``).
+    Never today, so the session has not started whatever time the tests run at (see
+    ``booking_service.create_booking``).
     """
 
     def _next(weekday: int) -> date:
         today = date.today()
-        return today + timedelta(days=(weekday - today.weekday()) % 7)
+        return today + timedelta(days=(weekday - today.weekday() - 1) % 7 + 1)
 
     return _next
 
