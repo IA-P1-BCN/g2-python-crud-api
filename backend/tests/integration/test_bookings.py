@@ -99,6 +99,53 @@ def test_booking_invalid_schedule_returns_404(client, member) -> None:
     assert response.json()["code"] == "not_found"
 
 
+def test_booking_for_an_unknown_member_returns_404(client, schedule, next_date_for_weekday) -> None:
+    response = client.post(
+        "/api/v1/bookings",
+        json={
+            "member_id": 999999,
+            "schedule_id": schedule.id,
+            "booking_date": next_date_for_weekday(schedule.day_of_week).isoformat(),
+        },
+    )
+
+    assert response.status_code == 404
+    assert response.json()["code"] == "not_found"
+
+
+def test_get_unknown_booking_returns_404(client) -> None:
+    response = client.get("/api/v1/bookings/999999")
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Reserva 999999 no encontrada", "code": "not_found"}
+
+
+def test_cancel_unknown_booking_returns_404(client) -> None:
+    response = client.delete("/api/v1/bookings/999999")
+
+    assert response.status_code == 404
+    assert response.json()["code"] == "not_found"
+
+
+def test_cancel_a_booking_twice_returns_409(
+    client, member, schedule, active_membership, next_date_for_weekday
+) -> None:
+    booking = client.post(
+        "/api/v1/bookings",
+        json={
+            "member_id": member.id,
+            "schedule_id": schedule.id,
+            "booking_date": next_date_for_weekday(schedule.day_of_week).isoformat(),
+        },
+    ).json()
+    client.delete(f"/api/v1/bookings/{booking['id']}")
+
+    response = client.delete(f"/api/v1/bookings/{booking['id']}")
+
+    assert response.status_code == 409
+    assert response.json() == {"detail": "La reserva ya estaba cancelada", "code": "conflict"}
+
+
 def test_user_bookings_relationship_endpoint(client, member, active_membership) -> None:
     response = client.get(f"/api/v1/users/{member.id}/bookings")
     assert response.status_code == 200
