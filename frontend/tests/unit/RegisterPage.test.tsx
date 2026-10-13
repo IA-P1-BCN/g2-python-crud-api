@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuth, type AuthContextValue } from '@/auth'
 import { RegisterPage } from '@/pages/RegisterPage'
+import { PASSWORD_RULE } from '@/lib/password'
 import type { User } from '@/types/api'
 
 vi.mock('@/auth', async (importOriginal) => {
@@ -58,14 +59,29 @@ describe('RegisterPage', () => {
 
     await userEvent.type(screen.getByLabelText('Nombre completo'), 'Nueva Socia')
     await userEvent.type(screen.getByLabelText('Email'), 'nueva@example.com')
-    await userEvent.type(screen.getByLabelText('Contraseña'), 'secret123')
+    await userEvent.type(screen.getByLabelText('Contraseña'), 'Athletica123!')
     await userEvent.click(screen.getByRole('button', { name: 'Registrarme' }))
 
     expect(register).toHaveBeenCalledWith({
       full_name: 'Nueva Socia',
       email: 'nueva@example.com',
-      password: 'secret123',
+      password: 'Athletica123!',
     })
+  })
+
+  it('no envía el formulario si la contraseña no cumple la regla', async () => {
+    const register = vi.fn().mockResolvedValue(user)
+    mockedUseAuth.mockReturnValue(authValue({ register }))
+
+    renderPage()
+
+    await userEvent.type(screen.getByLabelText('Nombre completo'), 'Nueva Socia')
+    await userEvent.type(screen.getByLabelText('Email'), 'nueva@example.com')
+    await userEvent.type(screen.getByLabelText('Contraseña'), 'secret123')
+    await userEvent.click(screen.getByRole('button', { name: 'Registrarme' }))
+
+    expect(register).not.toHaveBeenCalled()
+    expect(screen.getByText(PASSWORD_RULE)).toBeInTheDocument()
   })
 
   it('muestra el error de la API', () => {

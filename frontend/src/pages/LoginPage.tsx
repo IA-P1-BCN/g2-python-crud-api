@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/atoms/Button'
 import { Alert } from '@/components/ui/molecules/Alert'
+import { PasswordField } from '@/components/ui/molecules/PasswordField'
 import { homePathForRole, useAuth } from '@/auth'
 
 type LocationState = {
@@ -50,17 +51,14 @@ export function LoginPage() {
           />
         </label>
 
-        <label className="field">
-          <span>Contraseña</span>
-          <input
-            type="password"
-            name="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-        </label>
+        <PasswordField
+          label="Contraseña"
+          name="password"
+          value={password}
+          onChange={setPassword}
+          autoComplete="current-password"
+          required
+        />
 
         <Button type="submit" isLoading={isLoading}>
           Entrar

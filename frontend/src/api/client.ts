@@ -56,9 +56,11 @@ export function toApiError(error: unknown): ApiError {
       return { status, message: data.detail }
     }
     if (Array.isArray(data?.detail)) {
+      const [first] = data.detail as components['schemas']['ValidationError'][]
       return {
         status,
-        message: 'Datos inválidos',
+        // Surface the backend message (e.g. the password rule) instead of a generic one.
+        message: first?.msg ?? 'Datos inválidos',
         details: data.detail,
       }
     }

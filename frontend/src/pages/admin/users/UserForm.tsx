@@ -2,11 +2,11 @@ import { useState, type FormEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/atoms/Button'
 import { Alert } from '@/components/ui/molecules/Alert'
+import { PasswordField } from '@/components/ui/molecules/PasswordField'
 import { toApiError, usersApi } from '@/api'
+import { passwordErrorMessage } from '@/lib/password'
 import type { Role, User } from '@/types/api'
 import { ROLE_LABELS } from './roleLabels'
-
-const MIN_PASSWORD_LENGTH = 8
 
 type UserFormProps = {
   /** User to edit; without it the form creates a new one. */
@@ -45,9 +45,12 @@ export function UserForm({ user, roles, noun, onDone }: UserFormProps) {
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
-    if (!isEdit && password.length < MIN_PASSWORD_LENGTH) {
-      setFormError(`La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres`)
-      return
+    if (!isEdit) {
+      const invalidPassword = passwordErrorMessage(password)
+      if (invalidPassword) {
+        setFormError(invalidPassword)
+        return
+      }
     }
     setFormError(null)
     save.mutate()
@@ -88,15 +91,13 @@ export function UserForm({ user, roles, noun, onDone }: UserFormProps) {
         </label>
       ) : null}
       {isEdit ? null : (
-        <label className="field">
-          Contraseña inicial
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
-        </label>
+        <PasswordField
+          label="Contraseña inicial"
+          value={password}
+          onChange={setPassword}
+          required
+          showRules
+        />
       )}
 
       <div className="form__actions">

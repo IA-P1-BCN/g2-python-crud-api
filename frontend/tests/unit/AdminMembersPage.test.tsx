@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { bookingsApi, membershipPlansApi, membershipsApi, paymentsApi, usersApi } from '@/api'
 import { AdminMembersPage } from '@/pages/admin/AdminMembersPage'
+import { PASSWORD_RULE } from '@/lib/password'
 import type { User, UserPage } from '@/types/api'
 
 vi.mock('@/api', () => ({
@@ -161,14 +162,14 @@ describe('AdminMembersPage', () => {
     const form = screen.getByRole('form', { name: 'Nuevo socio' })
     await userEvent.type(within(form).getByLabelText('Nombre completo'), 'Carla Díaz')
     await userEvent.type(within(form).getByLabelText('Email'), 'carla@test.dev')
-    await userEvent.type(within(form).getByLabelText('Contraseña inicial'), 'password123')
+    await userEvent.type(within(form).getByLabelText('Contraseña inicial'), 'Athletica123!')
     await userEvent.click(within(form).getByRole('button', { name: 'Dar de alta' }))
 
     await waitFor(() =>
       expect(usersApi.create).toHaveBeenCalledWith({
         full_name: 'Carla Díaz',
         email: 'carla@test.dev',
-        password: 'password123',
+        password: 'Athletica123!',
         role: 'member',
         is_active: true,
       }),
@@ -186,9 +187,7 @@ describe('AdminMembersPage', () => {
     await userEvent.type(within(form).getByLabelText('Contraseña inicial'), 'corta')
     await userEvent.click(within(form).getByRole('button', { name: 'Dar de alta' }))
 
-    expect(
-      within(form).getByText('La contraseña debe tener al menos 8 caracteres'),
-    ).toBeInTheDocument()
+    expect(within(form).getByText(PASSWORD_RULE)).toBeInTheDocument()
     expect(usersApi.create).not.toHaveBeenCalled()
   })
 
@@ -201,7 +200,7 @@ describe('AdminMembersPage', () => {
     const form = screen.getByRole('form', { name: 'Nuevo socio' })
     await userEvent.type(within(form).getByLabelText('Nombre completo'), 'Ana')
     await userEvent.type(within(form).getByLabelText('Email'), 'ana@test.dev')
-    await userEvent.type(within(form).getByLabelText('Contraseña inicial'), 'password123')
+    await userEvent.type(within(form).getByLabelText('Contraseña inicial'), 'Athletica123!')
     await userEvent.click(within(form).getByRole('button', { name: 'Dar de alta' }))
 
     expect(await within(form).findByText('El email ya está registrado')).toBeInTheDocument()

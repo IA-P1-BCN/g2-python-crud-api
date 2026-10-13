@@ -2,8 +2,10 @@ import { useState, type FormEvent } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { Button } from '@/components/ui/atoms/Button'
 import { Alert } from '@/components/ui/molecules/Alert'
+import { PasswordField } from '@/components/ui/molecules/PasswordField'
 import { toApiError, usersApi } from '@/api'
 import { useAuth } from '@/auth'
+import { passwordErrorMessage } from '@/lib/password'
 
 export function ProfilePage() {
   const { user, updateUser, logout } = useAuth()
@@ -49,8 +51,9 @@ export function ProfilePage() {
     event.preventDefault()
     setPasswordValidationError(null)
 
-    if (newPassword.length < 8) {
-      setPasswordValidationError('La contraseña debe tener al menos 8 caracteres')
+    const invalidPassword = passwordErrorMessage(newPassword)
+    if (invalidPassword) {
+      setPasswordValidationError(invalidPassword)
       return
     }
 
@@ -122,29 +125,24 @@ export function ProfilePage() {
         {changePassword.isSuccess ? <Alert variant="success">Contraseña actualizada</Alert> : null}
 
         <form onSubmit={handlePasswordSubmit}>
-          <label className="field">
-            <span>Contraseña actual</span>
-            <input
-              type="password"
-              name="current_password"
-              autoComplete="current-password"
-              required
-              value={currentPassword}
-              onChange={(event) => setCurrentPassword(event.target.value)}
-            />
-          </label>
+          <PasswordField
+            label="Contraseña actual"
+            name="current_password"
+            value={currentPassword}
+            onChange={setCurrentPassword}
+            autoComplete="current-password"
+            required
+          />
 
-          <label className="field">
-            <span>Nueva contraseña</span>
-            <input
-              type="password"
-              name="new_password"
-              autoComplete="new-password"
-              required
-              value={newPassword}
-              onChange={(event) => setNewPassword(event.target.value)}
-            />
-          </label>
+          <PasswordField
+            label="Nueva contraseña"
+            name="new_password"
+            value={newPassword}
+            onChange={setNewPassword}
+            autoComplete="new-password"
+            required
+            showRules
+          />
 
           <label className="field">
             <span>Repetir nueva contraseña</span>
