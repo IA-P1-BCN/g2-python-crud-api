@@ -6,6 +6,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_admin
+from app.api.responses import errors
 from app.models.booking import BookingStatus
 from app.models.user import UserRole
 from app.services import export_service
@@ -25,6 +26,7 @@ def _csv_response(chunks: Iterable[str], filename: str) -> StreamingResponse:
 
 @router.get(
     "/members.csv",
+    responses=errors(401, 403, 422),
     response_class=StreamingResponse,
     summary="Exportar socios a CSV",
     description=(
@@ -41,6 +43,7 @@ def export_members(
 
 @router.get(
     "/bookings.csv",
+    responses=errors(401, 403, 422),
     response_class=StreamingResponse,
     summary="Exportar reservas a CSV",
     description=(

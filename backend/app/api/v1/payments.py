@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import Pagination, build_page, get_db, require_admin
+from app.api.responses import errors
 from app.models.payment import PaymentStatus
 from app.schemas.common import Page
 from app.schemas.payment import PaymentCreate, PaymentRead, PaymentUpdate
@@ -12,6 +13,7 @@ router = APIRouter(prefix="/payments", tags=["payments"], dependencies=[Depends(
 
 @router.get(
     "",
+    responses=errors(401, 403, 422),
     response_model=Page[PaymentRead],
     summary="Listar pagos",
     description=(
@@ -37,6 +39,7 @@ def list_payments(
 
 @router.post(
     "",
+    responses=errors(401, 403, 404, 422),
     response_model=PaymentRead,
     status_code=status.HTTP_201_CREATED,
     summary="Crear pago",
@@ -48,6 +51,7 @@ def create_payment(data: PaymentCreate, db: Session = Depends(get_db)) -> Paymen
 
 @router.get(
     "/{payment_id}",
+    responses=errors(401, 403, 404, 422),
     response_model=PaymentRead,
     summary="Obtener pago",
     description="Devuelve un pago por id. Requiere rol administrador.",
@@ -58,6 +62,7 @@ def get_payment(payment_id: int, db: Session = Depends(get_db)) -> PaymentRead:
 
 @router.put(
     "/{payment_id}",
+    responses=errors(401, 403, 404, 422),
     response_model=PaymentRead,
     summary="Actualizar pago",
     description="Actualiza el importe o el estado de un pago. Requiere rol administrador.",
@@ -70,6 +75,7 @@ def update_payment(
 
 @router.delete(
     "/{payment_id}",
+    responses=errors(401, 403, 404, 422),
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Eliminar pago",
     description="Elimina un pago. Requiere rol administrador.",

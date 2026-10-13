@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.api.deps import Pagination, build_page, get_db, require_admin
+from app.api.responses import errors
 from app.schemas.admin_member import AdminMember
 from app.schemas.common import Page
 from app.schemas.dashboard import DashboardPeriod, DashboardSummary
@@ -15,6 +16,7 @@ router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(requir
 
 @router.get(
     "/dashboard",
+    responses=errors(401, 403, 422),
     response_model=DashboardSummary,
     summary="Resumen del panel de administración",
     description=(
@@ -31,6 +33,7 @@ def get_dashboard(
 
 @router.get(
     "/members",
+    responses=errors(401, 403, 422),
     response_model=Page[AdminMember],
     summary="Socios con su plan y su último pago",
     description=(

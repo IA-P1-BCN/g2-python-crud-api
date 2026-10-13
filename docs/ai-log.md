@@ -97,3 +97,36 @@ alcance. El resto del equipo añade aquí su fila.
     antes de subir nada.
 - **Revisión humana:** pendiente en el PR. Punto a mirar: que ningún test existente se ha
   modificado, que es la prueba de que el refactor no cambia el comportamiento.
+
+### #402 Respuestas de error documentadas en Swagger
+
+- **Fecha:** 2026-10-13
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/402-error-responses-in-openapi.md`, escrita antes del código.
+- **Prompt clave:** «ok abre el pr» de la tarea anterior y continuar con el orden acordado. El
+  agente trabajó a partir de los criterios de aceptación del issue y de `docs/errores.md`.
+- **Qué generó el agente:** la spec; `app/api/responses.py`, con la descripción, el esquema y el
+  ejemplo de cada código en un solo sitio; `responses=errors(...)` en las 56 rutas; el esquema
+  `ValidationErrorResponse`; y 285 comprobaciones nuevas sobre el esquema OpenAPI.
+- **Aceptado:**
+  - Declarar los códigos ruta por ruta, pero definir su contenido una sola vez.
+  - Sustituir el esquema de 422 por defecto de FastAPI (`HTTPValidationError`), que no coincidía
+    con la respuesta real de la API porque le falta `code`.
+  - Tests que derivan lo que debe estar documentado de datos que ya existen: la matriz de permisos
+    decide qué operaciones deben declarar 401 y 403.
+- **Rechazado o cambiado, y por qué:**
+  - Deducir todos los códigos automáticamente al generar el esquema. Solo el 401 y el 422 se
+    pueden deducir; el 400, el 403 por propiedad del dato y el 409 dependen de reglas que están
+    dentro de los servicios. Se optó por declararlos a mano y vigilarlos con tests.
+  - Un ejemplo distinto por endpoint. Hay uno representativo por código; el mensaje exacto de cada
+    caso sigue en `docs/errores.md`.
+- **Errores o alucinaciones del agente y cómo se corrigieron:**
+  - La primera versión eliminaba del esquema el tipo `ValidationError`, que el frontend importa de
+    los tipos generados (`frontend/src/api/client.ts`). No fallaba ningún test, porque esos tipos
+    no se regeneran en la CI; se habría roto la próxima vez que alguien los regenerase. El agente
+    lo detectó al revisar quién usaba ese tipo y lo conservó con el mismo nombre y la misma forma.
+  - Un script de edición propio escribió saltos de línea reales donde debía escribir `\n` y quedó
+    con un error de sintaxis. Se detectó al ejecutarlo, antes de tocar ningún archivo del proyecto.
+- **Revisión humana:** pendiente en el PR. Punto a mirar: que la tabla de códigos por ruta es
+  correcta para los endpoints que conozcáis; los tests comprueban el 401, el 403, el 404 y el 422,
+  pero el 400 y el 409 de cada ruta solo los valida quien lee.

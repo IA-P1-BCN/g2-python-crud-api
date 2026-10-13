@@ -11,6 +11,7 @@ from app.api.deps import (
     require_member_or_admin,
     require_staff,
 )
+from app.api.responses import errors
 from app.models.booking import BookingStatus
 from app.models.user import User
 from app.schemas.booking import BookingCreate, BookingRead
@@ -22,6 +23,7 @@ router = APIRouter(prefix="/bookings", tags=["bookings"])
 
 @router.get(
     "",
+    responses=errors(401, 403, 422),
     response_model=Page[BookingRead],
     summary="Listar reservas",
     description=(
@@ -53,6 +55,7 @@ def list_bookings(
 
 @router.post(
     "",
+    responses=errors(400, 401, 403, 404, 409, 422),
     response_model=BookingRead,
     status_code=status.HTTP_201_CREATED,
     summary="Crear reserva",
@@ -72,6 +75,7 @@ def create_booking(
 
 @router.get(
     "/{booking_id}",
+    responses=errors(401, 403, 404, 422),
     response_model=BookingRead,
     summary="Obtener reserva",
     description="Devuelve una reserva por id. Solo el socio propietario, su entrenador o un admin.",
@@ -88,6 +92,7 @@ def get_booking(
 
 @router.delete(
     "/{booking_id}",
+    responses=errors(400, 401, 403, 404, 409, 422),
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Cancelar reserva",
     description=(

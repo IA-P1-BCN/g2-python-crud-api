@@ -11,6 +11,7 @@ from app.api.deps import (
     require_admin,
     require_staff,
 )
+from app.api.responses import errors
 from app.models.user import User
 from app.schemas.booking import BookingRead
 from app.schemas.common import Page
@@ -30,6 +31,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.get(
     "",
+    responses=errors(401, 403, 422),
     response_model=Page[UserRead],
     summary="Listar usuarios",
     description=(
@@ -54,6 +56,7 @@ def list_users(
 
 @router.post(
     "",
+    responses=errors(401, 403, 409, 422),
     response_model=UserRead,
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(require_admin)],
@@ -67,6 +70,7 @@ def create_user(data: UserCreate, db: Session = Depends(get_db)) -> UserRead:
 # Declared before "/{user_id}" so that "me" is not read as an id.
 @router.get(
     "/me",
+    responses=errors(401),
     response_model=UserRead,
     summary="Mi usuario",
     description="Devuelve el usuario del token. Disponible para cualquier rol.",
@@ -77,6 +81,7 @@ def read_own_user(current_user: User = Depends(get_current_user)) -> UserRead:
 
 @router.get(
     "/{user_id}",
+    responses=errors(401, 403, 404, 422),
     response_model=UserRead,
     summary="Obtener usuario",
     description="Devuelve un usuario por id. Solo el propio usuario o un administrador.",
@@ -92,6 +97,7 @@ def get_user(
 
 @router.put(
     "/{user_id}/profile",
+    responses=errors(401, 403, 404, 409, 422),
     response_model=UserRead,
     summary="Actualizar perfil propio",
     description="Actualiza el email y nombre del propio usuario.",
@@ -108,6 +114,7 @@ def update_profile(
 
 @router.put(
     "/{user_id}/password",
+    responses=errors(400, 401, 403, 404, 422),
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Cambiar contraseña",
     description="Cambia la contraseña del propio usuario.",
@@ -124,6 +131,7 @@ def change_password(
 
 @router.put(
     "/{user_id}",
+    responses=errors(401, 403, 404, 409, 422),
     response_model=UserRead,
     summary="Actualizar usuario",
     description=(
@@ -143,6 +151,7 @@ def update_user(
 
 @router.delete(
     "/{user_id}",
+    responses=errors(401, 403, 404, 409, 422),
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Desactivar usuario",
     description=(
@@ -161,6 +170,7 @@ def deactivate_user(
 
 @router.get(
     "/{user_id}/memberships",
+    responses=errors(401, 403, 404, 422),
     response_model=Page[MembershipRead],
     summary="Membresías de un usuario",
     description="Lista las membresías de un usuario. Solo el propio usuario o un administrador.",
@@ -181,6 +191,7 @@ def list_user_memberships(
 
 @router.get(
     "/{user_id}/bookings",
+    responses=errors(401, 403, 404, 422),
     response_model=Page[BookingRead],
     summary="Reservas de un usuario",
     description="Lista las reservas de un usuario. Solo el propio usuario o un administrador.",
