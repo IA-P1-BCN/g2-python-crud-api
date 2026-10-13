@@ -1,15 +1,10 @@
 import { NavLink } from 'react-router-dom'
-import { Icon, type IconName } from '@/components/ui/atoms/Icon'
+import { Icon } from '@/components/ui/atoms/Icon'
 import { cn } from '@/lib/cn'
-
-export type TopNavItem = {
-  to: string
-  label: string
-  icon: IconName
-}
+import type { NavItem } from '@/lib/navigation'
 
 export type TopNavProps = {
-  items: TopNavItem[]
+  items: NavItem[]
   className?: string
 }
 
