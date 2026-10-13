@@ -1,7 +1,7 @@
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import NotFoundError
+from app.core.exceptions import InvalidDataError, NotFoundError
 from app.models.payment import Payment, PaymentStatus
 from app.schemas.payment import PaymentCreate, PaymentUpdate
 from app.services import membership_service, user_service
@@ -35,9 +35,24 @@ def get_payment(db: Session, payment_id: int) -> Payment:
     return payment
 
 
+def get_last_for_users(db: Session, user_ids: list[int]) -> dict[int, Payment]:
+    """The most recent payment of each user that has any."""
+    stmt = (
+        select(Payment)
+        .where(Payment.user_id.in_(user_ids))
+        .order_by(Payment.created_at.desc(), Payment.id.desc())
+    )
+    last: dict[int, Payment] = {}
+    for payment in db.execute(stmt).scalars():
+        last.setdefault(payment.user_id, payment)
+    return last
+
+
 def create_payment(db: Session, data: PaymentCreate) -> Payment:
     user_service.get_user(db, data.user_id)
-    membership_service.get_membership(db, data.membership_id)
+    membership = membership_service.get_membership(db, data.membership_id)
+    if membership.user_id != data.user_id:
+        raise InvalidDataError("La membresía no pertenece a ese usuario")
     payment = Payment(**data.model_dump())
     db.add(payment)
     db.commit()

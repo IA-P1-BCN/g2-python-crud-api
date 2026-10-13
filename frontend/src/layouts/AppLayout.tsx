@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { Button } from '@/components/ui'
+import { Button } from '@/components/ui/atoms/Button'
 import { useAuth } from '@/auth'
 import type { Role } from '@/types/api'
 
@@ -13,9 +13,13 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/member/classes', label: 'Clases', roles: ['member'] },
   { to: '/member/bookings', label: 'Mis reservas', roles: ['member'] },
   { to: '/member/membership', label: 'Mi membresía', roles: ['member'] },
+  { to: '/member/profile', label: 'Mi perfil', roles: ['member'] },
+  { to: '/trainer/sessions', label: 'Mis sesiones', roles: ['trainer'] },
   { to: '/trainer/members', label: 'Mis socios', roles: ['trainer'] },
+  { to: '/admin/dashboard', label: 'Resumen', roles: ['admin'] },
   { to: '/admin/plans', label: 'Planes', roles: ['admin'] },
   { to: '/admin/members', label: 'Socios', roles: ['admin'] },
+  { to: '/admin/users', label: 'Usuarios', roles: ['admin'] },
 ]
 
 export function AppLayout() {

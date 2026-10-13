@@ -7,7 +7,9 @@ class RoomBase(BaseModel):
 
 
 class RoomCreate(RoomBase):
-    pass
+    model_config = ConfigDict(
+        json_schema_extra={"examples": [{"name": "Sala 1", "capacity": 20}]}
+    )
 
 
 class RoomUpdate(BaseModel):
@@ -16,7 +18,10 @@ class RoomUpdate(BaseModel):
 
 
 class RoomRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={"examples": [{"id": 1, "name": "Sala 1", "capacity": 20}]},
+    )
 
     id: int
     name: str

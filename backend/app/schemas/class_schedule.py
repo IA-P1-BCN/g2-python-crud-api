@@ -1,6 +1,6 @@
-from datetime import datetime, time
+from datetime import date, datetime, time
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class ClassScheduleBase(BaseModel):
@@ -8,7 +8,7 @@ class ClassScheduleBase(BaseModel):
     day_of_week: int = Field(ge=0, le=6, description="0 = lunes, 6 = domingo")
     start_time: time
     end_time: time
-    room_id: int | None = None
+    room_id: int
 
     @model_validator(mode="after")
     def validate_times(self) -> "ClassScheduleBase":
@@ -18,7 +18,19 @@ class ClassScheduleBase(BaseModel):
 
 
 class ClassScheduleCreate(ClassScheduleBase):
-    pass
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "class_id": 1,
+                    "day_of_week": 0,
+                    "start_time": "10:00:00",
+                    "end_time": "11:00:00",
+                    "room_id": 1,
+                }
+            ]
+        }
+    )
 
 
 class ClassScheduleUpdate(BaseModel):
@@ -28,9 +40,32 @@ class ClassScheduleUpdate(BaseModel):
     end_time: time | None = None
     room_id: int | None = None
 
+    # None only means "not sent": an explicit null would leave the schedule without a room.
+    @field_validator("room_id")
+    @classmethod
+    def room_cannot_be_removed(cls, value: int | None) -> int:
+        if value is None:
+            raise ValueError("room_id no puede ser nulo")
+        return value
+
 
 class ClassScheduleRead(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
+            "examples": [
+                {
+                    "id": 1,
+                    "class_id": 1,
+                    "day_of_week": 0,
+                    "start_time": "10:00:00",
+                    "end_time": "11:00:00",
+                    "room_id": 1,
+                    "created_at": "2026-01-01T10:00:00Z",
+                }
+            ]
+        },
+    )
 
     id: int
     class_id: int
@@ -39,3 +74,13 @@ class ClassScheduleRead(BaseModel):
     end_time: time
     room_id: int | None
     created_at: datetime
+
+
+class ScheduleAvailability(BaseModel):
+    """Spots of one session: a schedule on a given date."""
+
+    schedule_id: int
+    on_date: date
+    capacity: int
+    booked: int
+    available: int

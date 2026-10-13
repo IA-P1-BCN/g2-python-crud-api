@@ -2,8 +2,11 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import ConflictError, NotFoundError
+from app.models.class_schedule import ClassSchedule
+from app.models.gym_class import GymClass
 from app.models.room import Room
 from app.schemas.room import RoomCreate, RoomUpdate
+from app.services.dependents import ensure_no_dependents
 
 
 def list_rooms(db: Session, *, page: int, size: int) -> tuple[list[Room], int]:
@@ -48,5 +51,12 @@ def update_room(db: Session, room_id: int, data: RoomUpdate) -> Room:
 
 def delete_room(db: Session, room_id: int) -> None:
     room = get_room(db, room_id)
+    for foreign_key in (GymClass.room_id, ClassSchedule.room_id):
+        ensure_no_dependents(
+            db,
+            foreign_key,
+            room_id,
+            "No se puede borrar un aula con clases u horarios asignados",
+        )
     db.delete(room)
     db.commit()

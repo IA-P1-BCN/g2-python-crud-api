@@ -1,13 +1,31 @@
 const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+const SHORT_DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 
 /** Maps the numeric `day_of_week` (0 = Monday) to its Spanish label. */
 export function dayLabel(day: number): string {
   return DAYS[day] ?? `Día ${day}`
 }
 
+/** Maps the numeric `day_of_week` (0 = Monday) to its short Spanish label. */
+export function shortDayLabel(day: number): string {
+  return SHORT_DAYS[day] ?? `Día ${day}`
+}
+
 /** Trims "HH:MM:SS" to "HH:MM". */
 export function formatTime(value: string): string {
   return value.slice(0, 5)
+}
+
+/** Formats an amount in cents as a euro currency string (e.g. 3999 → "39,99 €"). */
+export function formatPrice(cents: number): string {
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100)
+}
+
+/** "39,99" or "39.99" → 3999; null when it is not a positive amount. */
+export function parsePriceCents(value: string): number | null {
+  const amount = Number(value.replace(',', '.'))
+  if (!Number.isFinite(amount) || amount <= 0) return null
+  return Math.round(amount * 100)
 }
 
 export function formatDate(value: string): string {
@@ -18,6 +36,13 @@ export function formatDate(value: string): string {
     month: '2-digit',
     year: 'numeric',
   })
+}
+
+/** Local "HH:MM" for an ISO datetime, e.g. "2026-10-06T09:15:00Z". */
+export function formatClock(value: string): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
 }
 
 export function formatDateTime(value: string): string {

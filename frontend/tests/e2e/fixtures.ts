@@ -60,6 +60,12 @@ export type MockPlan = {
   created_at: string
 }
 
+export type MockRoom = {
+  id: number
+  name: string
+  capacity: number
+}
+
 export const users: Record<MockRole, MockUser> = {
   member: {
     id: 1,
@@ -139,6 +145,11 @@ export const defaultMembership: MockMembership = {
   created_at: '2026-10-01T10:00:00Z',
 }
 
+export const defaultRooms: MockRoom[] = [
+  { id: 1, name: 'Sala 1', capacity: 20 },
+  { id: 2, name: 'Sala 2', capacity: 15 },
+]
+
 export const defaultPlans: MockPlan[] = [
   {
     id: 1,
@@ -149,6 +160,15 @@ export const defaultPlans: MockPlan[] = [
     is_active: true,
     created_at: '2026-10-01T10:00:00Z',
   },
+  {
+    id: 2,
+    name: 'Antiguo',
+    description: null,
+    price_cents: 1999,
+    duration_days: 15,
+    is_active: false,
+    created_at: '2026-09-01T10:00:00Z',
+  },
 ]
 
 type MockApiOptions = {
@@ -156,7 +176,9 @@ type MockApiOptions = {
   bookings?: MockBooking[]
   schedules?: MockSchedule[]
   classes?: MockClass[]
+  rooms?: MockRoom[]
   membership?: MockMembership | null
+  bookingError?: { status: number; detail: string }
 }
 
 function json(route: Route, status: number, body: unknown) {
@@ -185,12 +207,15 @@ export async function mockApi(page: Page, options: MockApiOptions) {
   const bookings: MockBooking[] = options.bookings ?? []
   const schedules: MockSchedule[] = options.schedules ?? defaultSchedules
   const classes: MockClass[] = options.classes ?? defaultClasses
+  const rooms: MockRoom[] = options.rooms ?? defaultRooms
   const membership = options.membership === undefined ? defaultMembership : options.membership
   let nextBookingId = bookings.reduce((max, b) => Math.max(max, b.id), 0) + 1
 
   await page.route('**/api/v1/**', async (route) => {
     const request = route.request()
-    const path = new URL(request.url()).pathname
+    const url = new URL(request.url())
+    const path = url.pathname
+    const params = url.searchParams
     const method = request.method()
 
     if (path === '/api/v1/auth/login' && method === 'POST') {
@@ -213,16 +238,46 @@ export async function mockApi(page: Page, options: MockApiOptions) {
       return json(route, 200, options.user)
     }
 
+    if (path === '/api/v1/users' && method === 'GET') {
+      const role = params.get('role')
+      const items = Object.values(users).filter((user) => !role || user.role === role)
+      return json(route, 200, toPage(items))
+    }
+
     if (path === '/api/v1/classes' && method === 'GET') {
-      return json(route, 200, toPage(classes))
+      const trainerId = params.get('trainer_id')
+      const items = trainerId
+        ? classes.filter((item) => item.trainer_id === Number(trainerId))
+        : classes
+      return json(route, 200, toPage(items))
+    }
+
+    if (path === '/api/v1/rooms' && method === 'GET') {
+      return json(route, 200, toPage(rooms))
     }
 
     if (path === '/api/v1/class-schedules' && method === 'GET') {
-      return json(route, 200, toPage(schedules))
+      const classId = params.get('class_id')
+      const dayOfWeek = params.get('day_of_week')
+      let items = schedules
+      if (classId) items = items.filter((item) => item.class_id === Number(classId))
+      if (dayOfWeek) items = items.filter((item) => item.day_of_week === Number(dayOfWeek))
+      return json(route, 200, toPage(items))
     }
 
     if (path === '/api/v1/membership-plans' && method === 'GET') {
-      return json(route, 200, toPage(defaultPlans))
+      const activeOnly = params.get('active_only') === 'true'
+      const items = activeOnly ? defaultPlans.filter((plan) => plan.is_active) : defaultPlans
+      return json(route, 200, toPage(items))
+    }
+
+    if (path === '/api/v1/bookings' && method === 'GET') {
+      const scheduleId = params.get('schedule_id')
+      const onDate = params.get('on_date')
+      let items = bookings
+      if (scheduleId) items = items.filter((item) => item.schedule_id === Number(scheduleId))
+      if (onDate) items = items.filter((item) => item.booking_date === onDate)
+      return json(route, 200, toPage(items))
     }
 
     const bookingsMatch = path.match(/^\/api\/v1\/users\/(\d+)\/bookings$/)
@@ -238,6 +293,12 @@ export async function mockApi(page: Page, options: MockApiOptions) {
     }
 
     if (path === '/api/v1/bookings' && method === 'POST') {
+      if (options.bookingError) {
+        return json(route, options.bookingError.status, {
+          detail: options.bookingError.detail,
+          code: 'business_rule',
+        })
+      }
       const payload = request.postDataJSON() as {
         member_id: number
         schedule_id: number
@@ -262,6 +323,44 @@ export async function mockApi(page: Page, options: MockApiOptions) {
       return route.fulfill({ status: 204, body: '' })
     }
 
+    if (path === '/api/v1/me/dashboard' && method === 'GET') {
+      const confirmed = bookings.filter((item) => item.status === 'confirmed')
+      return json(route, 200, {
+        membership: membership
+          ? {
+              membership_id: membership.id,
+              plan_id: membership.plan_id,
+              plan_name:
+                defaultPlans.find((plan) => plan.id === membership.plan_id)?.name ?? 'Plan',
+              start_date: membership.start_date,
+              end_date: membership.end_date,
+              status: membership.status,
+              days_left: 60,
+            }
+          : null,
+        upcoming_bookings: confirmed.map((item) => {
+          const schedule = schedules.find((entry) => entry.id === item.schedule_id)
+          const gymClass = classes.find((entry) => entry.id === schedule?.class_id)
+          const room = rooms.find((entry) => entry.id === schedule?.room_id)
+          return {
+            booking_id: item.id,
+            booking_date: item.booking_date,
+            schedule_id: item.schedule_id,
+            class_id: schedule?.class_id ?? 0,
+            class_name: gymClass?.name ?? 'Clase',
+            start_time: schedule?.start_time ?? '00:00:00',
+            end_time: schedule?.end_time ?? '00:00:00',
+            room_name: room?.name ?? null,
+            trainer_name: users.trainer.full_name,
+          }
+        }),
+        stats: {
+          bookings_this_month: confirmed.length,
+          total_bookings: bookings.length,
+        },
+      })
+    }
+
     return json(route, 404, { detail: `No mockeado: ${method} ${path}` })
   })
 }
@@ -269,6 +368,6 @@ export async function mockApi(page: Page, options: MockApiOptions) {
 export async function loginAs(page: Page, role: MockRole) {
   await page.goto('/login')
   await page.getByLabel('Email').fill(users[role].email)
-  await page.getByLabel('Contraseña').fill('secret')
+  await page.getByLabel('Contraseña', { exact: true }).fill('secret')
   await page.getByRole('button', { name: 'Entrar' }).click()
 }

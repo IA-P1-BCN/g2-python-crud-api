@@ -34,6 +34,8 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    # Set when the account is deactivated and cleared when it is reactivated.
+    deactivated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     memberships: Mapped[list["Membership"]] = relationship(
         "Membership", back_populates="user", cascade="all, delete-orphan"

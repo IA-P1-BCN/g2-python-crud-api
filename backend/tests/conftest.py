@@ -3,11 +3,12 @@ from datetime import date, time, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app import models  # noqa: F401
+from app.api.deps import get_current_user
 from app.core.config import settings
 from app.core.security import hash_password
 from app.db.base import Base
@@ -24,6 +25,12 @@ from app.models.user import User, UserRole
 settings.auto_create_tables = False
 # Tests log only to the console, not to logs/app.log.
 settings.log_file = ""
+# HS256 needs a key of at least 32 bytes; the default "change-me" is only a placeholder.
+settings.secret_key = "test-secret-key-0123456789-abcdefghij"
+
+
+def _enforce_foreign_keys(dbapi_connection, _connection_record) -> None:
+    dbapi_connection.execute("PRAGMA foreign_keys=ON")
 
 
 @pytest.fixture()
@@ -33,6 +40,8 @@ def db_session() -> Generator[Session, None, None]:
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+    # SQLite ignores foreign keys unless each connection turns them on; PostgreSQL always checks.
+    event.listen(engine, "connect", _enforce_foreign_keys)
     Base.metadata.create_all(bind=engine)
     testing_session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
     db = testing_session()
@@ -43,7 +52,9 @@ def db_session() -> Generator[Session, None, None]:
 
 
 @pytest.fixture()
-def client(db_session: Session) -> Generator[TestClient, None, None]:
+def anon_client(db_session: Session) -> Generator[TestClient, None, None]:
+    """Client without a session: requests carry only the headers each test sends."""
+
     def override_get_db() -> Generator[Session, None, None]:
         yield db_session
 
@@ -51,6 +62,15 @@ def client(db_session: Session) -> Generator[TestClient, None, None]:
     with TestClient(app) as test_client:
         yield test_client
     app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def client(anon_client: TestClient) -> TestClient:
+    """Client that acts as an admin, so resource tests can focus on the resource rules."""
+    app.dependency_overrides[get_current_user] = lambda: User(
+        id=0, email="root@test.dev", full_name="Root", role=UserRole.admin, is_active=True
+    )
+    return anon_client
 
 
 def _make_user(db: Session, email: str, role: UserRole) -> User:
@@ -83,9 +103,7 @@ def member(db_session: Session) -> User:
 
 @pytest.fixture()
 def plan(db_session: Session) -> MembershipPlan:
-    plan = MembershipPlan(
-        name="Mensual", description="30 días", price_cents=3999, duration_days=30
-    )
+    plan = MembershipPlan(name="Mensual", description="30 días", price_cents=3999, duration_days=30)
     db_session.add(plan)
     db_session.commit()
     db_session.refresh(plan)
@@ -126,9 +144,22 @@ def schedule(db_session: Session, gym_class: GymClass, room: Room) -> ClassSched
 
 
 @pytest.fixture()
-def active_membership(
-    db_session: Session, member: User, plan: MembershipPlan
-) -> Membership:
+def next_date_for_weekday():
+    """Map a backend weekday (0 = Monday) to the next calendar date that falls on it.
+
+    Never today, so the session has not started whatever time the tests run at (see
+    ``booking_service.create_booking``).
+    """
+
+    def _next(weekday: int) -> date:
+        today = date.today()
+        return today + timedelta(days=(weekday - today.weekday() - 1) % 7 + 1)
+
+    return _next
+
+
+@pytest.fixture()
+def active_membership(db_session: Session, member: User, plan: MembershipPlan) -> Membership:
     today = date.today()
     membership = Membership(
         user_id=member.id,

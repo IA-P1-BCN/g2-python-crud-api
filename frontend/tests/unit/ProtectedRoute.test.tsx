@@ -19,6 +19,7 @@ const memberUser: User = {
   role: 'member',
   is_active: true,
   created_at: '2026-10-01T10:00:00Z',
+  deactivated_at: null,
 }
 
 function authValue(partial: Partial<AuthContextValue>): AuthContextValue {
@@ -31,6 +32,7 @@ function authValue(partial: Partial<AuthContextValue>): AuthContextValue {
     login: vi.fn(),
     register: vi.fn(),
     logout: vi.fn(),
+    updateUser: vi.fn(),
     hasRole: vi.fn(),
     ...partial,
   }

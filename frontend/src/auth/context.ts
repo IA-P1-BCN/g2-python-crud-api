@@ -10,6 +10,7 @@ export type AuthContextValue = {
   login: (payload: LoginRequest) => Promise<User>
   register: (payload: RegisterRequest) => Promise<User>
   logout: () => void
+  updateUser: (user: User) => void
   hasRole: (...roles: Role[]) => boolean
 }
 

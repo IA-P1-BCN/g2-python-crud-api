@@ -1,9 +1,59 @@
-from fastapi import Query
+from collections.abc import Callable
 
+from fastapi import Depends, Query
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
+
+from app.core.exceptions import AuthenticationError, PermissionDeniedError
 from app.db.session import get_db
+from app.models.user import User, UserRole
 from app.schemas.common import Page
+from app.services import auth_service
 
-__all__ = ["Pagination", "build_page", "get_db"]
+__all__ = [
+    "Pagination",
+    "build_page",
+    "get_current_user",
+    "get_db",
+    "require_admin",
+    "require_member_or_admin",
+    "require_roles",
+    "require_staff",
+]
+
+# OAuth2 Password Flow: Swagger's Authorize button asks for email and password and gets the
+# token from this URL. auto_error=False so a missing token goes through our own error format.
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/api/v1/auth/token",
+    auto_error=False,
+    description="Email (en el campo username) y contraseña de la cuenta",
+)
+
+
+def get_current_user(
+    token: str | None = Depends(oauth2_scheme),
+    db: Session = Depends(get_db),
+) -> User:
+    """Return the user identified by the Bearer token, or raise 401."""
+    if token is None:
+        raise AuthenticationError("Falta el token de acceso")
+    return auth_service.get_user_from_token(db, token)
+
+
+def require_roles(*roles: UserRole) -> Callable[[User], User]:
+    """Build a dependency that lets in only users with one of the given roles (403 otherwise)."""
+
+    def dependency(current_user: User = Depends(get_current_user)) -> User:
+        if current_user.role not in roles:
+            raise PermissionDeniedError("No tienes permiso para realizar esta acción")
+        return current_user
+
+    return dependency
+
+
+require_admin = require_roles(UserRole.admin)
+require_staff = require_roles(UserRole.admin, UserRole.trainer)
+require_member_or_admin = require_roles(UserRole.admin, UserRole.member)
 
 
 class Pagination:

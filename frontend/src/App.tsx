@@ -1,50 +1,61 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { ProtectedRoute, homePathForRole, useAuth } from '@/auth'
+import { ProtectedRoute } from '@/auth'
 import { AppLayout } from '@/layouts/AppLayout'
+import { PublicLayout } from '@/layouts/PublicLayout'
 import { LoginPage } from '@/pages/LoginPage'
 import { RegisterPage } from '@/pages/RegisterPage'
 import { ForbiddenPage } from '@/pages/ForbiddenPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
+import { LandingPage } from '@/pages/public/LandingPage'
+import { PublicPlansPage } from '@/pages/public/PublicPlansPage'
+import { MemberHomePage } from '@/pages/member/MemberHomePage'
 import { ClassesPage } from '@/pages/member/ClassesPage'
 import { BookingsPage } from '@/pages/member/BookingsPage'
 import { MembershipPage } from '@/pages/member/MembershipPage'
+import { ProfilePage } from '@/pages/member/ProfilePage'
+import { TrainerSessionsPage } from '@/pages/trainer/TrainerSessionsPage'
 import { TrainerMembersPage } from '@/pages/trainer/TrainerMembersPage'
+import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
 import { PlansPage } from '@/pages/admin/PlansPage'
 import { AdminMembersPage } from '@/pages/admin/AdminMembersPage'
-
-function HomeRedirect() {
-  const { user } = useAuth()
-  if (!user) return <Navigate to="/login" replace />
-  return <Navigate to={homePathForRole(user.role)} replace />
-}
+import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
+import { SandboxPage } from './sandbox/SandboxPage'
 
 export function App() {
   return (
     <Routes>
+      <Route element={<PublicLayout />}>
+        <Route index element={<LandingPage />} />
+        <Route path="plans" element={<PublicPlansPage />} />
+      </Route>
+
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forbidden" element={<ForbiddenPage />} />
+      <Route path="/sandbox" element={<SandboxPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route index element={<HomeRedirect />} />
-
           <Route path="member" element={<ProtectedRoute allowedRoles={['member']} />}>
-            <Route index element={<Navigate to="/member/classes" replace />} />
+            <Route index element={<MemberHomePage />} />
             <Route path="classes" element={<ClassesPage />} />
             <Route path="bookings" element={<BookingsPage />} />
             <Route path="membership" element={<MembershipPage />} />
+            <Route path="profile" element={<ProfilePage />} />
           </Route>
 
           <Route path="trainer" element={<ProtectedRoute allowedRoles={['trainer']} />}>
-            <Route index element={<Navigate to="/trainer/members" replace />} />
+            <Route index element={<Navigate to="/trainer/sessions" replace />} />
+            <Route path="sessions" element={<TrainerSessionsPage />} />
             <Route path="members" element={<TrainerMembersPage />} />
           </Route>
 
           <Route path="admin" element={<ProtectedRoute allowedRoles={['admin']} />}>
-            <Route index element={<Navigate to="/admin/plans" replace />} />
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="plans" element={<PlansPage />} />
             <Route path="members" element={<AdminMembersPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
           </Route>
         </Route>
       </Route>

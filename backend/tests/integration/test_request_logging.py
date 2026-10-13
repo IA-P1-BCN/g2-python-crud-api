@@ -20,5 +20,5 @@ def test_app_start_and_stop_are_logged(caplog: pytest.LogCaptureFixture) -> None
         pass
 
     messages = [r.getMessage() for r in caplog.records if r.name == "app.main"]
-    assert any("GymFlow API started" in m for m in messages)
-    assert any("GymFlow API stopped" in m for m in messages)
+    assert any("Athletica API started" in m for m in messages)
+    assert any("Athletica API stopped" in m for m in messages)
