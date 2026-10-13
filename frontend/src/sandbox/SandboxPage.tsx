@@ -504,13 +504,8 @@ export function SandboxPage() {
           rows={TABLE_ROWS}
           rowKey={(row) => row.id}
         />
-        <Table columns={[{ key: 'a', header: 'Vacío' }]} rows={[]} rowKey={(row) => row.id} />
-        <Table
-          columns={[{ key: 'a', header: 'Cargando' }]}
-          rows={[]}
-          rowKey={(row) => row.id}
-          isLoading
-        />
+        <Table columns={[{ key: 'a', header: 'Vacío' }]} rows={[]} rowKey={() => 0} />
+        <Table columns={[{ key: 'a', header: 'Cargando' }]} rows={[]} rowKey={() => 0} isLoading />
       </Section>
 
       <Section
