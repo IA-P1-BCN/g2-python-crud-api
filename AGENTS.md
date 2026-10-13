@@ -6,7 +6,9 @@ Instructions for coding agents working in this repo. Do not duplicate the README
 
 Athletica is a monorepo: FastAPI API in `backend/`, React + Vite app in `frontend/`.
 
-Backend layers: the **router** receives and responds, the **service** decides, the **model** persists. Business rules live only in `services/`.
+Backend layers: the **router** receives and responds, the **service** decides, the **repository** reads and writes, the **model** defines the table. Business rules live only in `services/`.
+
+Users go through `app/repositories/user_repository.py`: services never query the `users` table themselves (a test enforces it). The other resources still keep their queries in their service.
 
 ## Principles
 

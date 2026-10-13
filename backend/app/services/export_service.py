@@ -7,7 +7,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.booking import Booking, BookingStatus
-from app.models.user import User, UserRole
+from app.models.user import UserRole
+from app.repositories import user_repository
+from app.schemas.user import UserFilters
 
 MEMBERS_HEADER = ("id", "email", "full_name", "role", "is_active")
 BOOKINGS_HEADER = ("id", "member_id", "schedule_id", "booking_date", "status")
@@ -28,14 +30,9 @@ def _csv_chunks(header: tuple[str, ...], rows: list[list[object]]) -> Iterator[s
 
 
 def members_csv(db: Session, *, role: UserRole | None = None) -> Iterator[str]:
-    stmt = select(User)
-    if role is not None:
-        stmt = stmt.where(User.role == role)
-    stmt = stmt.order_by(User.id)
-
     rows = [
         [user.id, user.email, user.full_name, user.role.value, user.is_active]
-        for user in db.execute(stmt).scalars()
+        for user in user_repository.list_all(db, UserFilters(role=role))
     ]
     return _csv_chunks(MEMBERS_HEADER, rows)
 
