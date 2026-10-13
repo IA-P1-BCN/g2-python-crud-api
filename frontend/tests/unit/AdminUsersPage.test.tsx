@@ -98,14 +98,14 @@ describe('AdminUsersPage', () => {
     expect(within(form).getByLabelText('Rol')).toHaveValue('trainer')
     await userEvent.type(within(form).getByLabelText('Nombre completo'), 'Marta Gil')
     await userEvent.type(within(form).getByLabelText('Email'), 'marta@test.dev')
-    await userEvent.type(within(form).getByLabelText('Contraseña inicial'), 'password123')
+    await userEvent.type(within(form).getByLabelText('Contraseña inicial'), 'Athletica123!')
     await userEvent.click(within(form).getByRole('button', { name: 'Dar de alta' }))
 
     await waitFor(() =>
       expect(usersApi.create).toHaveBeenCalledWith({
         full_name: 'Marta Gil',
         email: 'marta@test.dev',
-        password: 'password123',
+        password: 'Athletica123!',
         role: 'trainer',
         is_active: true,
       }),
@@ -122,7 +122,7 @@ describe('AdminUsersPage', () => {
     await userEvent.type(within(form).getByLabelText('Nombre completo'), 'Luis Admin')
     await userEvent.type(within(form).getByLabelText('Email'), 'luis@test.dev')
     await userEvent.selectOptions(within(form).getByLabelText('Rol'), 'admin')
-    await userEvent.type(within(form).getByLabelText('Contraseña inicial'), 'password123')
+    await userEvent.type(within(form).getByLabelText('Contraseña inicial'), 'Athletica123!')
     await userEvent.click(within(form).getByRole('button', { name: 'Dar de alta' }))
 
     await waitFor(() =>
