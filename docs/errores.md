@@ -6,6 +6,9 @@ qué código HTTP corresponde a cada situación y qué mensajes devuelve hoy el 
 Código fuente: `backend/app/core/exceptions.py` (tipos de error y formato) y `backend/app/services/`
 (dónde se lanza cada uno).
 
+Cada endpoint lista además sus errores posibles en la documentación interactiva (`/docs` y `/redoc`),
+con el esquema y un ejemplo por código. Esa declaración sale de `backend/app/api/responses.py`.
+
 ## Forma de la respuesta
 
 ```json

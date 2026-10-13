@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import Pagination, build_page, get_current_user, get_db, require_admin
+from app.api.responses import errors
 from app.models.membership import MembershipStatus
 from app.models.user import User
 from app.schemas.common import Page
@@ -13,6 +14,7 @@ router = APIRouter(prefix="/memberships", tags=["memberships"])
 
 @router.get(
     "",
+    responses=errors(401, 403, 422),
     response_model=Page[MembershipRead],
     dependencies=[Depends(require_admin)],
     summary="Listar membresías",
@@ -39,6 +41,7 @@ def list_memberships(
 
 @router.post(
     "",
+    responses=errors(400, 401, 403, 404, 422),
     response_model=MembershipRead,
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(require_admin)],
@@ -54,6 +57,7 @@ def create_membership(data: MembershipCreate, db: Session = Depends(get_db)) -> 
 
 @router.get(
     "/{membership_id}",
+    responses=errors(401, 403, 404, 422),
     response_model=MembershipRead,
     summary="Obtener membresía",
     description="Devuelve una membresía por id. Solo el socio propietario o un administrador.",
@@ -70,6 +74,7 @@ def get_membership(
 
 @router.put(
     "/{membership_id}",
+    responses=errors(401, 403, 404, 422),
     response_model=MembershipRead,
     dependencies=[Depends(require_admin)],
     summary="Actualizar membresía",
@@ -86,6 +91,7 @@ def update_membership(
 
 @router.delete(
     "/{membership_id}",
+    responses=errors(401, 403, 404, 409, 422),
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_admin)],
     summary="Eliminar membresía",

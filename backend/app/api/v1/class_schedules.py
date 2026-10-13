@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import Pagination, build_page, get_db, require_staff
+from app.api.responses import errors
 from app.models.user import User
 from app.schemas.booking import BookingRead
 from app.schemas.class_schedule import (
@@ -25,6 +26,7 @@ router = APIRouter(prefix="/class-schedules", tags=["class-schedules"])
 
 @router.get(
     "",
+    responses=errors(422),
     response_model=Page[ClassScheduleRead],
     summary="Listar horarios",
     description=(
@@ -50,6 +52,7 @@ def list_schedules(
 
 @router.post(
     "",
+    responses=errors(401, 403, 404, 409, 422),
     response_model=ClassScheduleRead,
     status_code=status.HTTP_201_CREATED,
     summary="Crear horario",
@@ -66,6 +69,7 @@ def create_schedule(
 
 @router.get(
     "/{schedule_id}",
+    responses=errors(404, 422),
     response_model=ClassScheduleRead,
     summary="Obtener horario",
     description="Devuelve un horario por id.",
@@ -76,6 +80,7 @@ def get_schedule(schedule_id: int, db: Session = Depends(get_db)) -> ClassSchedu
 
 @router.get(
     "/{schedule_id}/availability",
+    responses=errors(404, 422),
     response_model=ScheduleAvailability,
     summary="Plazas libres de una sesión",
     description=(
@@ -91,6 +96,7 @@ def get_schedule_availability(
 
 @router.put(
     "/{schedule_id}",
+    responses=errors(401, 403, 404, 409, 422),
     response_model=ClassScheduleRead,
     summary="Actualizar horario",
     description=(
@@ -114,6 +120,7 @@ def update_schedule(
 
 @router.delete(
     "/{schedule_id}",
+    responses=errors(401, 403, 404, 409, 422),
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Eliminar horario",
     description="Elimina un horario. Requiere rol administrador o ser el entrenador de la clase.",
@@ -130,6 +137,7 @@ def delete_schedule(
 
 @router.get(
     "/{schedule_id}/bookings",
+    responses=errors(401, 403, 404, 422),
     response_model=Page[BookingRead],
     summary="Reservas de un horario",
     description="Lista las reservas de un horario. Requiere rol administrador o entrenador.",

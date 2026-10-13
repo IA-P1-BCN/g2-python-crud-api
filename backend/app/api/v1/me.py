@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
+from app.api.responses import errors
 from app.models.user import User
 from app.schemas.member_dashboard import MemberDashboard
 from app.services import member_dashboard_service
@@ -11,6 +12,7 @@ router = APIRouter(prefix="/me", tags=["me"])
 
 @router.get(
     "/dashboard",
+    responses=errors(401),
     response_model=MemberDashboard,
     summary="Resumen del socio",
     description=(

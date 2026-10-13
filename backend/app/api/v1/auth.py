@@ -5,6 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
+from app.api.responses import errors
 from app.models.user import User
 from app.schemas.auth import LoginRequest, RegisterRequest, Token
 from app.schemas.user import UserRead
@@ -15,6 +16,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post(
     "/register",
+    responses=errors(409, 422),
     response_model=Token,
     status_code=status.HTTP_201_CREATED,
     summary="Registrar socio",
@@ -27,6 +29,7 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)) -> Token:
 
 @router.post(
     "/login",
+    responses=errors(401, 403, 422),
     response_model=Token,
     summary="Iniciar sesión",
     description="Autentica con email y contraseña y devuelve un token JWT de acceso.",
@@ -38,6 +41,7 @@ def login(data: LoginRequest, db: Session = Depends(get_db)) -> Token:
 
 @router.post(
     "/token",
+    responses=errors(401, 403, 422),
     response_model=Token,
     summary="Obtener token (OAuth2)",
     description=(
@@ -55,6 +59,7 @@ def issue_oauth2_token(
 
 @router.get(
     "/me",
+    responses=errors(401),
     response_model=UserRead,
     summary="Usuario autenticado",
     description="Devuelve el usuario actual a partir del token Bearer.",

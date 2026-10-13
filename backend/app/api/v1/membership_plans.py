@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import Pagination, build_page, get_db, require_admin
+from app.api.responses import errors
 from app.schemas.common import Page
 from app.schemas.membership_plan import (
     MembershipPlanCreate,
@@ -15,6 +16,7 @@ router = APIRouter(prefix="/membership-plans", tags=["membership-plans"])
 
 @router.get(
     "",
+    responses=errors(422),
     response_model=Page[MembershipPlanRead],
     summary="Listar planes",
     description="Lista los planes de membresía. Con `active_only=true` solo devuelve los activos.",
@@ -32,6 +34,7 @@ def list_plans(
 
 @router.post(
     "",
+    responses=errors(401, 403, 409, 422),
     response_model=MembershipPlanRead,
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(require_admin)],
@@ -44,6 +47,7 @@ def create_plan(data: MembershipPlanCreate, db: Session = Depends(get_db)) -> Me
 
 @router.get(
     "/{plan_id}",
+    responses=errors(404, 422),
     response_model=MembershipPlanRead,
     summary="Obtener plan",
     description="Devuelve un plan de membresía por id.",
@@ -54,6 +58,7 @@ def get_plan(plan_id: int, db: Session = Depends(get_db)) -> MembershipPlanRead:
 
 @router.put(
     "/{plan_id}",
+    responses=errors(401, 403, 404, 409, 422),
     response_model=MembershipPlanRead,
     dependencies=[Depends(require_admin)],
     summary="Actualizar plan",
@@ -67,6 +72,7 @@ def update_plan(
 
 @router.delete(
     "/{plan_id}",
+    responses=errors(401, 403, 404, 409, 422),
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(require_admin)],
     summary="Eliminar plan",
