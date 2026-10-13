@@ -123,6 +123,7 @@ La contraseña actual incorrecta es un 400 y no un 401 a propósito: el usuario 
 | Borrar una clase con horarios | 409 | `conflict` | No se puede borrar una clase con horarios; borra antes sus horarios |
 | Horario inexistente | 404 | `not_found` | Horario {id} no encontrado |
 | La sala ya tiene otra clase a esa hora | 409 | `conflict` | El aula ya está ocupada en ese horario |
+| El entrenador ya tiene otra clase a esa hora, al crear o editar un horario o al cambiar el entrenador de una clase | 409 | `conflict` | El entrenador ya tiene otra clase en ese horario |
 | La hora de inicio no es anterior a la de fin | 422 | `validation_error` | Al crear, lista; al editar, "start_time debe ser anterior a end_time" |
 | Horario sin sala | 422 | `validation_error` | Lista |
 | Borrar un horario con reservas | 409 | `conflict` | No se puede borrar un horario con reservas |
@@ -133,10 +134,15 @@ La contraseña actual incorrecta es un 400 y no un 401 a propósito: el usuario 
 | --- | --- | --- | --- |
 | Reserva inexistente | 404 | `not_found` | Reserva {id} no encontrada |
 | La fecha no cae en el día de la semana del horario | 422 | `validation_error` | La fecha de la reserva debe caer en el día de la semana del horario |
+| La fecha ya pasó, o es hoy y la sesión ya ha empezado | 422 | `validation_error` | Esa sesión ya ha empezado o ya ha pasado |
+| La clase está desactivada | 400 | `business_rule` | La clase no está activa |
 | El socio no tiene membresía activa ese día | 400 | `business_rule` | El socio no tiene una membresía activa en esa fecha |
 | No quedan plazas | 409 | `conflict` | No quedan plazas para esa clase |
 | El socio tiene otra reserva que se solapa | 409 | `conflict` | El socio ya tiene una reserva en ese horario |
 | Cancelar una reserva ya cancelada | 409 | `conflict` | La reserva ya estaba cancelada |
+| Un socio cancela cuando faltan menos de 2 horas para la sesión, o ya pasó | 400 | `business_rule` | Las reservas se pueden cancelar hasta 2 horas antes de la clase |
+
+Un administrador puede cancelar una reserva en cualquier momento; el plazo solo limita al socio.
 
 ### Comunes a todas las rutas
 
