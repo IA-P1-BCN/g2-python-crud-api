@@ -56,6 +56,6 @@ addopts = "-ra --cov --cov-report=term-missing"
 source = ["app"]
 
 [tool.coverage.report]
-# Raise to 80 once classes and schedules have their tests (#30, #34)
-fail_under = 75
+# Minimum the part 2 brief asks for (Avanzado level); the suite is well above it
+fail_under = 80
 skip_covered = true
