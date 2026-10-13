@@ -133,7 +133,15 @@ const TABLE_ROWS = [
 /* Layout helpers                                                      */
 /* ------------------------------------------------------------------ */
 
-function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
+function Section({
+  id,
+  title,
+  children,
+}: {
+  id: string
+  title: string
+  children: React.ReactNode
+}) {
   return (
     <section id={id} className="flex flex-col gap-4 rounded-card bg-surface-sunken p-6">
       <h2 className="font-display text-headline text-primary">{title}</h2>
@@ -242,7 +250,10 @@ export function SandboxPage() {
       <Section id="icon" title="Atoms / Icon (todos los nombres)">
         <Row>
           {ALL_ICONS.map((name) => (
-            <span key={name} className="flex flex-col items-center gap-1 text-caption text-text-muted">
+            <span
+              key={name}
+              className="flex flex-col items-center gap-1 text-caption text-text-muted"
+            >
               <Icon name={name} size={24} />
               {name}
             </span>
@@ -385,7 +396,10 @@ export function SandboxPage() {
         </div>
       </Section>
 
-      <Section id="small-molecules" title="Molecules / QuickAccessTile · FeatureItem · FeaturedClassCard · CapacitySummary · EnrolledMemberRow · Pagination">
+      <Section
+        id="small-molecules"
+        title="Molecules / QuickAccessTile · FeatureItem · FeaturedClassCard · CapacitySummary · EnrolledMemberRow · Pagination"
+      >
         <Row>
           <QuickAccessTile icon="calendar" label="Reservar" to="/sandbox" />
           <QuickAccessTile icon="dumbbell" label="Clases" to="/sandbox" />
@@ -491,10 +505,18 @@ export function SandboxPage() {
           rowKey={(row) => row.id}
         />
         <Table columns={[{ key: 'a', header: 'Vacío' }]} rows={[]} rowKey={(row) => row.id} />
-        <Table columns={[{ key: 'a', header: 'Cargando' }]} rows={[]} rowKey={(row) => row.id} isLoading />
+        <Table
+          columns={[{ key: 'a', header: 'Cargando' }]}
+          rows={[]}
+          rowKey={(row) => row.id}
+          isLoading
+        />
       </Section>
 
-      <Section id="landing-sections" title="Organisms / Landing (Hero · Benefits · FeaturedClasses · Plans · Footer)">
+      <Section
+        id="landing-sections"
+        title="Organisms / Landing (Hero · Benefits · FeaturedClasses · Plans · Footer)"
+      >
         <HeroSection
           title="Entrena a tu ritmo"
           subtitle="Reserva clases de guía con los mejores entrenadores, cuando quieras."
@@ -507,21 +529,49 @@ export function SandboxPage() {
         />
         <BenefitsSection
           items={[
-            { icon: 'calendar', title: 'Reserva fácil', text: 'Reserva en segundos desde el móvil.' },
+            {
+              icon: 'calendar',
+              title: 'Reserva fácil',
+              text: 'Reserva en segundos desde el móvil.',
+            },
             { icon: 'dumbbell', title: 'Variedad', text: 'Más de 20 clases cada semana.' },
             { icon: 'users', title: 'Comunidad', text: 'Entrena acompañado y motívate.' },
           ]}
         />
         <FeaturedClassesSection
           classes={[
-            { id: 1, name: 'Cross Training', schedule: 'Lunes 10:00 – 11:00', capacity: 12, trainerName: 'Jordi Vidal' },
-            { id: 2, name: 'Yoga Flow', schedule: 'Martes 12:00 – 13:00', capacity: 10, trainerName: 'Nuria Serra' },
+            {
+              id: 1,
+              name: 'Cross Training',
+              schedule: 'Lunes 10:00 – 11:00',
+              capacity: 12,
+              trainerName: 'Jordi Vidal',
+            },
+            {
+              id: 2,
+              name: 'Yoga Flow',
+              schedule: 'Martes 12:00 – 13:00',
+              capacity: 10,
+              trainerName: 'Nuria Serra',
+            },
           ]}
         />
         <PlansSection
           plans={[
-            { id: 1, name: 'Básico', priceCents: 2900, durationDays: 30, description: 'Sala de musculación.' },
-            { id: 2, name: 'Premium', priceCents: 4900, durationDays: 30, description: 'Acceso completo.' },
+            {
+              id: 1,
+              name: 'Básico',
+              priceCents: 2900,
+              durationDays: 30,
+              description: 'Sala de musculación.',
+            },
+            {
+              id: 2,
+              name: 'Premium',
+              priceCents: 4900,
+              durationDays: 30,
+              description: 'Acceso completo.',
+            },
           ]}
           renderAction={(plan) => (
             <Button variant="secondary" fullWidth>
