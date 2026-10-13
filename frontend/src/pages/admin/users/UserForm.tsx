@@ -5,8 +5,8 @@ import { Alert } from '@/components/ui/molecules/Alert'
 import { PasswordField } from '@/components/ui/molecules/PasswordField'
 import { toApiError, usersApi } from '@/api'
 import { passwordErrorMessage } from '@/lib/password'
+import { ROLE_LABELS } from '@/lib/roles'
 import type { Role, User } from '@/types/api'
-import { ROLE_LABELS } from './roleLabels'
 
 type UserFormProps = {
   /** User to edit; without it the form creates a new one. */
