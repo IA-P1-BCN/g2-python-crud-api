@@ -4,7 +4,7 @@ Instructions for coding agents working in this repo. Do not duplicate the README
 
 ## Project
 
-GymFlow is a monorepo: FastAPI API in `backend/`, React + Vite app in `frontend/`.
+Athletica is a monorepo: FastAPI API in `backend/`, React + Vite app in `frontend/`.
 
 Backend layers: the **router** receives and responds, the **service** decides, the **model** persists. Business rules live only in `services/`.
 
