@@ -19,6 +19,7 @@ import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
 import { PlansPage } from '@/pages/admin/PlansPage'
 import { AdminMembersPage } from '@/pages/admin/AdminMembersPage'
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
+import { SandboxPage } from './sandbox/SandboxPage'
 
 export function App() {
   return (
@@ -31,6 +32,7 @@ export function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forbidden" element={<ForbiddenPage />} />
+      <Route path="/sandbox" element={<SandboxPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
