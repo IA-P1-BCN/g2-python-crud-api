@@ -1,7 +1,7 @@
 from collections.abc import Callable
 
 from fastapi import Depends, Query
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import AuthenticationError, PermissionDeniedError
@@ -21,18 +21,23 @@ __all__ = [
     "require_staff",
 ]
 
-# auto_error=False so a missing token goes through our own error format (401, not 403).
-bearer_scheme = HTTPBearer(auto_error=False, description="Token devuelto por /auth/login")
+# OAuth2 Password Flow: Swagger's Authorize button asks for email and password and gets the
+# token from this URL. auto_error=False so a missing token goes through our own error format.
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/api/v1/auth/token",
+    auto_error=False,
+    description="Email (en el campo username) y contraseña de la cuenta",
+)
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    token: str | None = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> User:
     """Return the user identified by the Bearer token, or raise 401."""
-    if credentials is None:
+    if token is None:
         raise AuthenticationError("Falta el token de acceso")
-    return auth_service.get_user_from_token(db, credentials.credentials)
+    return auth_service.get_user_from_token(db, token)
 
 
 def require_roles(*roles: UserRole) -> Callable[[User], User]:

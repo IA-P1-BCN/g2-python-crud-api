@@ -40,9 +40,10 @@ def create_app() -> FastAPI:
         description=(
             "API para gestionar socios, entrenadores, planes de membresía, clases, "
             "horarios, reservas y pagos.\n\n"
-            "Autenticación mediante **JWT**: haz `POST /api/v1/auth/login` y usa el "
-            "`access_token` con el botón **Authorize** (esquema `Bearer`).\n\n"
-            "Documentación interactiva en `/docs` y esquema OpenAPI en `/openapi.json`."
+            "Autenticación mediante **JWT** con OAuth2 Password Flow: pulsa **Authorize**, escribe "
+            "tu email en `username` y tu contraseña en `password`, y deja vacíos `client_id` y "
+            "`client_secret`. A partir de ahí las peticiones llevan el token.\n\n"
+            "Documentación interactiva en `/docs` y `/redoc`, y esquema OpenAPI en `/openapi.json`."
         ),
         openapi_tags=[
             {"name": "health", "description": "Estado del servicio."},

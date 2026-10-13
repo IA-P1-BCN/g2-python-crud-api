@@ -18,6 +18,8 @@ OTHER_USER = (401, 403, 403, OK)
 
 MATRIX = [
     ("GET", "/auth/me", *LOGGED_IN),
+    ("GET", "/users/me", *LOGGED_IN),
+    ("POST", "/auth/token", *PUBLIC),
     ("GET", "/me/dashboard", *LOGGED_IN),
     # Membership plans: anyone reads, admin writes
     ("GET", "/membership-plans", *PUBLIC),

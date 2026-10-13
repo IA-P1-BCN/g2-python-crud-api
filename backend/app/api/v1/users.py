@@ -64,6 +64,17 @@ def create_user(data: UserCreate, db: Session = Depends(get_db)) -> UserRead:
     return user_service.create_user(db, data)
 
 
+# Declared before "/{user_id}" so that "me" is not read as an id.
+@router.get(
+    "/me",
+    response_model=UserRead,
+    summary="Mi usuario",
+    description="Devuelve el usuario del token. Disponible para cualquier rol.",
+)
+def read_own_user(current_user: User = Depends(get_current_user)) -> UserRead:
+    return current_user
+
+
 @router.get(
     "/{user_id}",
     response_model=UserRead,
