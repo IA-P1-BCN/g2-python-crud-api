@@ -9,6 +9,7 @@ test('el socio reserva desde el calendario, consulta y cancela, y ve su membres√
 
   // The member lands on their home with the empty next-booking state.
   await expect(page.getByRole('heading', { name: 'Hola, Socio Uno' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Salir' })).toBeVisible()
   await expect(page.getByText('No tienes reservas pr√≥ximas.')).toBeVisible()
 
   await page.goto('/member/classes')
