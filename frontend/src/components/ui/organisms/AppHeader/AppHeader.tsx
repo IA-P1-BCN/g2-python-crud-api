@@ -39,45 +39,55 @@ export function AppHeader({
     >
       <Logo name={productName} subtitle={ROLE_LABELS[role]} />
 
-      <div className="relative" onKeyDown={handleKeyDown}>
+      <div className="flex items-center gap-1">
         <button
           type="button"
-          aria-label="Cuenta"
-          aria-haspopup="menu"
-          aria-expanded={open}
-          onClick={() => setOpen((current) => !current)}
-          className="inline-flex rounded-full"
+          onClick={onLogout}
+          className="rounded-full px-3 py-2 font-display text-body text-text-muted hover:text-text"
         >
-          <Avatar name={name} src={avatarSrc} size="sm" />
+          Salir
         </button>
 
-        {open ? (
-          <div
-            role="menu"
+        <div className="relative" onKeyDown={handleKeyDown}>
+          <button
+            type="button"
             aria-label="Cuenta"
-            className="absolute right-0 z-10 mt-2 flex w-44 flex-col rounded-tile border border-line bg-surface p-1 shadow-glow-primary"
+            aria-haspopup="menu"
+            aria-expanded={open}
+            onClick={() => setOpen((current) => !current)}
+            className="inline-flex rounded-full"
           >
-            <Link
-              role="menuitem"
-              to={profileHref}
-              onClick={() => setOpen(false)}
-              className="rounded px-3 py-2 text-body text-text hover:bg-surface-sunken"
+            <Avatar name={name} src={avatarSrc} size="sm" />
+          </button>
+
+          {open ? (
+            <div
+              role="menu"
+              aria-label="Cuenta"
+              className="absolute right-0 z-10 mt-2 flex w-44 flex-col rounded-tile border border-line bg-surface p-1 shadow-glow-primary"
             >
-              Mi perfil
-            </Link>
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setOpen(false)
-                onLogout()
-              }}
-              className="rounded px-3 py-2 text-left text-body text-text hover:bg-surface-sunken"
-            >
-              Cerrar sesión
-            </button>
-          </div>
-        ) : null}
+              <Link
+                role="menuitem"
+                to={profileHref}
+                onClick={() => setOpen(false)}
+                className="rounded px-3 py-2 text-body text-text hover:bg-surface-sunken"
+              >
+                Mi perfil
+              </Link>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setOpen(false)
+                  onLogout()
+                }}
+                className="rounded px-3 py-2 text-left text-body text-text hover:bg-surface-sunken"
+              >
+                Cerrar sesión
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
     </header>
   )

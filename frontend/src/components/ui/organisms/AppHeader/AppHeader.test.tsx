@@ -52,4 +52,13 @@ describe('AppHeader', () => {
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
   })
+
+  it('tiene un botón «Salir» visible que cierra la sesión', async () => {
+    const onLogout = vi.fn()
+    renderHeader({ onLogout })
+
+    await userEvent.click(screen.getByRole('button', { name: 'Salir' }))
+
+    expect(onLogout).toHaveBeenCalledOnce()
+  })
 })
