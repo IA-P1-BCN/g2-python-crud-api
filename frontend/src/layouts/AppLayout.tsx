@@ -1,60 +1,31 @@
-import { NavLink, Outlet } from 'react-router-dom'
-import { Button } from '@/components/ui/atoms/Button'
+import { Outlet } from 'react-router-dom'
+import { AppHeader } from '@/components/ui/organisms/AppHeader'
+import { BottomNav } from '@/components/ui/organisms/BottomNav'
+import { TopNav } from '@/components/ui/organisms/TopNav'
 import { useAuth } from '@/auth'
-import type { Role } from '@/types/api'
-
-type NavItem = {
-  to: string
-  label: string
-  roles: Role[]
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { to: '/member/classes', label: 'Clases', roles: ['member'] },
-  { to: '/member/bookings', label: 'Mis reservas', roles: ['member'] },
-  { to: '/member/membership', label: 'Mi membresía', roles: ['member'] },
-  { to: '/member/profile', label: 'Mi perfil', roles: ['member'] },
-  { to: '/trainer/sessions', label: 'Mis sesiones', roles: ['trainer'] },
-  { to: '/trainer/members', label: 'Mis socios', roles: ['trainer'] },
-  { to: '/admin/dashboard', label: 'Resumen', roles: ['admin'] },
-  { to: '/admin/plans', label: 'Planes', roles: ['admin'] },
-  { to: '/admin/members', label: 'Socios', roles: ['admin'] },
-  { to: '/admin/users', label: 'Usuarios', roles: ['admin'] },
-]
+import { navForRole } from '@/lib/navigation'
 
 export function AppLayout() {
   const { user, logout } = useAuth()
   if (!user) return null
 
-  const items = NAV_ITEMS.filter((item) => item.roles.includes(user.role))
+  const items = navForRole(user.role)
 
   return (
-    <div className="app">
-      <header className="app__header">
-        <div className="app__brand">Gym</div>
-        <nav className="app__nav" aria-label="Navegación principal">
-          {items.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) => `app__link${isActive ? ' app__link--active' : ''}`}
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="app__user">
-          <span>
-            {user.full_name} · <em>{user.role}</em>
-          </span>
-          <Button variant="ghost" onClick={logout}>
-            Salir
-          </Button>
-        </div>
-      </header>
-      <main className="app__main">
+    <div className="flex min-h-screen flex-col bg-canvas">
+      <AppHeader name={user.full_name} role={user.role} onLogout={logout} />
+
+      <div className="hidden border-b border-line md:block">
+        <TopNav items={items} className="mx-auto w-full max-w-app px-4 py-2" />
+      </div>
+
+      <main className="mx-auto w-full max-w-app flex-1 px-4 py-6 pb-28 md:pb-6">
         <Outlet />
       </main>
+
+      <div className="md:hidden">
+        <BottomNav items={items} />
+      </div>
     </div>
   )
 }
