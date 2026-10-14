@@ -19,6 +19,8 @@ export type PlansSectionProps = {
   /** Action rendered inside each plan card. */
   renderAction?: (plan: PlanSummary) => ReactNode
   title?: string
+  /** Heading level. The plans page is the only route that needs its own `h1`. */
+  titleAs?: 'h1' | 'h2'
   className?: string
 }
 
@@ -29,11 +31,12 @@ export function PlansSection({
   emptyMessage = 'No hay planes disponibles por el momento.',
   renderAction,
   title = 'Planes',
+  titleAs: Title = 'h2',
   className,
 }: PlansSectionProps) {
   return (
     <section className={cn('flex flex-col gap-4', className)} aria-label="Planes">
-      <h2 className="font-display text-headline text-text">{title}</h2>
+      <Title className="font-display text-headline text-text">{title}</Title>
 
       {error ? <Alert variant="error">{error}</Alert> : null}
       {!error && isLoading ? <p className="text-body text-text-muted">Cargando…</p> : null}

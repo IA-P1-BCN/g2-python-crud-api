@@ -25,4 +25,10 @@ describe('PlansSection', () => {
 
     expect(screen.getByText('No hay planes disponibles por el momento.')).toBeInTheDocument()
   })
+
+  it('permite subir el título a h1 en la página de planes', () => {
+    render(<PlansSection plans={[plan]} titleAs="h1" title="Planes y precios" />)
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Planes y precios' })).toBeInTheDocument()
+  })
 })

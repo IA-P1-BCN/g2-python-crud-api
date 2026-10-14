@@ -69,46 +69,6 @@ body {
   padding-top: 4rem;
 }
 
-.btn {
-  border: 1px solid transparent;
-  border-radius: 6px;
-  padding: 0.5rem 0.9rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn--primary {
-  background: var(--color-primary);
-  color: var(--color-ink);
-}
-
-.btn--primary:hover:not(:disabled) {
-  filter: brightness(0.9);
-}
-
-.btn--secondary {
-  background: var(--color-surface-sunken);
-  border: 1px solid var(--color-line);
-  color: var(--color-text);
-}
-
-.btn--danger {
-  background: var(--color-danger);
-  color: var(--color-white);
-}
-
-.btn--ghost {
-  background: transparent;
-  color: var(--color-text-muted);
-}
-
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -669,65 +629,6 @@ body {
   margin-top: 0.5rem;
 }
 
-.public {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.public__header {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 0.75rem 1.5rem;
-  background: var(--color-surface);
-  border-bottom: 1px solid var(--color-line);
-}
-
-.public__brand {
-  font-weight: 700;
-  font-size: 1.25rem;
-  color: var(--color-primary);
-  text-decoration: none;
-}
-
-.public__nav {
-  display: flex;
-  gap: 1rem;
-  flex: 1;
-}
-
-.public__link {
-  color: var(--color-text-muted);
-  text-decoration: none;
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
-}
-
-.public__link--active {
-  color: var(--color-primary);
-  background: var(--color-primary-soft);
-}
-
-.public__actions {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.public__actions--center {
-  justify-content: center;
-  margin-top: 1rem;
-}
-
-.public__main {
-  width: 100%;
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 1.5rem;
-  flex: 1;
-}
-
 .hero {
   text-align: center;
   padding: 2.5rem 0;
@@ -745,38 +646,11 @@ body {
   margin: 0 auto;
 }
 
-.public-section {
-  margin-top: 2rem;
-}
-
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1rem;
   margin-top: 1rem;
-}
-
-.plan-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.plan-card__price {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  margin: 0;
-}
-
-.plan-card__duration {
-  color: var(--color-text-muted);
-  margin: 0;
-}
-
-.plan-card .btn {
-  margin-top: auto;
-  text-align: center;
 }
 
 .card__meta {
@@ -787,32 +661,27 @@ body {
 /* Responsive layout: on narrow screens the nav drops to its own row and tables
    scroll horizontally instead of breaking the layout. */
 @media (max-width: 640px) {
-  .app__header,
-  .public__header {
+  .app__header {
     flex-wrap: wrap;
     gap: 0.75rem;
   }
 
-  .app__brand,
-  .public__brand {
+  .app__brand {
     order: 1;
   }
 
-  .app__user,
-  .public__actions {
+  .app__user {
     order: 2;
     margin-left: auto;
   }
 
-  .app__nav,
-  .public__nav {
+  .app__nav {
     order: 3;
     flex-basis: 100%;
     overflow-x: auto;
   }
 
-  .app__main,
-  .public__main {
+  .app__main {
     padding: 1rem;
   }
 
