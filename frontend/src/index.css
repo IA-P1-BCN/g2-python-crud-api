@@ -229,12 +229,6 @@ body {
   font-size: 0.9rem;
 }
 
-.login {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-}
-
 .login__card {
   width: 320px;
   background: var(--color-surface);

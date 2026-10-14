@@ -37,58 +37,56 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="login">
-      <form className="login__card" onSubmit={handleSubmit} aria-label="Crear cuenta">
-        <h1>Crear cuenta de socio</h1>
+    <form className="login__card" onSubmit={handleSubmit} aria-label="Crear cuenta">
+      <h1>Crear cuenta de socio</h1>
 
-        {error ? <Alert variant="error">{error}</Alert> : null}
+      {error ? <Alert variant="error">{error}</Alert> : null}
 
-        <label className="field">
-          <span>Nombre completo</span>
-          <input
-            type="text"
-            name="full_name"
-            autoComplete="name"
-            required
-            value={fullName}
-            onChange={(event) => setFullName(event.target.value)}
-          />
-        </label>
-
-        <label className="field">
-          <span>Email</span>
-          <input
-            type="email"
-            name="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-        </label>
-
-        <PasswordField
-          label="Contraseña"
-          name="password"
-          value={password}
-          onChange={(value) => {
-            setPassword(value)
-            if (passwordError) setPasswordError(null)
-          }}
-          autoComplete="new-password"
+      <label className="field">
+        <span>Nombre completo</span>
+        <input
+          type="text"
+          name="full_name"
+          autoComplete="name"
           required
-          showRules
-          error={passwordError}
+          value={fullName}
+          onChange={(event) => setFullName(event.target.value)}
         />
+      </label>
 
-        <Button type="submit" isLoading={isLoading}>
-          Registrarme
-        </Button>
+      <label className="field">
+        <span>Email</span>
+        <input
+          type="email"
+          name="email"
+          autoComplete="email"
+          required
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        />
+      </label>
 
-        <p className="login__footer">
-          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
-        </p>
-      </form>
-    </div>
+      <PasswordField
+        label="Contraseña"
+        name="password"
+        value={password}
+        onChange={(value) => {
+          setPassword(value)
+          if (passwordError) setPasswordError(null)
+        }}
+        autoComplete="new-password"
+        required
+        showRules
+        error={passwordError}
+      />
+
+      <Button type="submit" isLoading={isLoading}>
+        Registrarme
+      </Button>
+
+      <p className="login__footer">
+        ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
+      </p>
+    </form>
   )
 }

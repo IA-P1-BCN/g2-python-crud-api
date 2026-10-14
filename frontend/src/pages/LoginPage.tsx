@@ -33,41 +33,39 @@ export function LoginPage() {
   }
 
   return (
-    <div className="login">
-      <form className="login__card" onSubmit={handleSubmit} aria-label="Iniciar sesión">
-        <h1>Acceso al gimnasio</h1>
+    <form className="login__card" onSubmit={handleSubmit} aria-label="Iniciar sesión">
+      <h1>Acceso al gimnasio</h1>
 
-        {error ? <Alert variant="error">{error}</Alert> : null}
+      {error ? <Alert variant="error">{error}</Alert> : null}
 
-        <label className="field">
-          <span>Email</span>
-          <input
-            type="email"
-            name="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-        </label>
-
-        <PasswordField
-          label="Contraseña"
-          name="password"
-          value={password}
-          onChange={setPassword}
-          autoComplete="current-password"
+      <label className="field">
+        <span>Email</span>
+        <input
+          type="email"
+          name="email"
+          autoComplete="email"
           required
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
         />
+      </label>
 
-        <Button type="submit" isLoading={isLoading}>
-          Entrar
-        </Button>
+      <PasswordField
+        label="Contraseña"
+        name="password"
+        value={password}
+        onChange={setPassword}
+        autoComplete="current-password"
+        required
+      />
 
-        <p className="login__footer">
-          ¿No tienes cuenta? <Link to="/register">Regístrate</Link>
-        </p>
-      </form>
-    </div>
+      <Button type="submit" isLoading={isLoading}>
+        Entrar
+      </Button>
+
+      <p className="login__footer">
+        ¿No tienes cuenta? <Link to="/register">Regístrate</Link>
+      </p>
+    </form>
   )
 }
