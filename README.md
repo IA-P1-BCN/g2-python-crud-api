@@ -182,3 +182,14 @@ persiste. Las reglas de negocio van siempre en `services/`.
 - **Diagrama ER:** [docs/er-diagram.pdf](docs/er-diagram.pdf)
 - **Design tokens:** [docs/design-tokens.md](docs/design-tokens.md)
 - **README del frontend:** [frontend/README.md](frontend/README.md)
+
+
+## Equipo
+
+Contribuidores de GitHub:
+
+- [@elenaalmansacampos](https://github.com/elenaalmansacampos)
+- [@miskybox](https://github.com/miskybox)
+- [@nagicome03](https://github.com/nagicome03)
+- [@PDguezPgr](https://github.com/PDguezPgr)
+- [@IvannaRCA](https://github.com/IvannaRCA)
