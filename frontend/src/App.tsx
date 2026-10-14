@@ -53,6 +53,7 @@ export function App() {
             <Route index element={<Navigate to="/trainer/sessions" replace />} />
             <Route path="sessions" element={<TrainerSessionsPage />} />
             <Route path="members" element={<TrainerMembersPage />} />
+            <Route path="profile" element={<ProfilePage />} />
           </Route>
 
           <Route path="admin" element={<ProtectedRoute allowedRoles={['admin']} />}>

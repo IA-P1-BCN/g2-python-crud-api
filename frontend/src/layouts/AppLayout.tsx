@@ -4,6 +4,13 @@ import { BottomNav } from '@/components/ui/organisms/BottomNav'
 import { TopNav } from '@/components/ui/organisms/TopNav'
 import { useAuth } from '@/auth'
 import { navForRole } from '@/lib/navigation'
+import type { Role } from '@/types/api'
+
+const PROFILE_BY_ROLE: Record<Role, string> = {
+  member: '/member/profile',
+  trainer: '/trainer/profile',
+  admin: '/admin/dashboard',
+}
 
 export function AppLayout() {
   const { user, logout } = useAuth()
@@ -13,7 +20,12 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-canvas">
-      <AppHeader name={user.full_name} role={user.role} onLogout={logout} />
+      <AppHeader
+        name={user.full_name}
+        role={user.role}
+        onLogout={logout}
+        profileHref={PROFILE_BY_ROLE[user.role]}
+      />
 
       <div className="hidden border-b border-line md:block">
         <TopNav items={items} className="mx-auto w-full max-w-app px-4 py-2" />
