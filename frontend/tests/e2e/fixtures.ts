@@ -367,7 +367,7 @@ export async function mockApi(page: Page, options: MockApiOptions) {
 
 export async function loginAs(page: Page, role: MockRole) {
   await page.goto('/login')
-  await page.getByLabel('Email').fill(users[role].email)
+  await page.getByLabel('Correo electrónico').fill(users[role].email)
   await page.getByLabel('Contraseña', { exact: true }).fill('secret')
-  await page.getByRole('button', { name: 'Entrar' }).click()
+  await page.getByRole('button', { name: 'Iniciar sesión' }).click()
 }

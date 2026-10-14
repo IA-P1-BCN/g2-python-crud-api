@@ -1,5 +1,7 @@
 import { useId, useState } from 'react'
 import { Icon } from '@/components/ui/atoms/Icon'
+import { IconButton } from '@/components/ui/atoms/IconButton'
+import { Input } from '@/components/ui/atoms/Input'
 import { cn } from '@/lib/cn'
 import { passwordChecks } from '@/lib/password'
 
@@ -10,6 +12,8 @@ export type PasswordFieldProps = {
   name?: string
   autoComplete?: string
   required?: boolean
+  /** Hint shown before the user types. */
+  placeholder?: string
   /** Show the strength checklist while typing. */
   showRules?: boolean
   /** Error to show below the field. */
@@ -24,6 +28,7 @@ export function PasswordField({
   name,
   autoComplete,
   required = false,
+  placeholder,
   showRules = false,
   error = null,
   className,
@@ -37,27 +42,28 @@ export function PasswordField({
         {label}
       </label>
 
-      <div className="relative">
-        <input
-          id={inputId}
-          name={name}
-          type={visible ? 'text' : 'password'}
-          autoComplete={autoComplete}
-          required={required}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className="w-full rounded-full border border-line bg-surface-sunken py-2 pl-4 pr-11 text-body text-text outline-none focus:border-primary"
-        />
-        <button
-          type="button"
-          onClick={() => setVisible((current) => !current)}
-          aria-label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-          aria-pressed={visible}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text"
-        >
-          <Icon name={visible ? 'eye-off' : 'eye'} size={20} />
-        </button>
-      </div>
+      <Input
+        id={inputId}
+        name={name}
+        type={visible ? 'text' : 'password'}
+        autoComplete={autoComplete}
+        required={required}
+        placeholder={placeholder}
+        value={value}
+        invalid={Boolean(error)}
+        leftIcon="lock"
+        onChange={(event) => onChange(event.target.value)}
+        rightSlot={
+          <IconButton
+            icon={visible ? 'eye-off' : 'eye'}
+            label={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            variant="ghost"
+            size="sm"
+            aria-pressed={visible}
+            onClick={() => setVisible((current) => !current)}
+          />
+        }
+      />
 
       {showRules ? (
         <ul className="flex flex-col gap-0.5">
