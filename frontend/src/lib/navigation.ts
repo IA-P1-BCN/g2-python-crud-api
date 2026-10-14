@@ -25,6 +25,8 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { to: '/admin/memberships', label: 'Membresías', icon: 'ticket' },
     { to: '/admin/rooms', label: 'Salas', icon: 'door' },
     { to: '/admin/bookings', label: 'Reservas', icon: 'clipboard-list' },
+    { to: '/admin/classes', label: 'Clases', icon: 'dumbbell' },
+    { to: '/admin/schedules', label: 'Horarios', icon: 'calendar' },
   ],
 }
 

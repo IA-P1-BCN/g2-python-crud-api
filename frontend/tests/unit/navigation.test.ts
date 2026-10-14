@@ -22,6 +22,8 @@ describe('role navigation config', () => {
       'Membresías',
       'Salas',
       'Reservas',
+      'Clases',
+      'Horarios',
     ])
   })
 

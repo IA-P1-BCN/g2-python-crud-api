@@ -24,6 +24,8 @@ import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
 import { AdminMembershipsPage } from '@/pages/admin/AdminMembershipsPage'
 import { AdminRoomsPage } from '@/pages/admin/AdminRoomsPage'
 import { AdminBookingsPage } from '@/pages/admin/AdminBookingsPage'
+import { AdminClassesPage } from '@/pages/admin/AdminClassesPage'
+import { AdminSchedulesPage } from '@/pages/admin/AdminSchedulesPage'
 import { SandboxPage } from './sandbox/SandboxPage'
 
 export function App() {
@@ -68,6 +70,8 @@ export function App() {
             <Route path="memberships" element={<AdminMembershipsPage />} />
             <Route path="rooms" element={<AdminRoomsPage />} />
             <Route path="bookings" element={<AdminBookingsPage />} />
+            <Route path="classes" element={<AdminClassesPage />} />
+            <Route path="schedules" element={<AdminSchedulesPage />} />
           </Route>
         </Route>
       </Route>
