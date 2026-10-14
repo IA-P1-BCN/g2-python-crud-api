@@ -35,6 +35,7 @@ class RegisterRequest(BaseModel):
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str = "bearer"
     user: UserRead
 
@@ -43,6 +44,7 @@ class Token(BaseModel):
             "examples": [
                 {
                     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                     "token_type": "bearer",
                     "user": {
                         "id": 1,
@@ -55,5 +57,27 @@ class Token(BaseModel):
                     },
                 }
             ]
+        }
+    )
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str = Field(min_length=1)
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [{"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}]
+        }
+    )
+
+
+class LogoutRequest(BaseModel):
+    """The refresh token is optional: send it so it is revoked too."""
+
+    refresh_token: str | None = Field(default=None, min_length=1)
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [{"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}]
         }
     )
