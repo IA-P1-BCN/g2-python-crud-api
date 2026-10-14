@@ -17,8 +17,6 @@ Monorepo con una API REST en FastAPI (`backend/`) y una web en React (`frontend/
 
 ### Aplicación
 
-Añade las capturas en `docs/screenshots/` para que los enlaces queden activos:
-
 ![Home pública](docs/screenshots/home.png)
 ![Panel del socio](docs/screenshots/member-dashboard.png)
 ![Panel del administrador](docs/screenshots/admin-dashboard.png)
@@ -26,9 +24,7 @@ Añade las capturas en `docs/screenshots/` para que los enlaces queden activos:
 
 ### Base de datos relacional
 
-El diagrama ER versionado está en [docs/er-diagram.pdf](docs/er-diagram.pdf).
-Si prefieres una imagen para la portada de GitHub, exporta el diagrama a
-`docs/screenshots/er-diagram.png` y referéncialo aquí:
+Diagrama ER versionado: [docs/er-diagram.pdf](docs/er-diagram.pdf).
 
 ![Diagrama ER](docs/screenshots/er-diagram.png)
 
