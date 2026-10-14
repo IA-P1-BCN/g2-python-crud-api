@@ -256,6 +256,18 @@ export async function mockApi(page: Page, options: MockApiOptions) {
       return json(route, 200, toPage(rooms))
     }
 
+    const classMatch = path.match(/^\/api\/v1\/classes\/(\d+)$/)
+    if (classMatch && method === 'GET') {
+      const item = classes.find((entry) => entry.id === Number(classMatch[1]))
+      return item ? json(route, 200, item) : json(route, 404, { detail: 'Clase no encontrada' })
+    }
+
+    const scheduleMatch = path.match(/^\/api\/v1\/class-schedules\/(\d+)$/)
+    if (scheduleMatch && method === 'GET') {
+      const item = schedules.find((entry) => entry.id === Number(scheduleMatch[1]))
+      return item ? json(route, 200, item) : json(route, 404, { detail: 'Horario no encontrado' })
+    }
+
     if (path === '/api/v1/class-schedules' && method === 'GET') {
       const classId = params.get('class_id')
       const dayOfWeek = params.get('day_of_week')

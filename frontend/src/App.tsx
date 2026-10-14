@@ -10,6 +10,7 @@ import { LandingPage } from '@/pages/public/LandingPage'
 import { PublicPlansPage } from '@/pages/public/PublicPlansPage'
 import { MemberHomePage } from '@/pages/member/MemberHomePage'
 import { ClassesPage } from '@/pages/member/ClassesPage'
+import { SessionDetailPage } from '@/pages/member/SessionDetailPage'
 import { BookingsPage } from '@/pages/member/BookingsPage'
 import { MembershipPage } from '@/pages/member/MembershipPage'
 import { ProfilePage } from '@/pages/member/ProfilePage'
@@ -42,6 +43,7 @@ export function App() {
           <Route path="member" element={<ProtectedRoute allowedRoles={['member']} />}>
             <Route index element={<MemberHomePage />} />
             <Route path="classes" element={<ClassesPage />} />
+            <Route path="sessions/:scheduleId" element={<SessionDetailPage />} />
             <Route path="bookings" element={<BookingsPage />} />
             <Route path="membership" element={<MembershipPage />} />
             <Route path="profile" element={<ProfilePage />} />

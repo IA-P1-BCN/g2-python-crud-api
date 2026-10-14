@@ -1,5 +1,5 @@
 import { apiClient } from './client'
-import type { ClassSchedulePage, GymClassPage } from '@/types/api'
+import type { ClassSchedule, ClassSchedulePage, GymClass, GymClassPage } from '@/types/api'
 
 export type ListParams = {
   page?: number
@@ -21,11 +21,21 @@ export const classesApi = {
     const { data } = await apiClient.get<GymClassPage>('/classes', { params })
     return data
   },
+
+  async get(id: number): Promise<GymClass> {
+    const { data } = await apiClient.get<GymClass>(`/classes/${id}`)
+    return data
+  },
 }
 
 export const schedulesApi = {
   async list(params: ListSchedulesParams = {}): Promise<ClassSchedulePage> {
     const { data } = await apiClient.get<ClassSchedulePage>('/class-schedules', { params })
+    return data
+  },
+
+  async get(id: number): Promise<ClassSchedule> {
+    const { data } = await apiClient.get<ClassSchedule>(`/class-schedules/${id}`)
     return data
   },
 }

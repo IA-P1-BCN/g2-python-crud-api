@@ -17,6 +17,7 @@ test('el socio reserva desde el calendario, consulta y cancela, y ve su membres√
 
   await page.getByRole('button', { name: /^Lun / }).click()
   await page.getByRole('button', { name: 'Ver detalle' }).click()
+  await expect(page.getByRole('heading', { name: 'Detalles de la sesi√≥n' })).toBeVisible()
   await page.getByRole('button', { name: 'Reservar' }).click()
   await expect(page.getByText('Reserva confirmada.')).toBeVisible()
 
