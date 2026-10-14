@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { bookingsApi, classesApi, roomsApi, schedulesApi, usersApi } from '@/api'
 import { useAuth, type AuthContextValue } from '@/auth'
@@ -16,10 +16,7 @@ vi.mock('@/api', () => ({
   roomsApi: { list: vi.fn() },
   bookingsApi: { list: vi.fn(), create: vi.fn(), cancel: vi.fn() },
   usersApi: { list: vi.fn() },
-  toApiError: (error: unknown) => ({
-    status: 400,
-    message: error instanceof Error ? error.message : 'Error',
-  }),
+  toApiError: (error: unknown) => ({ status: 400, message: String(error) }),
 }))
 
 const mockedUseAuth = vi.mocked(useAuth)
@@ -96,8 +93,11 @@ function renderPage() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter>
-        <ClassesPage />
+      <MemoryRouter initialEntries={['/member/classes']}>
+        <Routes>
+          <Route path="/member/classes" element={<ClassesPage />} />
+          <Route path="/member/sessions/:scheduleId" element={<div>detalle de la sesión</div>} />
+        </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
   )
@@ -135,36 +135,12 @@ describe('ClassesPage (reservas del socio)', () => {
     expect(screen.getByText('1 plazas libres')).toBeInTheDocument()
   })
 
-  it('abre el detalle y reserva la sesión', async () => {
-    vi.mocked(bookingsApi.create).mockResolvedValue({
-      ...otherBooking,
-      id: 501,
-      member_id: member.id,
-    })
+  it('abre el detalle de la sesión al pulsar "Ver detalle"', async () => {
     renderPage()
     await selectMonday()
 
     await userEvent.click(await screen.findByRole('button', { name: 'Ver detalle' }))
-    expect(screen.getByText(/Entrenador Uno/)).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: 'Reservar' }))
 
-    expect(bookingsApi.create).toHaveBeenCalledWith({
-      member_id: member.id,
-      schedule_id: schedule.id,
-      booking_date: expect.any(String),
-    })
-  })
-
-  it('muestra el mensaje de error de la API al reservar', async () => {
-    vi.mocked(bookingsApi.create).mockRejectedValue(
-      new Error('No hay plazas disponibles en esta sesión'),
-    )
-    renderPage()
-    await selectMonday()
-
-    await userEvent.click(await screen.findByRole('button', { name: 'Ver detalle' }))
-    await userEvent.click(screen.getByRole('button', { name: 'Reservar' }))
-
-    expect(await screen.findByText('No hay plazas disponibles en esta sesión')).toBeInTheDocument()
+    expect(await screen.findByText('detalle de la sesión')).toBeInTheDocument()
   })
 })
