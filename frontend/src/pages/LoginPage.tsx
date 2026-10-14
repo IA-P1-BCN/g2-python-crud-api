@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/atoms/Button'
-import { Input } from '@/components/ui/atoms/Input'
 import { Alert } from '@/components/ui/molecules/Alert'
+import { FormField } from '@/components/ui/molecules/FormField'
 import { PasswordField } from '@/components/ui/molecules/PasswordField'
 import { homePathForRole, useAuth } from '@/auth'
 
@@ -53,19 +53,17 @@ export function LoginPage() {
         </Alert>
       ) : null}
 
-      <label className="flex flex-col gap-1">
-        <span className="text-small text-text-muted">Correo electrónico</span>
-        <Input
-          type="email"
-          name="email"
-          autoComplete="email"
-          required
-          leftIcon="mail"
-          placeholder="marcos.valle@performance.com"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-      </label>
+      <FormField
+        label="Correo electrónico"
+        type="email"
+        name="email"
+        autoComplete="email"
+        required
+        leftIcon="mail"
+        placeholder="marcos.valle@performance.com"
+        value={email}
+        onChange={(event) => setEmail(event.target.value)}
+      />
 
       <PasswordField
         label="Contraseña"

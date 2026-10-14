@@ -25,8 +25,8 @@ export const FormField = forwardRef<HTMLInputElement, FormFieldProps>(function F
   const invalid = Boolean(error)
 
   return (
-    <div className={cn('flex flex-col gap-2', className)}>
-      <label htmlFor={inputId} className="text-body text-text-soft">
+    <div className={cn('flex flex-col gap-1', className)}>
+      <label htmlFor={inputId} className="text-small text-text-muted">
         {label}
       </label>
 
