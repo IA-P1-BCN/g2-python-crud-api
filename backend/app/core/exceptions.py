@@ -15,9 +15,10 @@ class AppError(Exception):
     status_code = 400
     code = "app_error"
 
-    def __init__(self, detail: str) -> None:
+    def __init__(self, detail: str, headers: dict[str, str] | None = None) -> None:
         super().__init__(detail)
         self.detail = detail
+        self.headers = headers
 
 
 class NotFoundError(AppError):
@@ -52,6 +53,14 @@ class PermissionDeniedError(AppError):
     code = "forbidden"
 
 
+class TooManyRequestsError(AppError):
+    status_code = 429
+    code = "too_many_requests"
+
+    def __init__(self, detail: str, retry_after: int) -> None:
+        super().__init__(detail, headers={"Retry-After": str(retry_after)})
+
+
 # Errors raised by the framework itself (unknown route, wrong method...), in the API's format
 HTTP_ERRORS = {
     401: ("unauthorized", "No autenticado"),
@@ -75,6 +84,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=exc.status_code,
             content={"detail": exc.detail, "code": exc.code},
+            headers=exc.headers,
         )
 
     @app.exception_handler(StarletteHTTPException)

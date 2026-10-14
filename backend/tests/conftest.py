@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app import models  # noqa: F401
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, login_limiter
 from app.core.config import settings
 from app.core.security import hash_password
 from app.db.base import Base
@@ -31,6 +31,14 @@ settings.secret_key = "test-secret-key-0123456789-abcdefghij"
 
 def _enforce_foreign_keys(dbapi_connection, _connection_record) -> None:
     dbapi_connection.execute("PRAGMA foreign_keys=ON")
+
+
+@pytest.fixture(autouse=True)
+def _reset_login_limiter() -> Generator[None, None, None]:
+    """Each test starts with no login attempts counted."""
+    login_limiter.reset()
+    yield
+    login_limiter.reset()
 
 
 @pytest.fixture()

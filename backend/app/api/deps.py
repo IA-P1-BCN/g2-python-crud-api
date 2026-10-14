@@ -1,20 +1,26 @@
+import logging
 from collections.abc import Callable
 
-from fastapi import Depends, Query
+from fastapi import Depends, Query, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import AuthenticationError, PermissionDeniedError
+from app.core.config import settings
+from app.core.exceptions import AuthenticationError, PermissionDeniedError, TooManyRequestsError
+from app.core.rate_limit import SlidingWindowLimiter
 from app.db.session import get_db
 from app.models.user import User, UserRole
 from app.schemas.common import Page
 from app.services import auth_service
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "Pagination",
     "build_page",
     "get_current_user",
     "get_db",
+    "limit_login_attempts",
     "require_admin",
     "require_member_or_admin",
     "require_roles",
@@ -38,6 +44,25 @@ def get_current_user(
     if token is None:
         raise AuthenticationError("Falta el token de acceso")
     return auth_service.get_user_from_token(db, token)
+
+
+# Shared by every login endpoint, so switching endpoint does not reset the count.
+login_limiter = SlidingWindowLimiter(
+    settings.login_rate_limit_attempts, settings.login_rate_limit_window_seconds
+)
+
+
+def limit_login_attempts(request: Request) -> None:
+    """Allow a limited number of login attempts per client IP; raise 429 beyond it."""
+    client_ip = request.client.host if request.client else "unknown"
+    retry_after = login_limiter.hit(client_ip)
+    if retry_after is not None:
+        logger.warning("Login rate limit reached for %s", client_ip)
+        raise TooManyRequestsError(
+            "Demasiados intentos de inicio de sesión. Vuelve a intentarlo en "
+            f"{retry_after} segundos",
+            retry_after=retry_after,
+        )
 
 
 def require_roles(*roles: UserRole) -> Callable[[User], User]:

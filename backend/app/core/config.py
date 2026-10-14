@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     refresh_token_expire_days: int = 7
+    login_rate_limit_attempts: int = 5
+    login_rate_limit_window_seconds: int = 60
     cors_origins: str = "http://localhost:5173"
     log_level: str = "INFO"
     log_file: str = "logs/app.log"
