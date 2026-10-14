@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user, get_db, oauth2_scheme
+from app.api.deps import get_current_user, get_db, limit_login_attempts, oauth2_scheme
 from app.api.responses import errors
 from app.models.user import User
 from app.schemas.auth import LoginRequest, LogoutRequest, RefreshRequest, RegisterRequest, Token
@@ -29,7 +29,8 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)) -> Token:
 
 @router.post(
     "/login",
-    responses=errors(401, 403, 422),
+    responses=errors(401, 403, 422, 429),
+    dependencies=[Depends(limit_login_attempts)],
     response_model=Token,
     summary="Iniciar sesión",
     description="Autentica con email y contraseña y devuelve un token JWT de acceso.",
@@ -41,7 +42,8 @@ def login(data: LoginRequest, db: Session = Depends(get_db)) -> Token:
 
 @router.post(
     "/token",
-    responses=errors(401, 403, 422),
+    responses=errors(401, 403, 422, 429),
+    dependencies=[Depends(limit_login_attempts)],
     response_model=Token,
     summary="Obtener token (OAuth2)",
     description=(

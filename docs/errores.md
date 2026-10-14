@@ -50,6 +50,7 @@ lista, con un elemento por campo que falla.
 | 405 | `method_not_allowed` | La ruta existe, pero no con ese método | Es un error de programación del cliente |
 | 409 | `conflict` | La petición choca con lo que ya hay guardado | Mostrar `detail` |
 | 422 | `validation_error` | Datos mal formados o incoherentes | Mostrar `detail`, o el `msg` de cada campo si es una lista |
+| 429 | `too_many_requests` | Demasiados intentos de login desde la misma IP | Mostrar `detail` y esperar los segundos de la cabecera `Retry-After` |
 | 500 | `internal_error` | Fallo no previsto del servidor | Mensaje genérico; el detalle queda en los logs del backend |
 
 Regla para distinguir los tres que más se confunden:
@@ -73,6 +74,7 @@ Regla para distinguir los tres que más se confunden:
 | Logout enviando el token de refresco de otro usuario | 401 | `unauthorized` | Token inválido |
 | Login con email o contraseña incorrectos | 401 | `unauthorized` | Email o contraseña incorrectos |
 | Login con una cuenta dada de baja | 403 | `forbidden` | La cuenta está desactivada |
+| Más de 5 intentos de login en un minuto desde la misma IP | 429 | `too_many_requests` | Demasiados intentos de inicio de sesión. Vuelve a intentarlo en {n} segundos |
 | El rol no puede usar esa ruta | 403 | `forbidden` | No tienes permiso para realizar esta acción |
 | El dato es de otro usuario, o la clase es de otro entrenador | 403 | `forbidden` | No tienes permiso para acceder a este recurso |
 

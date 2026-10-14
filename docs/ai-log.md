@@ -165,23 +165,35 @@ alcance. El resto del equipo añade aquí su fila.
   sirve por el otro, que el logout con el token de refresco de otra persona no revoca nada, y que
   la tabla no guarda tokens completos.
 
-### #215 Logotipo (átomo) — primera tarea con OpenCode
+### #409 Límite de intentos en el login
 
-- **Fecha:** 2026-10-13
-- **Persona, herramienta y modelo:** Elena, OpenCode, modelo gratuito (OpenCode Zen). Configuración
-  documentada en `docs/opencode.md`.
-- **Spec:** — (tarea pequeña del kit de UI; no necesitó spec).
-- **Prompt clave:** «tarea: Logotipo (átomo) #215 … marca + nombre; variante con subtítulo de rol
-  (Administrador, Entrenador)».
-- **Qué generó el agente:** `frontend/src/components/ui/atoms/Logo/{Logo.tsx, index.ts,
-  Logo.test.tsx}` con Tailwind y los design tokens; 4 tests.
+- **Fecha:** 2026-10-14
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/409-login-rate-limiting.md`, escrita antes del código.
+- **Prompt clave:** «ok continuamos siguiente tarea». El issue tenía una decisión pendiente; el
+  agente paró y preguntó dos cosas antes de escribir la spec. Eva eligió las dos opciones
+  recomendadas: contar los intentos **por IP** y guardarlos **en memoria**.
+- **Qué generó el agente:** la spec; `app/core/rate_limit.py`, un limitador de ventana deslizante
+  con reloj inyectable; el error `TooManyRequestsError` (429) con la cabecera `Retry-After`; la
+  dependencia `limit_login_attempts`, aplicada a `/auth/login` y `/auth/token`; dos variables de
+  entorno; el 429 en Swagger y en `docs/errores.md`; y 21 tests nuevos.
 - **Aceptado:**
-  - El nombre del producto es un prop (por defecto `Athletica`), para no fijarlo a fuego mientras
-    se decidía el nombre.
-  - Subtítulo de rol opcional.
+  - Un solo contador para los dos logins, para que no se pueda esquivar el límite cambiando de
+    endpoint.
+  - Contar también los intentos correctos: es un límite de peticiones, no de fallos.
+  - Escribir el limitador a mano en vez de añadir una librería (`slowapi`): son 40 líneas, sin
+    dependencias nuevas, y con un reloj inyectable los tests no esperan un minuto real.
 - **Rechazado o cambiado, y por qué:**
-  - No se cablea en `AppLayout`/`PublicLayout` (fuera del alcance del átomo); eso se hizo en la
-    tarea de layout (#232).
-- **Errores o alucinaciones del agente y cómo se corrigieron:** un test quedó sin el formato de
-  Prettier y el `format:check` lo detectó; se corrigió con `npx prettier --write`.
-- **Revisión humana:** PR #391 revisada y mergeada en `dev`.
+  - Límite por cuenta (fallos por email). Protege mejor cada cuenta, pero permite bloquear a
+    propósito el login de otra persona; se descartó en la pregunta.
+  - Guardar los intentos en la base de datos. Más robusto con varias copias del servidor, pero
+    añade una tabla y una consulta por login; con un único servidor no hace falta.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** la primera versión de los tests
+  daba por hecho el límite de 5 intentos. Habrían fallado a quien cambiase
+  `LOGIN_RATE_LIMIT_ATTEMPTS` en su `.env`. Se cambiaron para leer el valor configurado, y un test
+  aparte comprueba los valores por defecto sin leer ningún `.env`.
+- **Limitación conocida:** detrás de un proxy, todas las peticiones llegarían con la IP del proxy y
+  compartirían el límite. Si se despliega así, habrá que leer la IP real de la cabecera que ponga
+  el proxy.
+- **Revisión humana:** pendiente en el PR. Puntos de seguridad a mirar: que el sexto intento no
+  llega a comprobar la contraseña, y que el registro y el resto de la API no tienen límite.

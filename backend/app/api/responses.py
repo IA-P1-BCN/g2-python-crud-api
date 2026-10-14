@@ -35,6 +35,15 @@ _ERRORS: dict[int, tuple[str, type, dict[str, Any]]] = {
         ErrorResponse,
         {"detail": "El email ya está registrado", "code": "conflict"},
     ),
+    429: (
+        "Demasiados intentos en poco tiempo. La cabecera `Retry-After` indica cuántos segundos "
+        "esperar.",
+        ErrorResponse,
+        {
+            "detail": "Demasiados intentos de inicio de sesión. Vuelve a intentarlo en 42 segundos",
+            "code": "too_many_requests",
+        },
+    ),
     422: (
         "Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan.",
         ValidationErrorResponse,

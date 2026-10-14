@@ -8,7 +8,7 @@ from app.main import app
 from tests.integration.test_permissions import MATRIX
 
 API = "/api/v1"
-ERROR_CODES = {"400", "401", "403", "404", "409", "422"}
+ERROR_CODES = {"400", "401", "403", "404", "409", "422", "429"}
 ERROR_SCHEMAS = {
     "#/components/schemas/ErrorResponse",
     "#/components/schemas/ValidationErrorResponse",
