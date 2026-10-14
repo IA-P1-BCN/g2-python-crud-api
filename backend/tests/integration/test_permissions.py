@@ -20,6 +20,8 @@ MATRIX = [
     ("GET", "/auth/me", *LOGGED_IN),
     ("GET", "/users/me", *LOGGED_IN),
     ("POST", "/auth/token", *PUBLIC),
+    ("POST", "/auth/refresh", *PUBLIC),
+    ("POST", "/auth/logout", *LOGGED_IN),
     ("GET", "/me/dashboard", *LOGGED_IN),
     # Membership plans: anyone reads, admin writes
     ("GET", "/membership-plans", *PUBLIC),

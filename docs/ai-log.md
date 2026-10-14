@@ -12,6 +12,7 @@ le pidió, qué se aceptó, qué se rechazó y en qué se equivocó el agente.
 | Persona | Herramienta | Modelo | Coste | Alcance |
 | --- | --- | --- | --- | --- |
 | Eva | Claude Code | Claude Opus 5.5 | De pago | Solo `backend/`, `specs/` y `docs/` de las tareas de backend asignadas a Eva. No toca `frontend/` ni tareas de otras personas |
+| Elena | OpenCode | Modelo gratuito (OpenCode Zen) | Gratuito | `frontend/`, `specs/` y `docs/` de sus tareas; escribe specs y PRs. Configuración en `docs/opencode.md` |
 
 El briefing recomienda OpenCode con modelos gratuitos y permite IAs de pago si se delimita su
 alcance. El resto del equipo añade aquí su fila.
@@ -130,3 +131,57 @@ alcance. El resto del equipo añade aquí su fila.
 - **Revisión humana:** pendiente en el PR. Punto a mirar: que la tabla de códigos por ruta es
   correcta para los endpoints que conozcáis; los tests comprueban el 401, el 403, el 404 y el 422,
   pero el 400 y el 409 de cada ruta solo los valida quien lee.
+
+### #408 Tokens de refresco y logout con tokens revocados
+
+- **Fecha:** 2026-10-14
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/408-refresh-tokens-and-logout.md`, escrita antes del código.
+- **Prompt clave:** «continuamos con la siguiente tarea». El agente trabajó a partir de los
+  criterios de aceptación del issue.
+- **Qué generó el agente:** la spec; el tipo (`type`) y el identificador único (`jti`) en cada
+  token; `create_refresh_token` y la validación por tipo en `core/security.py`; la tabla
+  `revoked_tokens` con su modelo, su repositorio y su migración de Alembic; los endpoints
+  `POST /auth/refresh` y `POST /auth/logout`; la variable `REFRESH_TOKEN_EXPIRE_DAYS`; 27 tests
+  nuevos y dos filas en la matriz de permisos.
+- **Aceptado:**
+  - Guardar solo el identificador del token revocado, nunca el token.
+  - Comprobar en cada petición protegida que el token no esté revocado; es una consulta más por
+    petición, a cambio de que el logout sea real.
+  - Mantener 60 minutos para el token de acceso. El briefing pide que sea «de vida corta», pero
+    acortarlo echaría de la sesión a los usuarios del frontend, que todavía no renueva el token.
+  - El acceso a `revoked_tokens` pasa por un repositorio, como los usuarios.
+- **Rechazado o cambiado, y por qué:**
+  - Rotar el token de refresco en cada uso. Es más seguro, pero la tarea pide devolver un token de
+    acceso nuevo y no lo exige; queda anotado como mejora en la spec.
+  - Hacer obligatorio el token de refresco en el logout. Se dejó opcional para que el frontend
+    actual pueda llamar al logout sin cambios.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** la primera versión del endpoint de
+  logout recibía el usuario actual como parámetro sin usarlo. Se cambió a una dependencia
+  declarada en el decorador, que hace la misma comprobación sin dejar un parámetro muerto.
+- **Sin comprobar:** la migración se ha probado arriba y abajo con SQLite (los tests), pero no
+  contra PostgreSQL, porque Docker no estaba arrancado.
+- **Revisión humana:** pendiente en el PR. Puntos de seguridad a mirar: que un tipo de token no
+  sirve por el otro, que el logout con el token de refresco de otra persona no revoca nada, y que
+  la tabla no guarda tokens completos.
+
+### #215 Logotipo (átomo) — primera tarea con OpenCode
+
+- **Fecha:** 2026-10-13
+- **Persona, herramienta y modelo:** Elena, OpenCode, modelo gratuito (OpenCode Zen). Configuración
+  documentada en `docs/opencode.md`.
+- **Spec:** — (tarea pequeña del kit de UI; no necesitó spec).
+- **Prompt clave:** «tarea: Logotipo (átomo) #215 … marca + nombre; variante con subtítulo de rol
+  (Administrador, Entrenador)».
+- **Qué generó el agente:** `frontend/src/components/ui/atoms/Logo/{Logo.tsx, index.ts,
+  Logo.test.tsx}` con Tailwind y los design tokens; 4 tests.
+- **Aceptado:**
+  - El nombre del producto es un prop (por defecto `Athletica`), para no fijarlo a fuego mientras
+    se decidía el nombre.
+  - Subtítulo de rol opcional.
+- **Rechazado o cambiado, y por qué:**
+  - No se cablea en `AppLayout`/`PublicLayout` (fuera del alcance del átomo); eso se hizo en la
+    tarea de layout (#232).
+- **Errores o alucinaciones del agente y cómo se corrigieron:** un test quedó sin el formato de
+  Prettier y el `format:check` lo detectó; se corrigió con `npx prettier --write`.
+- **Revisión humana:** PR #391 revisada y mergeada en `dev`.

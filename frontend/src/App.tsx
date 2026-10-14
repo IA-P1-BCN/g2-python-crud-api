@@ -11,6 +11,7 @@ import { LandingPage } from '@/pages/public/LandingPage'
 import { PublicPlansPage } from '@/pages/public/PublicPlansPage'
 import { MemberHomePage } from '@/pages/member/MemberHomePage'
 import { ClassesPage } from '@/pages/member/ClassesPage'
+import { SessionDetailPage } from '@/pages/member/SessionDetailPage'
 import { BookingsPage } from '@/pages/member/BookingsPage'
 import { MembershipPage } from '@/pages/member/MembershipPage'
 import { ProfilePage } from '@/pages/member/ProfilePage'
@@ -20,6 +21,9 @@ import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
 import { PlansPage } from '@/pages/admin/PlansPage'
 import { AdminMembersPage } from '@/pages/admin/AdminMembersPage'
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage'
+import { AdminMembershipsPage } from '@/pages/admin/AdminMembershipsPage'
+import { AdminRoomsPage } from '@/pages/admin/AdminRoomsPage'
+import { AdminBookingsPage } from '@/pages/admin/AdminBookingsPage'
 import { SandboxPage } from './sandbox/SandboxPage'
 
 export function App() {
@@ -42,6 +46,7 @@ export function App() {
           <Route path="member" element={<ProtectedRoute allowedRoles={['member']} />}>
             <Route index element={<MemberHomePage />} />
             <Route path="classes" element={<ClassesPage />} />
+            <Route path="sessions/:scheduleId" element={<SessionDetailPage />} />
             <Route path="bookings" element={<BookingsPage />} />
             <Route path="membership" element={<MembershipPage />} />
             <Route path="profile" element={<ProfilePage />} />
@@ -59,6 +64,9 @@ export function App() {
             <Route path="plans" element={<PlansPage />} />
             <Route path="members" element={<AdminMembersPage />} />
             <Route path="users" element={<AdminUsersPage />} />
+            <Route path="memberships" element={<AdminMembershipsPage />} />
+            <Route path="rooms" element={<AdminRoomsPage />} />
+            <Route path="bookings" element={<AdminBookingsPage />} />
           </Route>
         </Route>
       </Route>

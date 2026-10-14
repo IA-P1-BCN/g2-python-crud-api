@@ -4,6 +4,7 @@ from app.models.gym_class import GymClass
 from app.models.membership import Membership, MembershipStatus
 from app.models.membership_plan import MembershipPlan
 from app.models.payment import Payment, PaymentStatus
+from app.models.revoked_token import RevokedToken
 from app.models.room import Room
 from app.models.user import User, UserRole
 
@@ -17,6 +18,7 @@ __all__ = [
     "MembershipStatus",
     "Payment",
     "PaymentStatus",
+    "RevokedToken",
     "Room",
     "User",
     "UserRole",
