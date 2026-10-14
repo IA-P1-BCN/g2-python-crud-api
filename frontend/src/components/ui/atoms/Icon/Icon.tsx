@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 import {
+  ArrowRight,
   Calendar,
   CalendarPlus,
   Check,
@@ -11,12 +12,16 @@ import {
   Eye,
   EyeOff,
   House,
+  Info,
+  Lock,
   LogOut,
+  Mail,
   Plus,
   Search,
   Settings,
   Ticket,
   TriangleAlert,
+  User,
   Users,
   X,
 } from 'lucide-react'
@@ -25,6 +30,7 @@ import { cn } from '@/lib/cn'
 const ICONS = {
   home: House,
   users: Users,
+  user: User,
   dumbbell: Dumbbell,
   calendar: Calendar,
   'calendar-plus': CalendarPlus,
@@ -38,7 +44,11 @@ const ICONS = {
   plus: Plus,
   search: Search,
   check: Check,
+  info: Info,
+  lock: Lock,
+  mail: Mail,
   x: X,
+  'arrow-right': ArrowRight,
   'chevron-left': ChevronLeft,
   'chevron-right': ChevronRight,
   'alert-triangle': TriangleAlert,
