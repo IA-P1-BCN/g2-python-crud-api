@@ -1,14 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Button } from '@/components/ui/atoms/Button'
-import { Badge } from '@/components/ui/atoms/Badge'
-import { Alert } from '@/components/ui/molecules/Alert'
-import { Pagination } from '@/components/ui/molecules/Pagination'
-import { Table, type Column } from '@/components/ui/organisms/Table'
 import { bookingsApi, classesApi, schedulesApi, toApiError } from '@/api'
 import { useAuth } from '@/auth'
+import { Badge } from '@/components/ui/atoms/Badge'
+import { Button } from '@/components/ui/atoms/Button'
+import { Alert } from '@/components/ui/molecules/Alert'
+import { Pagination } from '@/components/ui/molecules/Pagination'
 import { formatDate } from '@/lib/format'
-import type { Booking } from '@/types/api'
 
 const PAGE_SIZE = 10
 
@@ -33,13 +31,15 @@ export function BookingsPage() {
     queryFn: () => classesApi.list({ size: 100 }),
   })
 
-  const { scheduleMap, classMap } = useMemo(
-    () => ({
-      scheduleMap: new Map((schedules.data?.items ?? []).map((item) => [item.id, item.class_id])),
-      classMap: new Map((classes.data?.items ?? []).map((item) => [item.id, item.name])),
-    }),
-    [schedules.data, classes.data],
-  )
+  const classNames = useMemo(() => {
+    const classById = new Map((classes.data?.items ?? []).map((item) => [item.id, item.name]))
+    return new Map(
+      (schedules.data?.items ?? []).map((schedule) => [
+        schedule.id,
+        classById.get(schedule.class_id) ?? `Clase #${schedule.class_id}`,
+      ]),
+    )
+  }, [schedules.data, classes.data])
 
   const cancel = useMutation({
     mutationFn: (id: number) => bookingsApi.cancel(id),
@@ -48,51 +48,12 @@ export function BookingsPage() {
     },
   })
 
-  const columns: Column<Booking>[] = [
-    {
-      key: 'schedule_id',
-      header: 'Clase',
-      render: (row) => {
-        const classId = scheduleMap.get(row.schedule_id)
-        if (classId === undefined) return `Horario #${row.schedule_id}`
-        return classMap.get(classId) ?? `Clase #${classId}`
-      },
-    },
-    {
-      key: 'booking_date',
-      header: 'Fecha',
-      render: (row) => formatDate(row.booking_date),
-    },
-    {
-      key: 'status',
-      header: 'Estado',
-      render: (row) =>
-        row.status === 'confirmed' ? (
-          <Badge tone="success">Confirmada</Badge>
-        ) : (
-          <Badge tone="neutral">Cancelada</Badge>
-        ),
-    },
-    {
-      key: 'actions',
-      header: 'Acción',
-      render: (row) => (
-        <Button
-          variant="danger"
-          disabled={row.status !== 'confirmed'}
-          isLoading={cancel.isPending && cancel.variables === row.id}
-          onClick={() => cancel.mutate(row.id)}
-        >
-          Cancelar
-        </Button>
-      ),
-    },
-  ]
+  const items = bookings.data?.items ?? []
 
   return (
-    <div className="page">
+    <div className="flex flex-col gap-4">
       <div className="page__header">
-        <h1>Mis reservas</h1>
+        <h1 className="font-display text-headline text-text">Mis reservas</h1>
       </div>
 
       {cancel.isError ? <Alert variant="error">{toApiError(cancel.error).message}</Alert> : null}
@@ -100,13 +61,39 @@ export function BookingsPage() {
         <Alert variant="error">{toApiError(bookings.error).message}</Alert>
       ) : null}
 
-      <Table
-        columns={columns}
-        rows={bookings.data?.items ?? []}
-        rowKey={(row) => row.id}
-        isLoading={bookings.isLoading}
-        emptyMessage="Todavía no tienes reservas."
-      />
+      {bookings.isLoading ? <p className="text-body text-text-muted">Cargando…</p> : null}
+
+      {!bookings.isLoading && items.length === 0 ? (
+        <p className="text-body text-text-muted">Todavía no tienes reservas.</p>
+      ) : null}
+
+      {items.length > 0 ? (
+        <ul className="flex flex-col gap-3">
+          {items.map((booking) => (
+            <li key={booking.id} className="flex flex-col gap-2 rounded-card bg-surface p-4">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-display text-title text-text">
+                  {classNames.get(booking.schedule_id) ?? `Horario #${booking.schedule_id}`}
+                </span>
+                {booking.status === 'confirmed' ? (
+                  <Badge tone="success">Confirmada</Badge>
+                ) : (
+                  <Badge tone="neutral">Cancelada</Badge>
+                )}
+              </div>
+              <span className="text-small text-text-muted">{formatDate(booking.booking_date)}</span>
+              <Button
+                variant="danger"
+                disabled={booking.status !== 'confirmed'}
+                isLoading={cancel.isPending && cancel.variables === booking.id}
+                onClick={() => cancel.mutate(booking.id)}
+              >
+                Cancelar
+              </Button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
 
       {bookings.data && bookings.data.pages > 1 ? (
         <Pagination page={page} pages={bookings.data.pages} onChange={setPage} />

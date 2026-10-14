@@ -12,6 +12,7 @@ le pidió, qué se aceptó, qué se rechazó y en qué se equivocó el agente.
 | Persona | Herramienta | Modelo | Coste | Alcance |
 | --- | --- | --- | --- | --- |
 | Eva | Claude Code | Claude Opus 5.5 | De pago | Solo `backend/`, `specs/` y `docs/` de las tareas de backend asignadas a Eva. No toca `frontend/` ni tareas de otras personas |
+| Elena | OpenCode | Modelo gratuito (OpenCode Zen) | Gratuito | `frontend/`, `specs/` y `docs/` de sus tareas; escribe specs y PRs. Configuración en `docs/opencode.md` |
 
 El briefing recomienda OpenCode con modelos gratuitos y permite IAs de pago si se delimita su
 alcance. El resto del equipo añade aquí su fila.

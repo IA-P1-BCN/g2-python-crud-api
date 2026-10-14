@@ -121,7 +121,7 @@ describe('public pages', () => {
     expect(screen.getByRole('heading', { name: 'Planes y precios' })).toBeInTheDocument()
     expect(await screen.findByText('Mensual')).toBeInTheDocument()
     expect(screen.getByText(/39,99/)).toBeInTheDocument()
-    expect(screen.getByText('30 días')).toBeInTheDocument()
+    expect(screen.getByText(/30 días/)).toBeInTheDocument()
     expect(membershipPlansApi.list).toHaveBeenCalledWith({ active_only: true, size: 100 })
   })
 })

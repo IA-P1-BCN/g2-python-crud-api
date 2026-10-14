@@ -14,15 +14,23 @@ export type MembershipPlanUpdate = Schemas['MembershipPlanUpdate']
 export type MembershipPlanPage = Schemas['Page_MembershipPlanRead_']
 
 export type GymClass = Schemas['GymClassRead']
+export type GymClassCreate = Schemas['GymClassCreate']
+export type GymClassUpdate = Schemas['GymClassUpdate']
 export type GymClassPage = Schemas['Page_GymClassRead_']
 
 export type Room = Schemas['RoomRead']
+export type RoomCreate = Schemas['RoomCreate']
+export type RoomUpdate = Schemas['RoomUpdate']
 export type RoomPage = Schemas['Page_RoomRead_']
 
 export type ClassSchedule = Schemas['ClassScheduleRead']
+export type ClassScheduleCreate = Schemas['ClassScheduleCreate']
+export type ClassScheduleUpdate = Schemas['ClassScheduleUpdate']
 export type ClassSchedulePage = Schemas['Page_ClassScheduleRead_']
 
 export type Membership = Schemas['MembershipRead']
+export type MembershipCreate = Schemas['MembershipCreate']
+export type MembershipUpdate = Schemas['MembershipUpdate']
 export type MembershipStatus = Schemas['MembershipStatus']
 export type MembershipPage = Schemas['Page_MembershipRead_']
 

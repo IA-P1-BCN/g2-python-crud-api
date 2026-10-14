@@ -13,20 +13,20 @@ test('el socio reserva desde el calendario, consulta y cancela, y ve su membres�
   await expect(page.getByText('No tienes reservas próximas.')).toBeVisible()
 
   await page.goto('/member/classes')
-  await expect(page.getByRole('heading', { name: 'Calendario de clases' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Reservas' })).toBeVisible()
 
-  await page.getByRole('button', { name: 'Lunes' }).click()
-  const yoga = page.getByRole('row', { name: /Yoga/ })
-  await yoga.getByRole('button', { name: 'Ver detalle' }).click()
+  await page.getByRole('button', { name: /^Lun / }).click()
+  await page.getByRole('button', { name: 'Ver detalle' }).click()
+  await expect(page.getByRole('heading', { name: 'Detalles de la sesión' })).toBeVisible()
   await page.getByRole('button', { name: 'Reservar' }).click()
   await expect(page.getByText('Reserva confirmada.')).toBeVisible()
 
   await page.getByRole('link', { name: 'Reservas' }).first().click()
   await expect(page.getByRole('heading', { name: 'Mis reservas' })).toBeVisible()
-  await expect(page.getByRole('cell', { name: 'Yoga' })).toBeVisible()
+  await expect(page.getByText('Yoga')).toBeVisible()
 
   await page.getByRole('button', { name: 'Cancelar' }).first().click()
-  await expect(page.getByRole('cell', { name: 'Cancelada' })).toBeVisible()
+  await expect(page.getByText('Cancelada')).toBeVisible()
 
   await page.getByRole('link', { name: 'Mi plan' }).first().click()
   await expect(page.getByText('Mensual')).toBeVisible()
@@ -50,8 +50,8 @@ test('muestra el mensaje de error de la API al reservar', async ({ page }) => {
   await loginAs(page, 'member')
 
   await page.goto('/member/classes')
-  await page.getByRole('button', { name: 'Lunes' }).click()
-  await page.getByRole('row', { name: /Yoga/ }).getByRole('button', { name: 'Ver detalle' }).click()
+  await page.getByRole('button', { name: /^Lun / }).click()
+  await page.getByRole('button', { name: 'Ver detalle' }).click()
   await page.getByRole('button', { name: 'Reservar' }).click()
 
   await expect(page.getByText('Necesitas una membresía activa para reservar')).toBeVisible()

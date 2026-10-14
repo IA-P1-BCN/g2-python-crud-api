@@ -116,6 +116,11 @@ export function SessionCard({
         <div className="session-card__status">
           <Badge tone={STATE_TONE[state]}>{STATE_LABEL[state]}</Badge>
           <span className="card__meta">{free > 0 ? `${free} plazas libres` : 'Sin plazas'}</span>
+          {onAction ? (
+            <Button variant="secondary" onClick={onAction}>
+              Ver detalle
+            </Button>
+          ) : null}
         </div>
       )}
     </article>

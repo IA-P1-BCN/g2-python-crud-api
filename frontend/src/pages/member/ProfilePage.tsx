@@ -1,169 +1,48 @@
-import { useState, type FormEvent } from 'react'
-import { useMutation } from '@tanstack/react-query'
-import { Button } from '@/components/ui/atoms/Button'
-import { Alert } from '@/components/ui/molecules/Alert'
-import { PasswordField } from '@/components/ui/molecules/PasswordField'
-import { toApiError, usersApi } from '@/api'
+import { toApiError } from '@/api'
 import { useAuth } from '@/auth'
-import { passwordErrorMessage } from '@/lib/password'
+import { Button } from '@/components/ui/atoms/Button'
+import { ProfileHeader } from '@/components/ui/molecules/ProfileHeader'
+import { ChangePasswordForm } from '@/components/ui/organisms/ChangePasswordForm'
+import { ProfileForm } from '@/components/ui/organisms/ProfileForm'
+import { useProfile } from './useProfile'
 
 export function ProfilePage() {
-  const { user, updateUser, logout } = useAuth()
-
-  const [fullName, setFullName] = useState(user?.full_name ?? '')
-  const [email, setEmail] = useState(user?.email ?? '')
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [repeatPassword, setRepeatPassword] = useState('')
-  const [passwordValidationError, setPasswordValidationError] = useState<string | null>(null)
-
-  const updateProfile = useMutation({
-    mutationFn: () =>
-      usersApi.updateProfile(user!.id, {
-        full_name: fullName,
-        email,
-      }),
-    onSuccess: (updatedUser) => {
-      updateUser(updatedUser)
-    },
-  })
-
-  const changePassword = useMutation({
-    mutationFn: () =>
-      usersApi.changePassword(user!.id, {
-        current_password: currentPassword,
-        new_password: newPassword,
-      }),
-    onSuccess: () => {
-      setCurrentPassword('')
-      setNewPassword('')
-      setRepeatPassword('')
-      setPasswordValidationError(null)
-    },
-  })
-
-  function handleProfileSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    updateProfile.mutate()
-  }
-
-  function handlePasswordSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setPasswordValidationError(null)
-
-    const invalidPassword = passwordErrorMessage(newPassword)
-    if (invalidPassword) {
-      setPasswordValidationError(invalidPassword)
-      return
-    }
-
-    if (newPassword !== repeatPassword) {
-      setPasswordValidationError('Las contraseñas no coinciden')
-      return
-    }
-
-    changePassword.mutate()
-  }
+  const { user, logout } = useAuth()
+  const { updateProfile, changePassword } = useProfile()
 
   if (!user) return null
 
   return (
-    <div className="page">
-      <div className="page__header">
-        <h1>Mi perfil</h1>
-      </div>
+    <div className="flex flex-col gap-6">
+      <ProfileHeader name={user.full_name} role={user.role} />
 
-      <div className="card">
-        <h2>Mis datos</h2>
+      <section className="flex flex-col gap-3 rounded-card bg-surface p-6" aria-label="Mis datos">
+        <h2 className="font-display text-title text-text">Mis datos</h2>
+        <ProfileForm
+          defaultName={user.full_name}
+          defaultEmail={user.email}
+          onSave={(values) => updateProfile.mutate(values)}
+          isSaving={updateProfile.isPending}
+          error={updateProfile.isError ? toApiError(updateProfile.error).message : null}
+          message={updateProfile.isSuccess ? 'Perfil actualizado' : null}
+        />
+      </section>
 
-        {updateProfile.isError ? (
-          <Alert variant="error">{toApiError(updateProfile.error).message}</Alert>
-        ) : null}
+      <section
+        className="flex flex-col gap-3 rounded-card bg-surface p-6"
+        aria-label="Cambiar contraseña"
+      >
+        <h2 className="font-display text-title text-text">Cambiar contraseña</h2>
+        <ChangePasswordForm
+          onSubmit={(values) => changePassword.mutate(values)}
+          isSaving={changePassword.isPending}
+          error={changePassword.isError ? toApiError(changePassword.error).message : null}
+          message={changePassword.isSuccess ? 'Contraseña actualizada' : null}
+        />
+      </section>
 
-        {updateProfile.isSuccess ? <Alert variant="success">Perfil actualizado</Alert> : null}
-
-        <form onSubmit={handleProfileSubmit}>
-          <label className="field">
-            <span>Nombre completo</span>
-            <input
-              type="text"
-              name="full_name"
-              autoComplete="name"
-              required
-              value={fullName}
-              onChange={(event) => setFullName(event.target.value)}
-            />
-          </label>
-
-          <label className="field">
-            <span>Email</span>
-            <input
-              type="email"
-              name="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-            />
-          </label>
-
-          <Button type="submit" isLoading={updateProfile.isPending}>
-            Guardar
-          </Button>
-        </form>
-      </div>
-
-      <div className="card">
-        <h2>Cambiar contraseña</h2>
-
-        {passwordValidationError ? <Alert variant="error">{passwordValidationError}</Alert> : null}
-
-        {changePassword.isError ? (
-          <Alert variant="error">{toApiError(changePassword.error).message}</Alert>
-        ) : null}
-
-        {changePassword.isSuccess ? <Alert variant="success">Contraseña actualizada</Alert> : null}
-
-        <form onSubmit={handlePasswordSubmit}>
-          <PasswordField
-            label="Contraseña actual"
-            name="current_password"
-            value={currentPassword}
-            onChange={setCurrentPassword}
-            autoComplete="current-password"
-            required
-          />
-
-          <PasswordField
-            label="Nueva contraseña"
-            name="new_password"
-            value={newPassword}
-            onChange={setNewPassword}
-            autoComplete="new-password"
-            required
-            showRules
-          />
-
-          <label className="field">
-            <span>Repetir nueva contraseña</span>
-            <input
-              type="password"
-              name="repeat_password"
-              autoComplete="new-password"
-              required
-              value={repeatPassword}
-              onChange={(event) => setRepeatPassword(event.target.value)}
-            />
-          </label>
-
-          <Button type="submit" isLoading={changePassword.isPending}>
-            Cambiar contraseña
-          </Button>
-        </form>
-      </div>
-
-      <div className="card">
-        <Button type="button" variant="danger" onClick={logout}>
+      <div>
+        <Button variant="danger" onClick={logout}>
           Cerrar sesión
         </Button>
       </div>

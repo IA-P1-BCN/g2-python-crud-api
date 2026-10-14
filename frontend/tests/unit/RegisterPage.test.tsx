@@ -58,9 +58,9 @@ describe('RegisterPage', () => {
     renderPage()
 
     await userEvent.type(screen.getByLabelText('Nombre completo'), 'Nueva Socia')
-    await userEvent.type(screen.getByLabelText('Email'), 'nueva@example.com')
-    await userEvent.type(screen.getByLabelText('Contraseña'), 'Athletica123!')
-    await userEvent.click(screen.getByRole('button', { name: 'Registrarme' }))
+    await userEvent.type(screen.getByLabelText('Correo electrónico'), 'nueva@example.com')
+    await userEvent.type(screen.getByLabelText('Crea una contraseña'), 'Athletica123!')
+    await userEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }))
 
     expect(register).toHaveBeenCalledWith({
       full_name: 'Nueva Socia',
@@ -76,9 +76,9 @@ describe('RegisterPage', () => {
     renderPage()
 
     await userEvent.type(screen.getByLabelText('Nombre completo'), 'Nueva Socia')
-    await userEvent.type(screen.getByLabelText('Email'), 'nueva@example.com')
-    await userEvent.type(screen.getByLabelText('Contraseña'), 'secret123')
-    await userEvent.click(screen.getByRole('button', { name: 'Registrarme' }))
+    await userEvent.type(screen.getByLabelText('Correo electrónico'), 'nueva@example.com')
+    await userEvent.type(screen.getByLabelText('Crea una contraseña'), 'secret123')
+    await userEvent.click(screen.getByRole('button', { name: 'Crear cuenta' }))
 
     expect(register).not.toHaveBeenCalled()
     expect(screen.getByText(PASSWORD_RULE)).toBeInTheDocument()
