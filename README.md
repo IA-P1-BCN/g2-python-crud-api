@@ -17,17 +17,16 @@ Monorepo con una API REST en FastAPI (`backend/`) y una web en React (`frontend/
 
 ### Aplicación
 
-Capturas previstas para la presentación (añadir en `docs/screenshots/`
-cuando estén disponibles):
-
-- `docs/screenshots/home.png` — landing pública.
-- `docs/screenshots/member-dashboard.png` — panel del socio.
-- `docs/screenshots/admin-dashboard.png` — panel del administrador.
-- `docs/screenshots/trainer-sessions.png` — sesiones del entrenador.
+![Home pública](docs/screenshots/home.png)
+![Panel del socio](docs/screenshots/member-dashboard.png)
+![Panel del administrador](docs/screenshots/admin-dashboard.png)
+![Sesiones del entrenador](docs/screenshots/trainer-sessions.png)
 
 ### Base de datos relacional
 
 Diagrama ER versionado: [docs/er-diagram.pdf](docs/er-diagram.pdf).
+
+![Diagrama ER](docs/screenshots/er-diagram.png)
 
 ## Requisitos
 
