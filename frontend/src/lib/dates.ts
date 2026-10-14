@@ -16,6 +16,12 @@ export function parseIsoDate(value: string): Date {
   return new Date(year, month - 1, day)
 }
 
+/** Numeric weekday of a `YYYY-MM-DD` date or a `Date`, with 0 = Monday. */
+export function weekdayOf(value: string | Date): number {
+  const date = typeof value === 'string' ? parseIsoDate(value) : value
+  return (date.getDay() + 6) % 7
+}
+
 /** ISO date of the Monday of the week that contains `value`. */
 export function startOfWeek(value: string): string {
   const date = parseIsoDate(value)
