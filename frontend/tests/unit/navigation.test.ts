@@ -15,7 +15,14 @@ describe('role navigation config', () => {
   })
 
   it('define el menú del administrador', () => {
-    expect(navForRole('admin').map((item) => item.label)).toEqual(['Dashboard', 'Socios', 'Planes'])
+    expect(navForRole('admin').map((item) => item.label)).toEqual([
+      'Dashboard',
+      'Socios',
+      'Planes',
+      'Membresías',
+      'Salas',
+      'Reservas',
+    ])
   })
 
   it('cada elemento tiene ruta, etiqueta e icono', () => {

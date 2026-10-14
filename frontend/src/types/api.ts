@@ -17,12 +17,16 @@ export type GymClass = Schemas['GymClassRead']
 export type GymClassPage = Schemas['Page_GymClassRead_']
 
 export type Room = Schemas['RoomRead']
+export type RoomCreate = Schemas['RoomCreate']
+export type RoomUpdate = Schemas['RoomUpdate']
 export type RoomPage = Schemas['Page_RoomRead_']
 
 export type ClassSchedule = Schemas['ClassScheduleRead']
 export type ClassSchedulePage = Schemas['Page_ClassScheduleRead_']
 
 export type Membership = Schemas['MembershipRead']
+export type MembershipCreate = Schemas['MembershipCreate']
+export type MembershipUpdate = Schemas['MembershipUpdate']
 export type MembershipStatus = Schemas['MembershipStatus']
 export type MembershipPage = Schemas['Page_MembershipRead_']
 
