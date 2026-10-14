@@ -116,4 +116,23 @@ describe('SessionCard', () => {
     expect(screen.getByText('Completa')).toBeInTheDocument()
     expect(screen.getByText('Sin plazas')).toBeInTheDocument()
   })
+
+  it('en la variante miembro ofrece "Ver detalle"', async () => {
+    const onAction = vi.fn()
+    render(
+      <SessionCard
+        title="Yoga"
+        time="10:00 – 11:00"
+        room="Sala 1"
+        enrolled={15}
+        capacity={20}
+        role="member"
+        onAction={onAction}
+      />,
+    )
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ver detalle' }))
+
+    expect(onAction).toHaveBeenCalledOnce()
+  })
 })
