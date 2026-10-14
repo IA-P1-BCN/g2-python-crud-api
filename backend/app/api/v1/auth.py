@@ -4,10 +4,10 @@ from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user, get_db
+from app.api.deps import get_current_user, get_db, oauth2_scheme
 from app.api.responses import errors
 from app.models.user import User
-from app.schemas.auth import LoginRequest, RegisterRequest, Token
+from app.schemas.auth import LoginRequest, LogoutRequest, RefreshRequest, RegisterRequest, Token
 from app.schemas.user import UserRead
 from app.services import auth_service
 
@@ -55,6 +55,41 @@ def issue_oauth2_token(
 ) -> Token:
     user = auth_service.authenticate(db, form.username, form.password)
     return auth_service.issue_token(user)
+
+
+@router.post(
+    "/refresh",
+    responses=errors(401, 422),
+    response_model=Token,
+    summary="Renovar el token de acceso",
+    description=(
+        "Cambia un token de refresco válido por un token de acceso nuevo, sin volver a pedir la "
+        "contraseña. Devuelve el mismo token de refresco. Un token de refresco revocado o "
+        "caducado responde 401."
+    ),
+)
+def refresh_token(data: RefreshRequest, db: Session = Depends(get_db)) -> Token:
+    return auth_service.refresh(db, data.refresh_token)
+
+
+@router.post(
+    "/logout",
+    responses=errors(401, 422),
+    status_code=status.HTTP_204_NO_CONTENT,
+    # Rejects a missing, expired or revoked token before the body is read.
+    dependencies=[Depends(get_current_user)],
+    summary="Cerrar sesión",
+    description=(
+        "Revoca el token de acceso con el que se llama, que deja de valer aunque no haya "
+        "caducado. Si se envía `refresh_token`, también se revoca y ya no sirve para renovar."
+    ),
+)
+def logout(
+    data: LogoutRequest | None = None,
+    access_token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db),
+) -> None:
+    auth_service.logout(db, access_token, data.refresh_token if data else None)
 
 
 @router.get(

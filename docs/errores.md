@@ -68,6 +68,9 @@ Regla para distinguir los tres que más se confunden:
 | Token caducado | 401 | `unauthorized` | El token ha caducado |
 | Token manipulado o mal formado | 401 | `unauthorized` | Token inválido |
 | Token de una cuenta dada de baja | 401 | `unauthorized` | La cuenta está desactivada |
+| Token revocado con el logout | 401 | `unauthorized` | El token ha sido revocado |
+| Token de refresco usado para entrar en un endpoint, o token de acceso usado para refrescar | 401 | `unauthorized` | Token inválido |
+| Logout enviando el token de refresco de otro usuario | 401 | `unauthorized` | Token inválido |
 | Login con email o contraseña incorrectos | 401 | `unauthorized` | Email o contraseña incorrectos |
 | Login con una cuenta dada de baja | 403 | `forbidden` | La cuenta está desactivada |
 | El rol no puede usar esa ruta | 403 | `forbidden` | No tienes permiso para realizar esta acción |
