@@ -12,6 +12,7 @@ le pidió, qué se aceptó, qué se rechazó y en qué se equivocó el agente.
 | Persona | Herramienta | Modelo | Coste | Alcance |
 | --- | --- | --- | --- | --- |
 | Eva | Claude Code | Claude Opus 5.5 | De pago | Solo `backend/`, `specs/` y `docs/` de las tareas de backend asignadas a Eva. No toca `frontend/` ni tareas de otras personas |
+| Elena | OpenCode | Modelo gratuito (OpenCode Zen) | Gratuito | `frontend/`, `specs/` y `docs/` de sus tareas; escribe specs y PRs. Configuración en `docs/opencode.md` |
 
 El briefing recomienda OpenCode con modelos gratuitos y permite IAs de pago si se delimita su
 alcance. El resto del equipo añade aquí su fila.
@@ -163,3 +164,24 @@ alcance. El resto del equipo añade aquí su fila.
 - **Revisión humana:** pendiente en el PR. Puntos de seguridad a mirar: que un tipo de token no
   sirve por el otro, que el logout con el token de refresco de otra persona no revoca nada, y que
   la tabla no guarda tokens completos.
+
+### #215 Logotipo (átomo) — primera tarea con OpenCode
+
+- **Fecha:** 2026-10-13
+- **Persona, herramienta y modelo:** Elena, OpenCode, modelo gratuito (OpenCode Zen). Configuración
+  documentada en `docs/opencode.md`.
+- **Spec:** — (tarea pequeña del kit de UI; no necesitó spec).
+- **Prompt clave:** «tarea: Logotipo (átomo) #215 … marca + nombre; variante con subtítulo de rol
+  (Administrador, Entrenador)».
+- **Qué generó el agente:** `frontend/src/components/ui/atoms/Logo/{Logo.tsx, index.ts,
+  Logo.test.tsx}` con Tailwind y los design tokens; 4 tests.
+- **Aceptado:**
+  - El nombre del producto es un prop (por defecto `Athletica`), para no fijarlo a fuego mientras
+    se decidía el nombre.
+  - Subtítulo de rol opcional.
+- **Rechazado o cambiado, y por qué:**
+  - No se cablea en `AppLayout`/`PublicLayout` (fuera del alcance del átomo); eso se hizo en la
+    tarea de layout (#232).
+- **Errores o alucinaciones del agente y cómo se corrigieron:** un test quedó sin el formato de
+  Prettier y el `format:check` lo detectó; se corrigió con `npx prettier --write`.
+- **Revisión humana:** PR #391 revisada y mergeada en `dev`.
