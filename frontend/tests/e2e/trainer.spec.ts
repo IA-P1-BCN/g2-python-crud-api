@@ -1,10 +1,22 @@
 import { expect, test } from '@playwright/test'
 import { loginAs, mockApi, users } from './fixtures'
 
-test('el entrenador ve sus sesiones de la semana', async ({ page }) => {
+test('el entrenador ve el resumen de hoy en su inicio', async ({ page }) => {
   await mockApi(page, { user: users.trainer })
   await loginAs(page, 'trainer')
 
+  await expect(page.getByRole('heading', { name: 'Hola, Entrenador Uno' })).toBeVisible()
+  await expect(page.getByText('Sesiones hoy', { exact: true })).toBeVisible()
+  await expect(page.getByText('Miembros hoy', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Sesiones de hoy' })).toBeVisible()
+})
+
+test('el entrenador ve sus sesiones de la semana', async ({ page }) => {
+  await mockApi(page, { user: users.trainer })
+  await loginAs(page, 'trainer')
+  await expect(page.getByRole('heading', { name: 'Hola, Entrenador Uno' })).toBeVisible()
+
+  await page.goto('/trainer/sessions')
   await expect(page.getByRole('heading', { name: 'Mis sesiones' })).toBeVisible()
 
   // The first schedule (Yoga) is on Monday; pick that day chip.

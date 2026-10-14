@@ -15,6 +15,7 @@ import { SessionDetailPage } from '@/pages/member/SessionDetailPage'
 import { BookingsPage } from '@/pages/member/BookingsPage'
 import { MembershipPage } from '@/pages/member/MembershipPage'
 import { ProfilePage } from '@/pages/member/ProfilePage'
+import { TrainerHomePage } from '@/pages/trainer/TrainerHomePage'
 import { TrainerSessionsPage } from '@/pages/trainer/TrainerSessionsPage'
 import { TrainerMembersPage } from '@/pages/trainer/TrainerMembersPage'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
@@ -55,7 +56,7 @@ export function App() {
           </Route>
 
           <Route path="trainer" element={<ProtectedRoute allowedRoles={['trainer']} />}>
-            <Route index element={<Navigate to="/trainer/sessions" replace />} />
+            <Route index element={<TrainerHomePage />} />
             <Route path="sessions" element={<TrainerSessionsPage />} />
             <Route path="members" element={<TrainerMembersPage />} />
             <Route path="profile" element={<ProfilePage />} />

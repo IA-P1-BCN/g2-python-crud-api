@@ -4,17 +4,13 @@ import { bookingsApi, roomsApi, toApiError } from '@/api'
 import { EnrolledMembersPanel } from '@/components/ui/organisms/EnrolledMembersPanel'
 import { SessionList, type SessionListItem } from '@/components/ui/organisms/SessionList'
 import { WeekSelector } from '@/components/ui/organisms/WeekSelector'
-import { addDays, parseIsoDate, startOfWeek, toIsoDate } from '@/lib/dates'
+import { addDays, startOfWeek, toIsoDate, weekdayOf } from '@/lib/dates'
 import { formatDate, formatTime } from '@/lib/format'
 import { useEnrolledMembers } from './useEnrolledMembers'
 import { useTrainerSessions } from './useTrainerSessions'
 
 const PAGE_SIZE = 100
 const DAYS_IN_WEEK = 7
-
-function weekdayOf(isoDate: string): number {
-  return (parseIsoDate(isoDate).getDay() + 6) % 7
-}
 
 export function TrainerSessionsPage() {
   const [selectedDate, setSelectedDate] = useState(() => toIsoDate(new Date()))
