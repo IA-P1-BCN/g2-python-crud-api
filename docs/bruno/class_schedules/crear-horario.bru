@@ -1,0 +1,29 @@
+meta {
+  name: Crear horario
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/class-schedules
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+{
+  "class_id": 0,
+  "day_of_week": 0,
+  "start_time": "",
+  "end_time": "",
+  "room_id": 0
+}
+}
+

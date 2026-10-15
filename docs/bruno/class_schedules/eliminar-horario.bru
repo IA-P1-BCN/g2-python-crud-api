@@ -1,0 +1,15 @@
+meta {
+  name: Eliminar horario
+  type: http
+  seq: 1
+}
+
+delete {
+  url: {{base_url}}/api/v1/class-schedules/{{schedule_id}}
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+

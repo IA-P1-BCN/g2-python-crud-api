@@ -1,0 +1,25 @@
+meta {
+  name: Registrar socio
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/auth/register
+  body: json
+  auth: none
+}
+auth: none
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+{
+  "email": "",
+  "full_name": "",
+  "password": ""
+}
+}
+

@@ -1,0 +1,15 @@
+meta {
+  name: Horarios de una clase
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/classes/{{class_id}}/schedules
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+
