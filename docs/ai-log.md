@@ -263,3 +263,36 @@ alcance. El resto del equipo añade aquí su fila.
   usuarios de demo conservan sus datos con la auditoría vacía.
 - **Revisión humana:** pendiente en el PR. Puntos a mirar: el cambio del *fixture* `client` y los
   tres tests adaptados, y que el endpoint de auditoría solo responde a administradores.
+
+### #299 Página del panel de administración
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Elena, OpenCode, modelo gratuito (OpenCode Zen).
+- **Spec:** `specs/299-admin-dashboard-page.md`, escrita antes del código.
+- **Prompt clave:** «Tarea: Página del panel de administración #299». El issue traía varias
+  decisiones pendientes; el agente paró y preguntó dos cosas. Elena eligió las dos recomendadas:
+  **solo los criterios de aceptación** (#300–#306 + #311, sin #307/#308/#309) y **gráficos a mano
+  con SVG/CSS y los tokens** (sin librerías).
+- **Qué generó el agente:** la spec; las moléculas `DateRangeFilter` y `ChartCard`; los organismos
+  `BookingsByDayChart`, `OccupancyList`, `ExpiringMembershipsList`, `PlansDistributionChart` y
+  `TopClassesList`; la reescritura de `AdminDashboardPage` con el diseño nuevo; `formatPercent` en
+  `lib/format.ts`; y tests de cada pieza.
+- **Aceptado:**
+  - Reutilizar el kit y los tokens (Tailwind) en vez de las clases CSS antiguas, manteniendo el
+    comportamiento y los tests actuales de la página (sin tocarlos).
+  - Gráficos con SVG/CSS y `--color-chart-1..4`: sin dependencias nuevas y fáciles de testear.
+  - Convertir la etiqueta de `StatCard` en encabezado y añadir `hint`, en vez de cambiar los tests
+    de la página.
+- **Rechazado o cambiado, y por qué:**
+  - Añadir una librería de gráficos (recharts): nueva dependencia para dos gráficos que caben en
+    SVG/CSS con los tokens de gráfico que ya existían.
+  - Implementar #307 (altas vs bajas por semana) reutilizando `weekly_movements`: el issue lo deja
+    como decisión pendiente (la cancelación de membresías no está definida en el proyecto).
+  - Convertir el texto de plan y fecha de "membresías por vencer" en un solo nodo: rompía el
+    `getByText('Plan Anual')` del test existente; se dejaron en elementos separados.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** el primer test del gráfico de barras
+  usaba `getByRole('listitem')` esperando uno solo cuando hay varios; se cambió a `getAllByRole`.
+  Volvió a aparecer el *flake* **preexistente** de `member.spec` (login + `goto` sin esperar);
+  aislado pasa, no es de esta tarea y sigue señalado.
+- **Revisión humana:** pendiente en el PR.
+

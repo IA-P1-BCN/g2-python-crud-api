@@ -20,6 +20,8 @@ export type StatCardProgress = {
 export type StatCardProps = {
   label: string
   value: string | number
+  /** Optional line under the value, e.g. "12 membresías en vigor". */
+  hint?: string
   /** Optional change badge next to the number. */
   delta?: StatCardDelta
   /** Optional progress bar. */
@@ -42,6 +44,7 @@ const DELTA_TONE: Record<StatDeltaTone, BadgeTone> = {
 export function StatCard({
   label,
   value,
+  hint,
   delta,
   progress,
   variant = 'surface',
@@ -51,12 +54,14 @@ export function StatCard({
     <article
       className={cn('flex flex-col gap-2 rounded-card p-4', VARIANT_CLASS[variant], className)}
     >
-      <p className="text-caption uppercase tracking-wide text-text-muted">{label}</p>
+      <h2 className="text-caption uppercase tracking-wide text-text-muted">{label}</h2>
 
       <div className="flex items-baseline gap-2">
         <span className="font-display text-metric text-text">{value}</span>
         {delta ? <Badge tone={DELTA_TONE[delta.tone ?? 'neutral']}>{delta.value}</Badge> : null}
       </div>
+
+      {hint ? <p className="text-small text-text-muted">{hint}</p> : null}
 
       {progress ? (
         <ProgressBar
