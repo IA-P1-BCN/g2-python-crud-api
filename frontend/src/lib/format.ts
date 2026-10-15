@@ -16,6 +16,14 @@ export function formatTime(value: string): string {
   return value.slice(0, 5)
 }
 
+/** Rate between 0 and 1 as "71 %" (or "71,5 %" with decimals). */
+export function formatPercent(rate: number, decimals = 0): string {
+  return `${(rate * 100).toLocaleString('es-ES', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  })} %`
+}
+
 /** Formats an amount in cents as a euro currency string (e.g. 3999 → "39,99 €"). */
 export function formatPrice(cents: number): string {
   return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100)
