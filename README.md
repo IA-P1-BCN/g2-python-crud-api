@@ -9,7 +9,7 @@ Monorepo con una API REST en FastAPI (`backend/`) y una web en React (`frontend/
 
 ## Documentación
 
-- **Diagrama ER:** [docs/er-diagram.pdf](docs/er-diagram.pdf) — diseño relacional
+- **Diagrama ER:** [docs/er-diagram.pdf](docs/er-diagram.pdf) _(Parte 1)_ — diseño relacional
   (8 tablas: `users`, `membership_plans`, `memberships`, `payments`, `rooms`,
   `classes`, `class_schedules` y `bookings`).
 
@@ -24,7 +24,7 @@ Monorepo con una API REST en FastAPI (`backend/`) y una web en React (`frontend/
 
 ### Base de datos relacional
 
-Diagrama ER versionado: [docs/er-diagram.pdf](docs/er-diagram.pdf).
+Diagrama ER versionado: [docs/er-diagram.pdf](docs/er-diagram.pdf) _(Parte 1)_.
 
 ![Diagrama ER](docs/screenshots/er-diagram.png)
 
@@ -158,7 +158,18 @@ Más detalle (scripts, estructura, tests E2E) en [frontend/README.md](frontend/R
 │   ├── pyproject.toml
 │   ├── Dockerfile
 │   └── .env.example
-└── frontend/                  # React + Vite + TypeScript
+└── frontend/              # React + Vite + TypeScript
+    ├── src/
+    │   ├── api/          # cliente HTTP
+    │   ├── components/ui/{atoms,molecules,organisms}/
+    │   ├── layouts/
+    │   ├── pages/{admin,member,trainer,public}/
+    │   ├── styles/       # theme.css (tokens)
+    │   └── types/        # schema.d.ts generado
+    ├── tests/{unit,e2e}/
+    ├── package.json
+    ├── Dockerfile
+    └── .env.example
 ```
 
 Capas del backend: el **router** recibe y responde, el **service** decide y el **model**
@@ -179,7 +190,7 @@ persiste. Las reglas de negocio van siempre en `services/`.
 
 ## Documentación
 
-- **Diagrama ER:** [docs/er-diagram.pdf](docs/er-diagram.pdf)
+- **Diagrama ER:** [docs/er-diagram.pdf](docs/er-diagram.pdf) _(Parte 1)_
 - **Design tokens:** [docs/design-tokens.md](docs/design-tokens.md)
 - **README del frontend:** [frontend/README.md](frontend/README.md)
 
