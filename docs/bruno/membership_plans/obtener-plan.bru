@@ -1,0 +1,15 @@
+meta {
+  name: Obtener plan
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/membership-plans/{{plan_id}}
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+

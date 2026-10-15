@@ -1,0 +1,26 @@
+meta {
+  name: Cambiar contraseña
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{base_url}}/api/v1/users/{{user_id}}/password
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+{
+  "current_password": "",
+  "new_password": ""
+}
+}
+

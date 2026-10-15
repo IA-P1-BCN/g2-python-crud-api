@@ -1,0 +1,27 @@
+meta {
+  name: Crear reserva
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/bookings
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+{
+  "member_id": 0,
+  "schedule_id": 0,
+  "booking_date": ""
+}
+}
+

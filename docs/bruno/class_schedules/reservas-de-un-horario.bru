@@ -1,0 +1,15 @@
+meta {
+  name: Reservas de un horario
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/class-schedules/{{schedule_id}}/bookings
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+

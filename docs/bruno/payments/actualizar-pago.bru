@@ -1,0 +1,26 @@
+meta {
+  name: Actualizar pago
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{base_url}}/api/v1/payments/{{payment_id}}
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+{
+  "amount_cents": 0,
+  "status": "pending"
+}
+}
+
