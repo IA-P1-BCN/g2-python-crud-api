@@ -11,7 +11,11 @@ describe('role navigation config', () => {
   })
 
   it('define el menú del entrenador', () => {
-    expect(navForRole('trainer').map((item) => item.label)).toEqual(['Inicio', 'Sesiones'])
+    expect(navForRole('trainer').map((item) => item.label)).toEqual([
+      'Inicio',
+      'Sesiones',
+      'Socios',
+    ])
   })
 
   it('define el menú del administrador', () => {

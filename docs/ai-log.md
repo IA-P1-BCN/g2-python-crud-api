@@ -197,3 +197,36 @@ alcance. El resto del equipo añade aquí su fila.
   el proxy.
 - **Revisión humana:** pendiente en el PR. Puntos de seguridad a mirar: que el sexto intento no
   llega a comprobar la contraseña, y que el registro y el resto de la API no tienen límite.
+
+### #378 Página de miembros del entrenador
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Elena, OpenCode, modelo gratuito (OpenCode Zen).
+- **Spec:** `specs/378-trainer-members-page.md`, escrita antes del código.
+- **Prompt clave:** «tarea: Página de miembros del entrenador #378». El issue traía una decisión
+  pendiente antes de empezar; el agente paró y preguntó qué socios mostrar. Elena eligió **todos
+  los socios del gimnasio** (opción recomendada).
+- **Qué generó el agente:** la spec; la pantalla `TrainerMembersPage` con
+  `GET /users?role=member` (búsqueda y paginación en **servidor**), `SearchInput`, tarjetas con
+  `Avatar` + nombre + correo y `Pagination`, más los estados de carga, vacío y error; la entrada
+  **Socios** en el menú del entrenador; 4 tests unitarios y un e2e.
+- **Aceptado:**
+  - `GET /users?role=member` en vez de recomponer "solo los socios de mis clases": el backend ya
+    fuerza `role=member` para el entrenador (`access_service.visible_user_role`) y la búsqueda y la
+    paginación funcionan en servidor.
+  - Reutilizar los componentes del kit (`SearchInput`, `Pagination`, `Alert`, `Avatar`) y el diseño
+    de tokens (Tailwind), como en las páginas recientes.
+  - Solo lectura: sin botones de alta, edición ni baja.
+- **Rechazado o cambiado, y por qué:**
+  - Reutilizar el organismo `MembersList`: aunque ya trae búsqueda, paginación y estados, muestra
+    el plan, la membresía y el último pago de cada socio (`MemberListItem`), que quedan fuera de
+    los criterios y obligarían a una consulta por socio. Se hizo una lista de solo nombre y correo.
+  - Cruzar `GET /bookings` (scope del entrenador) con `GET /users`: habría exigido buscar y paginar
+    en cliente; el issue ya avisaba de que hacerlo en una llamada necesitaría backend nuevo.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** la issue afirmaba que
+  `/trainer/members` ya estaba en el menú del entrenador y **no lo estaba** (solo la ruta). El
+  agente lo detectó y añadió la entrada "Socios", avisando en el resumen. También apareció un e2e
+  *flaky* **preexistente** de `member.spec` (hace `goto` justo después del login y compite con el
+  guardado del token); no es de esta tarea y se dejó como está, señalándolo.
+- **Revisión humana:** pendiente en el PR.
+
