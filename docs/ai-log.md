@@ -497,3 +497,28 @@ alcance. El resto del equipo añade aquí su fila.
 - **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno en esta tarea;
   `lint`, `format`, los 369 tests unitarios y `build` pasaron a la primera.
 - **Revisión humana:** pendiente en el PR.
+
+### #320 Lista de planes de admin (organismo)
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Spec:** `specs/320-plans-admin-list.md`, escrita antes del código.
+- **Prompt clave:** «tarea: PlansAdminList (organismo) #320». Sin Figma; Nayeli eligió
+  conservar todas las acciones de la tabla (opción B: Editar, Activar/Desactivar y Borrar)
+  y el badge de estado junto a los botones.
+- **Qué generó el agente:** la spec; el organismo `PlansAdminList` (lista `ul`/`li` con una
+  `PlanCard` por plan, `Badge` de estado, las tres acciones emitidas como callbacks,
+  esqueletos con «Cargando…» y `EmptyState`); y siete tests.
+- **Aceptado:** organismo presentacional (la página conserva `window.confirm` y las
+  mutaciones); variantes de botón idénticas a la tabla; «Nuevo plan» fuera de la lista
+  (se decide en #317).
+- **Rechazado o cambiado, y por qué:** quitar toggle y borrar por los criterios de la epic —
+  Nayeli optó por la opción B, conservarlos; paginación dentro del organismo — es decisión
+  de la página, va a #317.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** dos tests fallaron: (1) el
+  assert del precio usaba `getByText(formatPrice(…))`, pero `Intl` es-ES inserta un NBSP y
+  testing-library v10 normaliza el texto del DOM y no el matcher → se convierte el NBSP a
+  espacio normal en el expected; (2) el conteo de esqueletos esperaba 3 nodos
+  `.animate-pulse` cuando hay 9 (3 tarjetas × 3 líneas) → se cuentan los `li`. `lint`,
+  `format`, los 376 tests y `build` en verde tras corregir.
+- **Revisión humana:** pendiente en el PR.
