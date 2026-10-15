@@ -458,4 +458,25 @@ alcance. El resto del equipo añade aquí su fila.
   veces seguidas.
 - **Revisión humana:** pendiente en el PR.
 
+### #275 Lista de beneficios del plan (molécula)
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Elena, OpenCode, modelo gratuito (OpenCode Zen).
+- **Spec:** `specs/275-plan-benefits-list.md`, escrita antes del código.
+- **Prompt clave:** «tarea: Lista de beneficios del plan (molécula) #275». El plan en la API no tiene
+  beneficios (solo nombre, descripción, precio y duración), así que el agente paró y preguntó de
+  dónde salía "lo que incluye el plan". Elena eligió la **lista fija del gimnasio**.
+- **Qué generó el agente:** la spec; `lib/plan-benefits.ts` (tipo `PlanBenefit` y `PLAN_BENEFITS`) y
+  la molécula `PlanBenefitsList` (un `Icon` por beneficio, con `items` y `title` por defecto); y su
+  test.
+- **Aceptado:** lista fija compartida en `lib` y organismo que la pinta pero admite otra lista, en
+  vez de inventar beneficios por plan.
+- **Rechazado o cambiado, y por qué:** derivar los beneficios de los campos del plan ("Válido 30
+  días", etc.): no es lo que muestra el diseño y mezcla datos con copy.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** el primer test de la molécula usaba
+  `getByRole('listitem')` esperando uno solo cuando hay varios; se cambió a `getAllByRole`. Otra vez
+  la rama iba por detrás en `ai-log`; se actualizó con `dev` antes de añadir esta entrada.
+- **Revisión humana:** pendiente en el PR.
+
+
 
