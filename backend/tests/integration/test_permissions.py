@@ -57,6 +57,7 @@ MATRIX = [
     ("DELETE", "/users/9999", *ADMIN),
     ("GET", "/users/9999/memberships", *OTHER_USER),
     ("GET", "/users/9999/bookings", *OTHER_USER),
+    ("GET", "/users/9999/audit", *ADMIN),
     # Memberships
     ("GET", "/memberships", *ADMIN),
     ("POST", "/memberships", *ADMIN),

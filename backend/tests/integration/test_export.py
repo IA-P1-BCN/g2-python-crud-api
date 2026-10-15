@@ -24,7 +24,7 @@ def test_export_members_headers_rows_and_content_type(
 
     rows = _read_csv(response.text)
     assert rows[0] == ["id", "email", "full_name", "role", "is_active"]
-    assert len(rows) == 4  # header + admin + trainer + member
+    assert len(rows) == 5  # header + the acting admin of `client` + admin + trainer + member
     assert {row[3] for row in rows[1:]} == {"admin", "trainer", "member"}
 
 

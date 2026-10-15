@@ -73,12 +73,18 @@ def anon_client(db_session: Session) -> Generator[TestClient, None, None]:
 
 
 @pytest.fixture()
-def client(anon_client: TestClient) -> TestClient:
-    """Client that acts as an admin, so resource tests can focus on the resource rules."""
-    app.dependency_overrides[get_current_user] = lambda: User(
-        id=0, email="root@test.dev", full_name="Root", role=UserRole.admin, is_active=True
-    )
+def client(anon_client: TestClient, db_session: Session) -> TestClient:
+    """Client that acts as an admin, so resource tests can focus on the resource rules.
+
+    The admin is a stored row: the audit trail points to whoever makes each change.
+    """
+    root = _make_user(db_session, ACTING_ADMIN_EMAIL, UserRole.admin)
+    app.dependency_overrides[get_current_user] = lambda: root
     return anon_client
+
+
+# The admin the `client` fixture acts as; it is a real row, so it shows up in user listings.
+ACTING_ADMIN_EMAIL = "root@test.dev"
 
 
 def _make_user(db: Session, email: str, role: UserRole) -> User:

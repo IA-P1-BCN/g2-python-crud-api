@@ -20,7 +20,7 @@ from app.services import user_service
 
 def register(db: Session, data: RegisterRequest) -> User:
     """Create a member account; the role cannot be chosen by the caller."""
-    return user_service.create_user(db, UserCreate(**data.model_dump()))
+    return user_service.create_user(db, UserCreate(**data.model_dump()), created_by=None)
 
 
 def authenticate(db: Session, email: str, password: str) -> User:

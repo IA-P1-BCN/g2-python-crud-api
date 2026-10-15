@@ -88,3 +88,37 @@ class UserRead(BaseModel):
     is_active: bool
     created_at: datetime
     deactivated_at: datetime | None
+
+
+class UserRef(BaseModel):
+    """A person named in the audit trail."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    full_name: str
+    email: EmailStr
+
+
+class UserAudit(BaseModel):
+    """Who created and last changed a user, and when. Empty values: unknown (older accounts)."""
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "user_id": 7,
+                    "created_at": "2026-10-15T09:30:00Z",
+                    "created_by": {"id": 1, "full_name": "Admin", "email": "admin@example.com"},
+                    "updated_at": "2026-10-15T11:02:00Z",
+                    "updated_by": {"id": 7, "full_name": "Socia Uno", "email": "socia@example.com"},
+                }
+            ]
+        }
+    )
+
+    user_id: int
+    created_at: datetime
+    created_by: UserRef | None
+    updated_at: datetime | None
+    updated_by: UserRef | None

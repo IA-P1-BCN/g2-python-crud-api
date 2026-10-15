@@ -5,6 +5,7 @@ import pytest
 from app.core.security import create_access_token, verify_password
 from app.models.booking import Booking
 from app.models.user import User
+from tests.conftest import ACTING_ADMIN_EMAIL
 
 
 def _user_payload(email: str = "nuevo@test.dev") -> dict:
@@ -265,7 +266,8 @@ def test_filter_users_by_status(client, member) -> None:
     active = client.get("/api/v1/users", params={"is_active": True})
     signed_off = client.get("/api/v1/users", params={"is_active": False})
 
-    assert _emails(active) == [member.email]
+    # The acting admin of `client` is active too.
+    assert _emails(active) == [ACTING_ADMIN_EMAIL, member.email]
     assert _emails(signed_off) == ["baja@test.dev"]
 
 
@@ -298,7 +300,8 @@ def test_filter_users_by_signup_date(client, db_session) -> None:
 
     assert _emails(january) == ["antigua@test.dev"]
     assert _emails(same_day) == ["antigua@test.dev"]
-    assert _emails(since_february) == ["reciente@test.dev"]
+    # The acting admin of `client` signed up today as well.
+    assert _emails(since_february) == [ACTING_ADMIN_EMAIL, "reciente@test.dev"]
 
 
 def test_filter_users_by_sign_off_date(client, db_session) -> None:
