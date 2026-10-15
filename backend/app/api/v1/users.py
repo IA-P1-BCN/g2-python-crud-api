@@ -19,6 +19,7 @@ from app.schemas.membership import MembershipRead
 from app.schemas.user import (
     PasswordChange,
     ProfileUpdate,
+    UserAudit,
     UserCreate,
     UserFilters,
     UserRead,
@@ -59,12 +60,15 @@ def list_users(
     responses=errors(401, 403, 409, 422),
     response_model=UserRead,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(require_admin)],
     summary="Crear usuario",
     description="Crea un usuario. Requiere rol administrador.",
 )
-def create_user(data: UserCreate, db: Session = Depends(get_db)) -> UserRead:
-    return user_service.create_user(db, data)
+def create_user(
+    data: UserCreate,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> UserRead:
+    return user_service.create_user(db, data, created_by=current_user)
 
 
 # Declared before "/{user_id}" so that "me" is not read as an id.
@@ -109,7 +113,7 @@ def update_profile(
     db: Session = Depends(get_db),
 ) -> UserRead:
     access_service.ensure_self_or_admin(current_user, user_id)
-    return user_service.update_profile(db, user_id, data)
+    return user_service.update_profile(db, user_id, data, changed_by=current_user)
 
 
 @router.put(
@@ -126,7 +130,7 @@ def change_password(
     db: Session = Depends(get_db),
 ) -> None:
     access_service.ensure_self_or_admin(current_user, user_id)
-    user_service.change_password(db, user_id, data)
+    user_service.change_password(db, user_id, data, changed_by=current_user)
 
 
 @router.put(
@@ -146,7 +150,7 @@ def update_user(
 ) -> UserRead:
     if data.is_active is False:
         access_service.ensure_not_own_account(current_user, user_id)
-    return user_service.update_user(db, user_id, data)
+    return user_service.update_user(db, user_id, data, changed_by=current_user)
 
 
 @router.delete(
@@ -165,7 +169,22 @@ def deactivate_user(
     db: Session = Depends(get_db),
 ) -> None:
     access_service.ensure_not_own_account(current_user, user_id)
-    user_service.deactivate_user(db, user_id)
+    user_service.deactivate_user(db, user_id, changed_by=current_user)
+
+
+@router.get(
+    "/{user_id}/audit",
+    responses=errors(401, 403, 404, 422),
+    response_model=UserAudit,
+    dependencies=[Depends(require_admin)],
+    summary="Auditoría de un usuario",
+    description=(
+        "Quién creó el usuario y cuándo, y quién lo modificó por última vez y cuándo. Los "
+        "usuarios anteriores a la auditoría tienen estos datos vacíos. Solo administradores."
+    ),
+)
+def get_user_audit(user_id: int, db: Session = Depends(get_db)) -> UserAudit:
+    return user_service.get_audit(db, user_id)
 
 
 @router.get(

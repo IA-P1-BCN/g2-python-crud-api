@@ -230,3 +230,36 @@ alcance. El resto del equipo añade aquí su fila.
   guardado del token); no es de esta tarea y se dejó como está, señalándolo.
 - **Revisión humana:** pendiente en el PR.
 
+
+### #410 Auditoría de usuarios
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/410-user-audit-trail.md`, escrita antes del código.
+- **Prompt clave:** «ok continuamos con nuestras tareas». El criterio «los campos se devuelven solo
+  a administradores» no decía cómo; el agente preguntó y Eva eligió un endpoint propio,
+  `GET /users/{id}/audit`, en lugar de añadir campos a las respuestas de usuario según el rol.
+- **Qué generó el agente:** la spec; tres columnas en `users` (`created_by_id`, `updated_by_id`,
+  `updated_at`) con su migración de Alembic en modo *batch*; el registro automático de quién crea y
+  quién cambia en `user_service`; el esquema `UserAudit` y el endpoint de auditoría; 24 tests nuevos
+  y una fila en la matriz de permisos.
+- **Aceptado:**
+  - Guardar solo el último cambio, no un historial completo.
+  - Dejar vacíos el creador y la última modificación de los usuarios anteriores a la migración, en
+    vez de inventar un valor.
+  - Que el servicio reciba explícitamente quién hace cada cambio; nunca sale del cuerpo de la
+    petición.
+- **Rechazado o cambiado, y por qué:**
+  - Columnas sin clave foránea, que habrían evitado tocar los tests. Se descartó: la base de datos
+    debe garantizar que el autor de un cambio es un usuario real.
+- **Errores o alucinaciones del agente y cómo se corrigieron:**
+  - `ruff format` lanzado sobre toda la carpeta `app/` reformateó nueve archivos que la tarea no
+    tocaba. Se detectó al revisar el diff y se devolvieron a su estado original antes de seguir.
+  - El administrador que simulan los tests no existía en la base de datos (id 0), y la clave
+    foránea nueva lo rechazaba. Se cambió el *fixture* `client` para que actúe con un
+    administrador guardado. Eso hizo que apareciera en tres tests que comparaban la lista exacta
+    de usuarios; se adaptaron sus valores esperados para incluirlo. No se borró ninguna comprobación.
+- **Comprobado a mano:** la migración sube, baja y vuelve a subir contra PostgreSQL, y los tres
+  usuarios de demo conservan sus datos con la auditoría vacía.
+- **Revisión humana:** pendiente en el PR. Puntos a mirar: el cambio del *fixture* `client` y los
+  tres tests adaptados, y que el endpoint de auditoría solo responde a administradores.
