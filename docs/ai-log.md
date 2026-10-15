@@ -317,4 +317,26 @@ alcance. El resto del equipo añade aquí su fila.
   *future flags* de React Router en la salida de los tests son preexistentes y benignos.
 - **Revisión humana:** pendiente en el PR.
 
+### #251 Página de inicio de sesión
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Elena, OpenCode, modelo gratuito (OpenCode Zen).
+- **Spec:** `specs/251-login-page.md`, escrita antes del código.
+- **Prompt clave:** «Página de inicio de sesión #251». El enunciado pedía `AuthLayout` +
+  `AuthHeroCard` + `LoginForm`, pero el `AuthHeroCard` (#248) estaba **cerrado como completado sin
+  existir en el código**. El agente paró y preguntó; Elena eligió **crearlo y componer la página** y
+  **reutilizar el eslogan de la landing**.
+- **Qué generó el agente:** la spec; la molécula `AuthHeroCard` (tarjeta azul con eslogan y subtítulo,
+  sin chips) y su test; y la `LoginPage` compuesta por `AuthHeroCard` + `LoginForm`, manteniendo su
+  lógica (`useAuth`, redirección por rol, `Navigate`).
+- **Aceptado:** reutilizar el copy de la landing ("Entrena a tu ritmo" y su subtítulo); no crear
+  `RegisterForm` (fuera del alcance).
+- **Rechazado o cambiado, y por qué:** reproducir los *chips* del frame de Figma: el propio issue de
+  #248 pide quitarlos, así que la tarjeta queda con eslogan y subtítulo.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** el agente detectó que el enunciado
+  ("todavía con las clases CSS antiguas") estaba **desactualizado**: la página ya se había rediseñado
+  en #233 y #249. Lo señaló en la pregunta antes de seguir.
+- **Revisión humana:** pendiente en el PR.
+
+
 
