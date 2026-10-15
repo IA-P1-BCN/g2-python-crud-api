@@ -382,4 +382,7 @@ export async function loginAs(page: Page, role: MockRole) {
   await page.getByLabel('Correo electrónico').fill(users[role].email)
   await page.getByLabel('Contraseña', { exact: true }).fill('secret')
   await page.getByRole('button', { name: 'Iniciar sesión' }).click()
+  // Wait for the login to finish (the token is stored before the redirect) so a
+  // hard reload right after this helper is still authenticated.
+  await page.waitForURL((url) => !url.pathname.startsWith('/login'))
 }

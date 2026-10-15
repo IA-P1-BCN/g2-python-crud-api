@@ -2,10 +2,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AuthHeroCard } from '@/components/ui/molecules/AuthHeroCard'
 import { LoginForm, type LoginCredentials } from '@/components/ui/organisms/LoginForm'
 import { homePathForRole, useAuth } from '@/auth'
-
-const HERO_TITLE = 'Entrena a tu ritmo'
-const HERO_SUBTITLE =
-  'Clases dirigidas, planes flexibles y reserva online. Descubre todo lo que el gimnasio puede ofrecerte y empieza hoy mismo.'
+import { AUTH_HERO_SUBTITLE, AUTH_HERO_TITLE } from '@/lib/auth-copy'
 
 type LocationState = {
   from?: { pathname: string }
@@ -33,7 +30,7 @@ export function LoginPage() {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <AuthHeroCard title={HERO_TITLE} subtitle={HERO_SUBTITLE} />
+      <AuthHeroCard title={AUTH_HERO_TITLE} subtitle={AUTH_HERO_SUBTITLE} />
       <LoginForm onSubmit={handleSubmit} isLoading={isLoading} error={error} />
     </div>
   )

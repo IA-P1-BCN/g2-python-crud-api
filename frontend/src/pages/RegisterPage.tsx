@@ -1,6 +1,8 @@
 import { Navigate, useNavigate } from 'react-router-dom'
+import { AuthHeroCard } from '@/components/ui/molecules/AuthHeroCard'
 import { RegisterForm, type RegisterValues } from '@/components/ui/organisms/RegisterForm'
 import { homePathForRole, useAuth } from '@/auth'
+import { AUTH_HERO_SUBTITLE, AUTH_HERO_TITLE } from '@/lib/auth-copy'
 
 export function RegisterPage() {
   const { register, isLoading, error, isAuthenticated, user } = useAuth()
@@ -19,5 +21,10 @@ export function RegisterPage() {
     }
   }
 
-  return <RegisterForm onSubmit={handleSubmit} isLoading={isLoading} error={error} />
+  return (
+    <div className="flex w-full flex-col gap-4">
+      <AuthHeroCard title={AUTH_HERO_TITLE} subtitle={AUTH_HERO_SUBTITLE} />
+      <RegisterForm onSubmit={handleSubmit} isLoading={isLoading} error={error} />
+    </div>
+  )
 }
