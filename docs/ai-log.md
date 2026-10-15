@@ -369,3 +369,23 @@ alcance. El resto del equipo añade aquí su fila.
 - **Revisión humana:** pendiente en el PR. Puntos de seguridad a mirar: que «he olvidado mi
   contraseña» no revela si el email existe, que el enlace de recuperación no se puede usar dos
   veces, y que ningún token de enlace abre la API.
+
+### #253 Formulario de registro (organismo)
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Elena, OpenCode, modelo gratuito (OpenCode Zen).
+- **Spec:** `specs/253-registerform-organism.md`, escrita antes del código.
+- **Prompt clave:** «tarea: Formulario de registro (organismo) #253».
+- **Qué generó el agente:** la spec; el organismo `RegisterForm` (nombre, correo y contraseña con la
+  regla de fortaleza, enviar, enlace a Iniciar sesión y estados de error y carga) con `FormField`,
+  `PasswordField`, `Button` y `Alert`; `RegisterPage` reducida a la lógica; y cinco tests.
+- **Aceptado:** organismo presentacional con `onSubmit(values)`; mantener textos y nombres accesibles
+  para no tocar la suite de `RegisterPage` ni el e2e.
+- **Rechazado o cambiado, y por qué:** extraer también un hero (`AuthHeroCard`) aquí: fuera del
+  alcance de #253, que es solo el formulario.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** la rama estaba **9 commits por detrás
+  de `dev`**, así que añadir la entrada al `ai-log` habría chocado con la de #251; el agente actualizó
+  la rama con `dev` (merge) antes de continuar. Reapareció el *flake* de `member.spec`; el e2e **sí**
+  corre en CI, así que puede fallar PRs.
+- **Revisión humana:** pendiente en el PR.
+
