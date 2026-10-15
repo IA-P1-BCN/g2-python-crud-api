@@ -175,6 +175,17 @@ Más detalle (scripts, estructura, tests E2E) en [frontend/README.md](frontend/R
     ├── package.json
     ├── Dockerfile
     └── .env.example
+    ├── src/
+    │   ├── api/          # cliente HTTP
+    │   ├── components/ui/{atoms,molecules,organisms}/
+    │   ├── layouts/
+    │   ├── pages/{admin,member,trainer,public}/
+    │   ├── styles/       # theme.css (tokens)
+    │   └── types/        # schema.d.ts generado
+    ├── tests/{unit,e2e}/
+    ├── package.json
+    ├── Dockerfile
+    └── .env.example
 ```
 
 Capas del backend: el **router** recibe y responde, el **service** decide y el **model**
