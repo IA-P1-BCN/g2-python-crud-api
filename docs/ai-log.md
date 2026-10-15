@@ -389,3 +389,24 @@ alcance. El resto del equipo añade aquí su fila.
   corre en CI, así que puede fallar PRs.
 - **Revisión humana:** pendiente en el PR.
 
+### #255 Página de registro
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Elena, OpenCode, modelo gratuito (OpenCode Zen).
+- **Spec:** `specs/255-register-page.md`, escrita antes del código.
+- **Prompt clave:** «tarea: Página de registro #255». El enunciado estaba desactualizado (el
+  formulario ya estaba en `dev` por #253); el agente lo completó componiendo la página.
+- **Qué generó el agente:** la spec; `RegisterPage` compuesta por `AuthHeroCard` + `RegisterForm`
+  (dentro del `AuthLayout`), manteniendo su lógica; el copy del hero extraído a `lib/auth-copy.ts`
+  para compartirlo con `LoginPage` (DRY); y un test del hero.
+- **Aceptado:** reutilizar el copy de la landing para el hero, igual que en el login (#251);
+  extraer el copy a un módulo compartido en vez de duplicarlo.
+- **Rechazado o cambiado, y por qué:** nada fuera del alcance; no se añadió hero distinto para el
+  registro.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** el agente arrastraba el *flake* de
+  `member.spec`; **acordado con Elena**, se arregló aquí: `loginAs` ahora espera a terminar el login
+  (`waitForURL` fuera de `/login`) antes de devolver, y el e2e (que **sí** corre en CI) pasó dos
+  veces seguidas.
+- **Revisión humana:** pendiente en el PR.
+
+

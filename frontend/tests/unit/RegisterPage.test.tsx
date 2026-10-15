@@ -91,4 +91,12 @@ describe('RegisterPage', () => {
 
     expect(screen.getByText('El email ya está registrado')).toBeInTheDocument()
   })
+
+  it('muestra la tarjeta de bienvenida', () => {
+    mockedUseAuth.mockReturnValue(authValue({}))
+
+    renderPage()
+
+    expect(screen.getByRole('heading', { name: 'Entrena a tu ritmo' })).toBeInTheDocument()
+  })
 })
