@@ -369,3 +369,50 @@ alcance. El resto del equipo añade aquí su fila.
 - **Revisión humana:** pendiente en el PR. Puntos de seguridad a mirar: que «he olvidado mi
   contraseña» no revela si el email existe, que el enlace de recuperación no se puede usar dos
   veces, y que ningún token de enlace abre la API.
+
+### #50 Write README
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** PDguezPgr, OpenCode (Cat Jam Free) y ChatGPT app de escritorio (GPT-4o, consultas).
+- **Spec:** `docs` / README.
+- **Prompt clave:** “dado lo que hay en la carpeta del proyecto, ¿cómo sería un README para presentar en GitHub?” y posteriores correcciones: “el borrador debe usar Athletica”, “añade capturas en `docs/screenshots/`”, “expande la estructura de `frontend/`”, “añade enlace a `docs/er-diagram.md` y avisa de que el PDF es Parte 1”, “añade sección de equipo”.
+- **Aceptado:**
+  - README con casos de uso por rol, stack, arquitectura, instalación, variables de entorno, tests, CI y Docker.
+  - Referencias válidas a capturas reales en `docs/screenshots/`.
+  - Referencias a `docs/er-diagram.pdf` (Parte 1) y `docs/er-diagram.md` (Parte 2).
+  - Sección “Equipo” con los contribuidores de GitHub.
+- **Rechazado o cambiado, y por qué:**
+  - Versión inicial con “GymFlow” corregida a “Athletica” para alinearla con el proyecto.
+  - Referencias a imágenes inexistentes se retiraron y luego se restauraron al añadir las capturas reales.
+  - Estructura de `frontend/` inicialmente colapsada se amplió para mostrar sus directorios.
+- **Errores o alucinaciones del agente y cómo se corrigieron:**
+  - Se detectaron ramas/commits incoherentes y referencias rotas; se resolvió con revisión de Git, `fetch`, `merge` y edición dirigida del README.
+  - Inconsistencias de nombre se corrigieron antes del merge.
+- **Revisión humana:** revisado por el equipo en PRs asociadas (429, 443 y siguientes).
+
+### #51 Document endpoints and business rules in `/docs`
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** PDguezPgr, OpenCode (Cat Jam Free) y ChatGPT app de escritorio (GPT-4o, consultas).
+- **Spec:** sin spec previa; basado en el issue #51 y en el router/OpenAPI actual.
+- **Prompt clave:** “Document endpoints and business rules in /docs” + “Markdown table of endpoints and the 5 business rules”.
+- **Aceptado:**
+  - Creación de `docs/endpoints.md`.
+  - Tabla de endpoints por recurso y las 5 reglas de negocio principales.
+  - Enlace a `docs/errores.md`.
+- **Rechazado o cambiado, y por qué:** no se inventaron reglas nuevas; se usó la lógica de `booking_service` y el catálogo de errores.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** solo documentación; sin cambios en código backend/frontend.
+- **Revisión humana:** revisado por el equipo en PR asociado.
+
+### #400 AI log: herramientas y modelos
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** PDguezPgr, OpenCode (Cat Jam Free) y ChatGPT app de escritorio (GPT-4o, consultas).
+- **Spec:** issue #400.
+- **Prompt clave:** “Añadir mi fila al equipo en `docs/ai-log.md` con las herramientas y modelos gratuitos usados”.
+- **Aceptado:**
+  - Fila de OpenCode Cat Jam Free (Gratuito).
+  - Fila de ChatGPT desktop GPT-4o (Gratuito).
+- **Rechazado o cambiado, y por qué:** si el plan de ChatGPT pasa a pago, debe actualizarse el coste.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno relevante.
+- **Revisión humana:** revisado por el equipo en PR asociado.
