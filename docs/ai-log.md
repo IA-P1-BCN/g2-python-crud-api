@@ -296,3 +296,25 @@ alcance. El resto del equipo añade aquí su fila.
   aislado pasa, no es de esta tarea y sigue señalado.
 - **Revisión humana:** pendiente en el PR.
 
+### #249 Formulario de inicio de sesión (organismo)
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Elena, OpenCode, modelo gratuito (OpenCode Zen).
+- **Spec:** `specs/249-loginform-organism.md`, escrita antes del código.
+- **Prompt clave:** «tarea: Formulario de inicio de sesión (organismo) #249».
+- **Qué generó el agente:** la spec; el organismo `LoginForm` (correo, contraseña con
+  mostrar/ocultar, enviar, enlace a Registrarse y estados de error y carga) usando `FormField`,
+  `PasswordField`, `Button` y `Alert`; y `LoginPage` reducida a la lógica de `useAuth`, redirección
+  por rol y `Navigate`. Cinco tests del organismo.
+- **Aceptado:**
+  - Organismo **presentacional**: guarda los campos y el descarte del error, y llama a
+    `onSubmit(credentials)`; la página hace el login y navega.
+  - Mantener textos, `aria-label` y nombres accesibles, para no tocar la suite de `LoginPage` ni los
+    e2e de auth (que siguen pasando sin cambios).
+- **Rechazado o cambiado, y por qué:** crear también `RegisterForm` en esta tarea. El issue solo
+  pide el formulario de login; el de registro iría en su propia tarea.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno relevante; los avisos de
+  *future flags* de React Router en la salida de los tests son preexistentes y benignos.
+- **Revisión humana:** pendiente en el PR.
+
+
