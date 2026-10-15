@@ -1,0 +1,26 @@
+meta {
+  name: Actualizar membresía
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{base_url}}/api/v1/memberships/{{membership_id}}
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+{
+  "start_date": "",
+  "status": "active"
+}
+}
+

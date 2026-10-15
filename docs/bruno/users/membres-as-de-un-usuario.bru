@@ -1,0 +1,15 @@
+meta {
+  name: Membresías de un usuario
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/users/{{user_id}}/memberships
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+

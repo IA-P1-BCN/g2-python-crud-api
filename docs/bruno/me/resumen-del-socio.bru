@@ -1,0 +1,15 @@
+meta {
+  name: Resumen del socio
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/me/dashboard
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+

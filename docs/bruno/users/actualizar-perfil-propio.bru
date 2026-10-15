@@ -1,0 +1,26 @@
+meta {
+  name: Actualizar perfil propio
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{base_url}}/api/v1/users/{{user_id}}/profile
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+{
+  "email": "",
+  "full_name": ""
+}
+}
+
