@@ -9,9 +9,12 @@ Monorepo con una API REST en FastAPI (`backend/`) y una web en React (`frontend/
 
 ## Documentación
 
-- **Diagrama ER:** [docs/er-diagram.pdf](docs/er-diagram.pdf) _(Parte 1)_ — diseño relacional
-  (8 tablas: `users`, `membership_plans`, `memberships`, `payments`, `rooms`,
-  `classes`, `class_schedules` y `bookings`).
+- **Diagrama ER (Parte 2, actual):** [docs/er-diagram.md](docs/er-diagram.md) — Mermaid,
+  9 tablas (añade `revoked_tokens` y auditoría en `users`).
+- **Diagrama ER (Parte 1):** [docs/er-diagram.pdf](docs/er-diagram.pdf) _(Parte 1)_ —
+  diseño relacional anterior.
+- **Design tokens:** [docs/design-tokens.md](docs/design-tokens.md)
+- **README del frontend:** [frontend/README.md](frontend/README.md)
 
 ## Capturas y diagramas
 
@@ -24,9 +27,11 @@ Monorepo con una API REST en FastAPI (`backend/`) y una web en React (`frontend/
 
 ### Base de datos relacional
 
-Diagrama ER versionado: [docs/er-diagram.pdf](docs/er-diagram.pdf) _(Parte 1)_.
+Diagrama actual (Parte 2): [docs/er-diagram.md](docs/er-diagram.md).
 
-![Diagrama ER](docs/screenshots/er-diagram.png)
+Diagrama anterior (Parte 1): [docs/er-diagram.pdf](docs/er-diagram.pdf) _(Parte 1)_.
+Captura del diagrama anterior:
+![Diagrama ER (Parte 1)](docs/screenshots/er-diagram.png)
 
 ## Requisitos
 
@@ -170,6 +175,17 @@ Más detalle (scripts, estructura, tests E2E) en [frontend/README.md](frontend/R
     ├── package.json
     ├── Dockerfile
     └── .env.example
+    ├── src/
+    │   ├── api/          # cliente HTTP
+    │   ├── components/ui/{atoms,molecules,organisms}/
+    │   ├── layouts/
+    │   ├── pages/{admin,member,trainer,public}/
+    │   ├── styles/       # theme.css (tokens)
+    │   └── types/        # schema.d.ts generado
+    ├── tests/{unit,e2e}/
+    ├── package.json
+    ├── Dockerfile
+    └── .env.example
 ```
 
 Capas del backend: el **router** recibe y responde, el **service** decide y el **model**
@@ -190,7 +206,8 @@ persiste. Las reglas de negocio van siempre en `services/`.
 
 ## Documentación
 
-- **Diagrama ER:** [docs/er-diagram.pdf](docs/er-diagram.pdf) _(Parte 1)_
+- **Diagrama ER (Parte 2, actual):** [docs/er-diagram.md](docs/er-diagram.md)
+- **Diagrama ER (Parte 1):** [docs/er-diagram.pdf](docs/er-diagram.pdf) _(Parte 1)_
 - **Design tokens:** [docs/design-tokens.md](docs/design-tokens.md)
 - **README del frontend:** [frontend/README.md](frontend/README.md)
 
