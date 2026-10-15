@@ -24,6 +24,8 @@ def verify_password(password: str, hashed_password: str) -> bool:
 # The `type` claim keeps each kind of token in its place: a refresh token never opens an endpoint.
 ACCESS_TOKEN = "access"
 REFRESH_TOKEN = "refresh"
+EMAIL_VERIFICATION_TOKEN = "email_verification"
+PASSWORD_RESET_TOKEN = "password_reset"
 
 
 def _create_token(
@@ -52,6 +54,16 @@ def create_refresh_token(user_id: int, expires_delta: timedelta | None = None) -
     """Create a signed refresh token, which only serves to get new access tokens."""
     lifetime = expires_delta or timedelta(days=settings.refresh_token_expire_days)
     return _create_token(user_id, REFRESH_TOKEN, lifetime)
+
+
+def create_email_verification_token(user_id: int) -> str:
+    lifetime = timedelta(hours=settings.email_verification_expire_hours)
+    return _create_token(user_id, EMAIL_VERIFICATION_TOKEN, lifetime)
+
+
+def create_password_reset_token(user_id: int, expires_delta: timedelta | None = None) -> str:
+    lifetime = expires_delta or timedelta(minutes=settings.password_reset_expire_minutes)
+    return _create_token(user_id, PASSWORD_RESET_TOKEN, lifetime)
 
 
 def decode_token(token: str, expected_type: str) -> dict[str, Any]:

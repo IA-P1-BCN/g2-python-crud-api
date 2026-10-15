@@ -263,3 +263,35 @@ alcance. El resto del equipo añade aquí su fila.
   usuarios de demo conservan sus datos con la auditoría vacía.
 - **Revisión humana:** pendiente en el PR. Puntos a mirar: el cambio del *fixture* `client` y los
   tres tests adaptados, y que el endpoint de auditoría solo responde a administradores.
+
+### #412 Verificación de email y recuperación de contraseña
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/412-email-verification-and-password-recovery.md`, escrita antes del código.
+- **Prompt clave:** «sí, tal cual arranca 412 con tu recomendación». La recomendación era no enviar
+  correos de verdad: escribir el mensaje y su enlace en el log del backend, con un único punto de
+  envío que se pueda cambiar por un proveedor real.
+- **Qué generó el agente:** la spec; dos tipos de token nuevos (verificación y recuperación);
+  `app/services/email_service.py`; la columna `users.email_verified_at` con su migración; los
+  endpoints `POST /auth/verify-email`, `/auth/forgot-password` y `/auth/reset-password`; tres
+  variables de entorno; dos filas en `docs/errores.md`; y 23 tests nuevos.
+- **Aceptado:**
+  - «He olvidado mi contraseña» responde 202 siempre, exista o no la cuenta.
+  - Los enlaces de recuperación valen una sola vez: al usarse se guardan como revocados en la tabla
+    de #408, sin crear otra.
+  - Un enlace malo responde 400 y no 401, para que el frontend no lo confunda con una sesión
+    caducada y cierre la sesión.
+  - La recuperación queda en la auditoría de #410 como un cambio hecho por el propio usuario.
+- **Rechazado o cambiado, y por qué:**
+  - Bloquear el login a quien no ha verificado el email: rompería las cuentas de demo y el
+    frontend, que no tiene pantalla de verificación.
+  - Un endpoint para reenviar la verificación: no lo pide la tarea; queda fuera de alcance.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** la primera versión de los tests
+  importaba el modelo `User` dentro de cada función; se movió arriba al revisarlo. El *linter*
+  marcó además el orden de los imports del servicio de autenticación, corregido con `ruff --fix`.
+- **Comprobado a mano:** la migración sube, baja y vuelve a subir contra PostgreSQL; las cuentas de
+  demo quedan sin verificar.
+- **Revisión humana:** pendiente en el PR. Puntos de seguridad a mirar: que «he olvidado mi
+  contraseña» no revela si el email existe, que el enlace de recuperación no se puede usar dos
+  veces, y que ningún token de enlace abre la API.

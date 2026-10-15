@@ -22,6 +22,9 @@ MATRIX = [
     ("POST", "/auth/token", *PUBLIC),
     ("POST", "/auth/refresh", *PUBLIC),
     ("POST", "/auth/logout", *LOGGED_IN),
+    ("POST", "/auth/verify-email", *PUBLIC),
+    ("POST", "/auth/forgot-password", *PUBLIC),
+    ("POST", "/auth/reset-password", *PUBLIC),
     ("GET", "/me/dashboard", *LOGGED_IN),
     # Membership plans: anyone reads, admin writes
     ("GET", "/membership-plans", *PUBLIC),

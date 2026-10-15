@@ -139,6 +139,20 @@ def change_password(db: Session, user_id: int, data: PasswordChange, changed_by:
     user_repository.save(db, user)
 
 
+def reset_password(db: Session, user: User, new_password: str) -> None:
+    """Set a new password without the current one (recovery link); the user made the change."""
+    user.hashed_password = hash_password(new_password)
+    _touch(user, user)
+    user_repository.save(db, user)
+
+
+def mark_email_verified(db: Session, user: User) -> None:
+    """Record the first time the user confirmed their email."""
+    if user.email_verified_at is None:
+        user.email_verified_at = datetime.now(UTC)
+        user_repository.save(db, user)
+
+
 def deactivate_user(db: Session, user_id: int, changed_by: User) -> None:
     """Sign the user off without deleting them, so their history is kept."""
     user = get_user(db, user_id)

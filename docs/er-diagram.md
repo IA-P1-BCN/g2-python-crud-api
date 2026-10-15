@@ -5,7 +5,7 @@ sustituye al de la parte 1 (`docs/er-diagram.pdf` y `docs/screenshots/er-diagram
 tiene la tabla `revoked_tokens` ni las columnas de auditoría de `users`.
 
 Está escrito en [Mermaid](https://mermaid.js.org/), así que se puede editar como texto y GitHub lo
-dibuja al abrir este archivo. Coincide con las migraciones de Alembic hasta la `d7e2b5a9c1f3`.
+dibuja al abrir este archivo. Coincide con las migraciones de Alembic hasta la `e3f9c6b1a2d4`.
 
 ```mermaid
 erDiagram
@@ -21,6 +21,7 @@ erDiagram
         int created_by_id FK "auditoría: quién lo creó"
         int updated_by_id FK "auditoría: quién lo cambió por última vez"
         datetime updated_at "auditoría: cuándo"
+        datetime email_verified_at "vacío hasta que confirma su email"
     }
     revoked_tokens {
         int id PK
@@ -139,3 +140,4 @@ Las garantiza el código, no la base de datos:
 | --- | --- | --- |
 | Tabla nueva `revoked_tokens` | #408 | `c41f8a2d9b07` |
 | Columnas de auditoría en `users`: `created_by_id`, `updated_by_id`, `updated_at` | #410 | `d7e2b5a9c1f3` |
+| Columna `users.email_verified_at` | #412 | `e3f9c6b1a2d4` |
