@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 7
     login_rate_limit_attempts: int = 5
     login_rate_limit_window_seconds: int = 60
+    email_verification_expire_hours: int = 24
+    password_reset_expire_minutes: int = 30
+    # Where the links sent by email point to
+    frontend_url: str = "http://localhost:5173"
     cors_origins: str = "http://localhost:5173"
     log_level: str = "INFO"
     log_file: str = "logs/app.log"

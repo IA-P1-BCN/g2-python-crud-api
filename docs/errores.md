@@ -91,6 +91,8 @@ qué emails están registrados.
 | Cambio de contraseña con la actual incorrecta | 400 | `business_rule` | La contraseña actual no es correcta |
 | Contraseña nueva débil | 422 | `validation_error` | Lista; `type: weak_password` |
 | Rol que no existe | 422 | `validation_error` | Lista |
+| Enlace de verificación de email o de recuperación de contraseña caducado, manipulado, de otro tipo o ya usado | 400 | `business_rule` | El enlace no es válido o ha caducado |
+| Recuperación con una contraseña nueva débil | 422 | `validation_error` | Lista; `type: weak_password` |
 
 La contraseña actual incorrecta es un 400 y no un 401 a propósito: el usuario sí tiene sesión, y un
 401 haría que el frontend lo expulsara.

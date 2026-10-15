@@ -81,3 +81,28 @@ class LogoutRequest(BaseModel):
             "examples": [{"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}]
         }
     )
+
+
+class VerifyEmailRequest(BaseModel):
+    token: str = Field(min_length=1)
+
+    model_config = ConfigDict(
+        json_schema_extra={"examples": [{"token": "eyJhbGciOiJIUzI1NiIs..."}]}
+    )
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+    model_config = ConfigDict(json_schema_extra={"examples": [{"email": "socio@example.com"}]})
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(min_length=1)
+    new_password: StrongPassword
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [{"token": "eyJhbGciOiJIUzI1NiIs...", "new_password": "Nueva123!"}]
+        }
+    )
