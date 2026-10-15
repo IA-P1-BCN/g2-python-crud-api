@@ -13,6 +13,8 @@ le pidió, qué se aceptó, qué se rechazó y en qué se equivocó el agente.
 | --- | --- | --- | --- | --- |
 | Eva | Claude Code | Claude Opus 5.5 | De pago | Solo `backend/`, `specs/` y `docs/` de las tareas de backend asignadas a Eva. No toca `frontend/` ni tareas de otras personas |
 | Elena | OpenCode | Modelo gratuito (OpenCode Zen) | Gratuito | `frontend/`, `specs/` y `docs/` de sus tareas; escribe specs y PRs. Configuración en `docs/opencode.md` |
+| PDguezPgr | OpenCode | Cat Jam Free (OpenCode) | Gratuito | Solo las tareas asignadas a PDguezPgr; docs, codigo de la tarea concreta y specs. |
+| PDguezPgr | ChatGPT (app de escritorio) | GPT-4o | Gratuito | Consultas de apoyo y redaccion; sin escribir directamente en el repo. |
 
 El briefing recomienda OpenCode con modelos gratuitos y permite IAs de pago si se delimita su
 alcance. El resto del equipo añade aquí su fila.
@@ -416,3 +418,23 @@ alcance. El resto del equipo añade aquí su fila.
 - **Rechazado o cambiado, y por qué:** si el plan de ChatGPT pasa a pago, debe actualizarse el coste.
 - **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno relevante.
 - **Revisión humana:** revisado por el equipo en PR asociado.
+
+### #253 Formulario de registro (organismo)
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Elena, OpenCode, modelo gratuito (OpenCode Zen).
+- **Spec:** `specs/253-registerform-organism.md`, escrita antes del código.
+- **Prompt clave:** «tarea: Formulario de registro (organismo) #253».
+- **Qué generó el agente:** la spec; el organismo `RegisterForm` (nombre, correo y contraseña con la
+  regla de fortaleza, enviar, enlace a Iniciar sesión y estados de error y carga) con `FormField`,
+  `PasswordField`, `Button` y `Alert`; `RegisterPage` reducida a la lógica; y cinco tests.
+- **Aceptado:** organismo presentacional con `onSubmit(values)`; mantener textos y nombres accesibles
+  para no tocar la suite de `RegisterPage` ni el e2e.
+- **Rechazado o cambiado, y por qué:** extraer también un hero (`AuthHeroCard`) aquí: fuera del
+  alcance de #253, que es solo el formulario.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** la rama estaba **9 commits por detrás
+  de `dev`**, así que añadir la entrada al `ai-log` habría chocado con la de #251; el agente actualizó
+  la rama con `dev` (merge) antes de continuar. Reapareció el *flake* de `member.spec`; el e2e **sí**
+  corre en CI, así que puede fallar PRs.
+- **Revisión humana:** pendiente en el PR.
+
