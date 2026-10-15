@@ -11,6 +11,18 @@ test('el entrenador ve el resumen de hoy en su inicio', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Sesiones de hoy' })).toBeVisible()
 })
 
+test('el entrenador ve la lista de socios desde el menú', async ({ page }) => {
+  await mockApi(page, { user: users.trainer })
+  await loginAs(page, 'trainer')
+  await expect(page.getByRole('heading', { name: 'Hola, Entrenador Uno' })).toBeVisible()
+
+  await page.getByRole('link', { name: 'Socios' }).first().click()
+
+  await expect(page.getByRole('heading', { name: 'Mis socios' })).toBeVisible()
+  await expect(page.getByText('Socio Uno')).toBeVisible()
+  await expect(page.getByText('socio@example.com')).toBeVisible()
+})
+
 test('el entrenador ve sus sesiones de la semana', async ({ page }) => {
   await mockApi(page, { user: users.trainer })
   await loginAs(page, 'trainer')

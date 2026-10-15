@@ -17,6 +17,7 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   trainer: [
     { to: '/trainer', label: 'Inicio', icon: 'home' },
     { to: '/trainer/sessions', label: 'Sesiones', icon: 'calendar' },
+    { to: '/trainer/members', label: 'Socios', icon: 'users' },
   ],
   admin: [
     { to: '/admin/dashboard', label: 'Dashboard', icon: 'home' },
