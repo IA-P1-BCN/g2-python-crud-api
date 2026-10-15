@@ -478,5 +478,22 @@ alcance. El resto del equipo añade aquí su fila.
   la rama iba por detrás en `ai-log`; se actualizó con `dev` antes de añadir esta entrada.
 - **Revisión humana:** pendiente en el PR.
 
+### #318 Sheet (molécula)
 
-
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Spec:** `specs/318-sheet.md`, escrita antes del código.
+- **Prompt clave:** «tarea: Sheet (molécula) #318». La issue no enlaza diseño, así que
+  Nayeli confirmó partir del enunciado (sin Figma).
+- **Qué generó el agente:** la spec; la molécula `Sheet` (portal a `document.body`, bottom
+  sheet en móvil y diálogo centrado en `md:`, focus trap manual, Escape, backdrop que cierra,
+  scroll del body bloqueado y `IconButton` de cerrar) con los tokens `--color-scrim` y
+  `rounded-card`; y ocho tests.
+- **Aceptado:** API controlada (`isOpen`/`onClose`), focus trap manual sin dependencias
+  nuevas, `z-50` como primera capa superpuesta, backdrop que cierra y scroll bloqueado
+  (confirmado por Nayeli en la revisión de la spec).
+- **Rechazado o cambiado, y por qué:** animaciones (la issue no las pide); usar una
+  biblioteca de foco (sin dependencias nuevas sin consultar al equipo).
+- **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno en esta tarea;
+  `lint`, `format`, los 369 tests unitarios y `build` pasaron a la primera.
+- **Revisión humana:** pendiente en el PR.
