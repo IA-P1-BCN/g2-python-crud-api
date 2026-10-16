@@ -2,7 +2,7 @@
   "info": {
     "name": "Athletica API",
     "_postman_id": "athletica-api-collection",
-    "description": "Colección generada desde OpenAPI para probar el API de Athletica. Usa el entorno Athletica Local.",
+    "description": "Coleccion generada desde OpenAPI para probar la API de Athletica. Usa el entorno Athletica Local.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -27,6 +27,94 @@
       "name": "Auth",
       "item": [
         {
+          "name": "Desactivar la verificación en dos pasos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/2fa/disable",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "2fa",
+                "disable"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Activar la verificación en dos pasos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/2fa/enable",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "2fa",
+                "enable"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Preparar la verificación en dos pasos",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/2fa/setup",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "2fa",
+                "setup"
+              ]
+            }
+          }
+        },
+        {
           "name": "He olvidado mi contraseña",
           "request": {
             "method": "POST",
@@ -46,8 +134,10 @@
                 "v1",
                 "auth",
                 "forgot-password"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             },
             "body": {
               "mode": "raw",
@@ -57,6 +147,49 @@
                   "language": "json"
                 }
               }
+            }
+          }
+        },
+        {
+          "name": "Vuelta de GitHub",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/github/callback",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "github",
+                "callback"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Entrar con GitHub",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/github/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "github",
+                "login"
+              ]
             },
             "auth": {
               "type": "noauth"
@@ -83,8 +216,10 @@
                 "v1",
                 "auth",
                 "login"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             },
             "body": {
               "mode": "raw",
@@ -94,9 +229,6 @@
                   "language": "json"
                 }
               }
-            },
-            "auth": {
-              "type": "noauth"
             }
           },
           "event": [
@@ -133,8 +265,7 @@
                 "v1",
                 "auth",
                 "logout"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -144,9 +275,6 @@
                   "language": "json"
                 }
               }
-            },
-            "auth": {
-              "type": "noauth"
             }
           }
         },
@@ -165,11 +293,7 @@
                 "v1",
                 "auth",
                 "me"
-              ],
-              "variable": []
-            },
-            "auth": {
-              "type": "noauth"
+              ]
             }
           }
         },
@@ -193,8 +317,10 @@
                 "v1",
                 "auth",
                 "refresh"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             },
             "body": {
               "mode": "raw",
@@ -204,11 +330,21 @@
                   "language": "json"
                 }
               }
-            },
-            "auth": {
-              "type": "noauth"
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "    pm.environment.set('token', json.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Registrar socio",
@@ -230,8 +366,10 @@
                 "v1",
                 "auth",
                 "register"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             },
             "body": {
               "mode": "raw",
@@ -241,9 +379,6 @@
                   "language": "json"
                 }
               }
-            },
-            "auth": {
-              "type": "noauth"
             }
           }
         },
@@ -267,8 +402,10 @@
                 "v1",
                 "auth",
                 "reset-password"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             },
             "body": {
               "mode": "raw",
@@ -278,9 +415,6 @@
                   "language": "json"
                 }
               }
-            },
-            "auth": {
-              "type": "noauth"
             }
           }
         },
@@ -304,8 +438,10 @@
                 "v1",
                 "auth",
                 "token"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             },
             "body": {
               "mode": "raw",
@@ -315,9 +451,6 @@
                   "language": "json"
                 }
               }
-            },
-            "auth": {
-              "type": "noauth"
             }
           },
           "event": [
@@ -354,8 +487,10 @@
                 "v1",
                 "auth",
                 "verify-email"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             },
             "body": {
               "mode": "raw",
@@ -365,9 +500,6 @@
                   "language": "json"
                 }
               }
-            },
-            "auth": {
-              "type": "noauth"
             }
           }
         }
@@ -390,8 +522,7 @@
                 "api",
                 "v1",
                 "users"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -414,12 +545,11 @@
                 "api",
                 "v1",
                 "users"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"\",\n  \"full_name\": \"\",\n  \"role\": \"admin\",\n  \"is_active\": false,\n  \"password\": \"\"\n}",
+              "raw": "{\n  \"email\": \"\",\n  \"full_name\": \"\",\n  \"password\": \"\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -443,8 +573,7 @@
                 "v1",
                 "users",
                 "me"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -463,8 +592,7 @@
                 "v1",
                 "users",
                 "{user_id}"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -483,8 +611,7 @@
                 "v1",
                 "users",
                 "{user_id}"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -508,8 +635,7 @@
                 "v1",
                 "users",
                 "{user_id}"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -538,8 +664,7 @@
                 "users",
                 "{user_id}",
                 "audit"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -559,8 +684,7 @@
                 "users",
                 "{user_id}",
                 "bookings"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -580,8 +704,7 @@
                 "users",
                 "{user_id}",
                 "memberships"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -606,8 +729,7 @@
                 "users",
                 "{user_id}",
                 "password"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -641,8 +763,7 @@
                 "users",
                 "{user_id}",
                 "profile"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -674,8 +795,10 @@
                 "api",
                 "v1",
                 "membership-plans"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           }
         },
@@ -698,12 +821,11 @@
                 "api",
                 "v1",
                 "membership-plans"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"\",\n  \"description\": \"\",\n  \"price_cents\": 0,\n  \"duration_days\": 0,\n  \"is_active\": false\n}",
+              "raw": "{\n  \"name\": \"\",\n  \"price_cents\": 0,\n  \"duration_days\": 0\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -727,8 +849,7 @@
                 "v1",
                 "membership-plans",
                 "{plan_id}"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -747,8 +868,10 @@
                 "v1",
                 "membership-plans",
                 "{plan_id}"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           }
         },
@@ -772,8 +895,7 @@
                 "v1",
                 "membership-plans",
                 "{plan_id}"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -805,8 +927,7 @@
                 "api",
                 "v1",
                 "memberships"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -829,8 +950,7 @@
                 "api",
                 "v1",
                 "memberships"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -858,8 +978,7 @@
                 "v1",
                 "memberships",
                 "{membership_id}"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -878,8 +997,7 @@
                 "v1",
                 "memberships",
                 "{membership_id}"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -903,8 +1021,7 @@
                 "v1",
                 "memberships",
                 "{membership_id}"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -936,8 +1053,7 @@
                 "api",
                 "v1",
                 "rooms"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -960,8 +1076,7 @@
                 "api",
                 "v1",
                 "rooms"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -989,8 +1104,7 @@
                 "v1",
                 "rooms",
                 "{room_id}"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -1009,8 +1123,7 @@
                 "v1",
                 "rooms",
                 "{room_id}"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -1034,8 +1147,7 @@
                 "v1",
                 "rooms",
                 "{room_id}"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -1067,8 +1179,10 @@
                 "api",
                 "v1",
                 "classes"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           }
         },
@@ -1091,12 +1205,11 @@
                 "api",
                 "v1",
                 "classes"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"\",\n  \"capacity\": 0,\n  \"trainer_id\": 0,\n  \"room_id\": 0,\n  \"is_active\": false\n}",
+              "raw": "{\n  \"name\": \"\",\n  \"capacity\": 0,\n  \"trainer_id\": 0\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1120,8 +1233,7 @@
                 "v1",
                 "classes",
                 "{class_id}"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -1140,8 +1252,10 @@
                 "v1",
                 "classes",
                 "{class_id}"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           }
         },
@@ -1165,8 +1279,7 @@
                 "v1",
                 "classes",
                 "{class_id}"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -1195,8 +1308,10 @@
                 "classes",
                 "{class_id}",
                 "schedules"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           }
         }
@@ -1219,8 +1334,10 @@
                 "api",
                 "v1",
                 "class-schedules"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           }
         },
@@ -1243,8 +1360,7 @@
                 "api",
                 "v1",
                 "class-schedules"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -1272,8 +1388,7 @@
                 "v1",
                 "class-schedules",
                 "{schedule_id}"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -1292,8 +1407,10 @@
                 "v1",
                 "class-schedules",
                 "{schedule_id}"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           }
         },
@@ -1317,8 +1434,7 @@
                 "v1",
                 "class-schedules",
                 "{schedule_id}"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -1347,8 +1463,10 @@
                 "class-schedules",
                 "{schedule_id}",
                 "availability"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           }
         },
@@ -1368,8 +1486,7 @@
                 "class-schedules",
                 "{schedule_id}",
                 "bookings"
-              ],
-              "variable": []
+              ]
             }
           }
         }
@@ -1392,8 +1509,7 @@
                 "api",
                 "v1",
                 "bookings"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -1416,8 +1532,7 @@
                 "api",
                 "v1",
                 "bookings"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -1445,8 +1560,7 @@
                 "v1",
                 "bookings",
                 "{booking_id}"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -1465,8 +1579,7 @@
                 "v1",
                 "bookings",
                 "{booking_id}"
-              ],
-              "variable": []
+              ]
             }
           }
         }
@@ -1489,8 +1602,7 @@
                 "api",
                 "v1",
                 "payments"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -1513,12 +1625,11 @@
                 "api",
                 "v1",
                 "payments"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user_id\": 0,\n  \"membership_id\": 0,\n  \"amount_cents\": 0,\n  \"status\": \"pending\"\n}",
+              "raw": "{\n  \"user_id\": 0,\n  \"membership_id\": 0,\n  \"amount_cents\": 0\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1542,8 +1653,7 @@
                 "v1",
                 "payments",
                 "{payment_id}"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -1562,8 +1672,7 @@
                 "v1",
                 "payments",
                 "{payment_id}"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -1587,8 +1696,7 @@
                 "v1",
                 "payments",
                 "{payment_id}"
-              ],
-              "variable": []
+              ]
             },
             "body": {
               "mode": "raw",
@@ -1621,8 +1729,7 @@
                 "v1",
                 "export",
                 "bookings.csv"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -1641,8 +1748,7 @@
                 "v1",
                 "export",
                 "members.csv"
-              ],
-              "variable": []
+              ]
             }
           }
         }
@@ -1666,8 +1772,7 @@
                 "v1",
                 "admin",
                 "dashboard"
-              ],
-              "variable": []
+              ]
             }
           }
         },
@@ -1686,8 +1791,7 @@
                 "v1",
                 "admin",
                 "members"
-              ],
-              "variable": []
+              ]
             }
           }
         }
@@ -1711,8 +1815,7 @@
                 "v1",
                 "me",
                 "dashboard"
-              ],
-              "variable": []
+              ]
             }
           }
         }
@@ -1733,8 +1836,10 @@
               ],
               "path": [
                 "health"
-              ],
-              "variable": []
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           }
         }

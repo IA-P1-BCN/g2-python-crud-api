@@ -21,3 +21,10 @@ body:json {
 }
 }
 
+script:post-response {
+  const json = res.body;
+  if (json && json.access_token) {
+    bru.setVar("token", json.access_token);
+  }
+}
+

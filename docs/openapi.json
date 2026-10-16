@@ -598,6 +598,239 @@
         }
       }
     },
+    "/api/v1/auth/2fa/setup": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Preparar la verificación en dos pasos",
+        "description": "Genera un secreto nuevo y su enlace `otpauth://` para la app de códigos (Google Authenticator, Authy...). Todavía no queda activa: hay que confirmarla con `/auth/2fa/enable`. Si ya está activa responde 409 y no devuelve ningún secreto.",
+        "operationId": "setup_two_factor_api_v1_auth_2fa_setup_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TotpSetup"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, ha caducado o no es válido; o las credenciales son incorrectas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "Falta el token de acceso",
+                  "code": "unauthorized"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La petición choca con datos que ya existen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "El email ya está registrado",
+                  "code": "conflict"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/2fa/enable": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Activar la verificación en dos pasos",
+        "description": "Activa la verificación en dos pasos con un código de la app. Desde ese momento el login pide el código en `totp_code`.",
+        "operationId": "enable_two_factor_api_v1_auth_2fa_enable_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TotpCode"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "description": "Los datos son correctos, pero una regla de negocio lo impide.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "El socio no tiene una membresía activa en esa fecha",
+                  "code": "business_rule"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, ha caducado o no es válido; o las credenciales son incorrectas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "Falta el token de acceso",
+                  "code": "unauthorized"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La petición choca con datos que ya existen.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "El email ya está registrado",
+                  "code": "conflict"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                },
+                "example": {
+                  "detail": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "email"
+                      ],
+                      "msg": "Field required",
+                      "input": {}
+                    }
+                  ],
+                  "code": "validation_error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/2fa/disable": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Desactivar la verificación en dos pasos",
+        "description": "Desactiva la verificación en dos pasos con un código de la app y borra el secreto.",
+        "operationId": "disable_two_factor_api_v1_auth_2fa_disable_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TotpCode"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "description": "Los datos son correctos, pero una regla de negocio lo impide.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "El socio no tiene una membresía activa en esa fecha",
+                  "code": "business_rule"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Falta el token, ha caducado o no es válido; o las credenciales son incorrectas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "Falta el token de acceso",
+                  "code": "unauthorized"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                },
+                "example": {
+                  "detail": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "email"
+                      ],
+                      "msg": "Field required",
+                      "input": {}
+                    }
+                  ],
+                  "code": "validation_error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/auth/me": {
       "get": {
         "tags": [
@@ -637,6 +870,140 @@
             "OAuth2PasswordBearer": []
           }
         ]
+      }
+    },
+    "/api/v1/auth/github/login": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Entrar con GitHub",
+        "description": "Redirige a GitHub para autorizar a Athletica. Al volver, `/auth/github/callback` lleva a la web con la sesión abierta. Ábrelo en el navegador, no desde Swagger.",
+        "operationId": "github_login_api_v1_auth_github_login_get",
+        "responses": {
+          "307": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "description": "Los datos son correctos, pero una regla de negocio lo impide.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "detail": "El socio no tiene una membresía activa en esa fecha",
+                  "code": "business_rule"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/github/callback": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Vuelta de GitHub",
+        "description": "GitHub vuelve aquí tras autorizar. Redirige a `FRONTEND_URL/auth/callback` con los tokens en el fragmento (`#access_token=...&refresh_token=...`), o con `#error=` y el motivo. Crea la cuenta de socio si el email no existe, o entra en la que ya lo tiene.",
+        "operationId": "github_callback_api_v1_auth_github_callback_get",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Code"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
+            }
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Error"
+            }
+          },
+          {
+            "name": "github_oauth_state",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Github Oauth State"
+            }
+          }
+        ],
+        "responses": {
+          "307": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": [
+                    {
+                      "type": "missing",
+                      "loc": [
+                        "body",
+                        "email"
+                      ],
+                      "msg": "Field required",
+                      "input": {}
+                    }
+                  ],
+                  "code": "validation_error"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/users": {
@@ -7270,6 +7637,19 @@
           "password": {
             "type": "string",
             "title": "Password"
+          },
+          "totp_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{6}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Totp Code",
+            "description": "Código de 6 cifras de la app; solo si la cuenta tiene verificación en dos pasos"
           }
         },
         "type": "object",
@@ -8585,6 +8965,51 @@
               "is_active": true,
               "role": "member"
             }
+          }
+        ]
+      },
+      "TotpCode": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^\\d{6}$",
+            "title": "Code",
+            "description": "Código de 6 cifras de la app"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "title": "TotpCode",
+        "examples": [
+          {
+            "code": "123456"
+          }
+        ]
+      },
+      "TotpSetup": {
+        "properties": {
+          "secret": {
+            "type": "string",
+            "title": "Secret"
+          },
+          "otpauth_url": {
+            "type": "string",
+            "title": "Otpauth Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "secret",
+          "otpauth_url"
+        ],
+        "title": "TotpSetup",
+        "description": "Shown once, while two-factor authentication is being turned on.",
+        "examples": [
+          {
+            "otpauth_url": "otpauth://totp/Athletica:socio%40example.com?secret=JBSWY3DPEHPK3PXP&issuer=Athletica",
+            "secret": "JBSWY3DPEHPK3PXP"
           }
         ]
       },
