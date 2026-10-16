@@ -641,3 +641,23 @@ alcance. El resto del equipo añade aquí su fila.
   `healthy`. Con `X-Forwarded-For` distintos el login nunca dio 429; con el mismo, al sexto
   intento. Tras reiniciar seguía habiendo 3 usuarios (el seed no duplica).
 - **Revisión humana:** pendiente en el PR.
+
+### #308 Tarjeta resumen de entrenadores (organismo)
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Elena, OpenCode, modelo gratuito (OpenCode Zen).
+- **Spec:** `specs/308-trainers-summary-card.md`, escrita antes del código.
+- **Prompt clave:** «Tarjeta resumen de entrenadores (organismo) #308». Era una decisión pendiente
+  (no estaba en Figma) y no había datos en la API; el agente paró y preguntó. Elena eligió
+  **componer en cliente**.
+- **Qué generó el agente:** la spec; el hook `useTrainersSummary` (compone `GET /users?role=trainer`
+  activos con `GET /classes?trainer_id=` y `GET /class-schedules?class_id=` para contar sesiones
+  semanales); el organismo `TrainersSummaryCard` con `ChartCard`; su enganche en `AdminDashboardPage`;
+  y tests del hook, del organismo y de la página.
+- **Aceptado:** composición en cliente sin backend nuevo; la tarjeta al final del panel.
+- **Rechazado o cambiado, y por qué:** pedir un endpoint de backend (como planteaba #310): se cerró
+  como innecesario; para dos cifras, componer las llamadas existentes es suficiente.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno relevante. El mock de
+  `AdminDashboardPage.test` se amplió con el hook para no romper sus tests.
+- **Revisión humana:** pendiente en el PR.
+

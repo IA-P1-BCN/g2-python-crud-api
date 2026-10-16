@@ -9,8 +9,10 @@ import { ExpiringMembershipsList } from '@/components/ui/organisms/ExpiringMembe
 import { OccupancyList } from '@/components/ui/organisms/OccupancyList'
 import { PlansDistributionChart } from '@/components/ui/organisms/PlansDistributionChart'
 import { TopClassesList } from '@/components/ui/organisms/TopClassesList'
+import { TrainersSummaryCard } from '@/components/ui/organisms/TrainersSummaryCard'
 import { formatDate, formatPercent, formatPrice } from '@/lib/format'
 import type { DashboardPeriod } from '@/types/api'
+import { useTrainersSummary } from './dashboard/useTrainersSummary'
 
 export function AdminDashboardPage() {
   const [period, setPeriod] = useState<DashboardPeriod>('7d')
@@ -19,6 +21,8 @@ export function AdminDashboardPage() {
     queryKey: ['admin', 'dashboard', period],
     queryFn: () => adminApi.dashboard(period),
   })
+
+  const trainers = useTrainersSummary()
 
   const data = dashboard.data
 
@@ -64,6 +68,12 @@ export function AdminDashboardPage() {
           <TopClassesList classes={data.popular_classes} />
         </>
       ) : null}
+
+      <TrainersSummaryCard
+        trainers={trainers.trainers}
+        isLoading={trainers.isLoading}
+        error={trainers.isError ? toApiError(trainers.error).message : null}
+      />
     </div>
   )
 }
