@@ -51,6 +51,10 @@ solo la primera vez.
 
 En esta forma la API no lee tu `.env`: usa los valores escritos en `docker-compose.yml`.
 
+La misma imagen es la que se despliega en Render (`docs/deploy.md`). Allí lleva además
+`SEED_DEMO_DATA=true`, que carga los datos de demo al arrancar, y `PORT`, el puerto que da la
+plataforma. En local ninguna de las dos está puesta y no cambia nada.
+
 ## Comandos del día a día
 
 | Para | Comando |
