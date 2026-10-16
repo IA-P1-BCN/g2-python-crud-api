@@ -642,6 +642,45 @@ alcance. El resto del equipo añade aquí su fila.
   intento. Tras reiniciar seguía habiendo 3 usuarios (el seed no duplica).
 - **Revisión humana:** pendiente en el PR.
 
+### #414 Login con GitHub (OAuth2)
+
+- **Fecha:** 2026-10-16
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/414-social-login-with-github.md`, escrita antes del código.
+- **Prompt clave:** «seguimos con las tareas a tu criterio». El agente preguntó cómo entregar la
+  sesión al volver de GitHub. Eva eligió la opción recomendada: la API redirige a la web con los
+  tokens en el fragmento de la URL (`#access_token=...`), que el navegador no envía a ningún
+  servidor.
+- **Qué generó el agente:** la spec; `app/services/social_login_service.py`; los endpoints
+  `GET /auth/github/login` y `GET /auth/github/callback`; las variables `GITHUB_CLIENT_ID`,
+  `GITHUB_CLIENT_SECRET` y `GITHUB_REDIRECT_URI` (con valores falsos en `.env.example` y pedidas en
+  el panel de Render); 21 tests; y las filas de `docs/errores.md` y `docs/deploy.md`.
+- **Aceptado:**
+  - Sin dependencias nuevas: `httpx` ya viene con `fastapi[standard]`.
+  - Sin columnas nuevas: la cuenta se identifica por el email principal **verificado** de GitHub.
+    Si existe, se enlaza; si no, se crea un socio con el email ya verificado.
+  - Protección CSRF con un `state` aleatorio en una cookie `HttpOnly` y `SameSite=Lax`, limitada
+    a la ruta del callback.
+  - Las cuentas con 2FA (#415) no pueden entrar por GitHub, para que no se salten el segundo paso.
+  - Los tests nunca llaman a GitHub: el intercambio se prueba con `httpx.MockTransport`.
+- **Rechazado o cambiado, y por qué:**
+  - Firmar el `state` como JWT sin cookie: no lo ata al navegador que empezó el login.
+  - Google: con un proveedor se cumple el criterio, y Eva ya tiene cuenta de GitHub para registrar
+    la app. El agente eligió GitHub por lo fácil que es registrar la app, sin pensar en quién usa
+    un gimnasio.
+  - **El botón en la web.** Eva preguntó qué pinta «Entrar con GitHub» en la app de un gimnasio,
+    con razón: un socio no tiene cuenta de GitHub. Se decidió dejarlo solo en el backend, como
+    integración OAuth2 demostrable, y se cerró la tarea de frontend #476. Con socios reales se
+    usaría Google con el mismo flujo.
+- **Errores o alucinaciones del agente y cómo se corrigieron:**
+  - Un `sed` para acortar el *docstring* del módulo borró las comillas de cierre; se corrigió con
+    una edición directa.
+  - Los tests usaban emails `@github.test`, que la validación de email rechaza. Eso destapó un
+    fallo real: un email de GitHub que no pasara la validación habría dado un 500. Ahora vuelve a
+    la web con un mensaje, y hay un test para ese caso.
+  - Se olvidó declarar el 422 del callback en OpenAPI; lo detectaron los tests de la #402.
+- **Revisión humana:** pendiente en el PR.
+
 ### #308 Tarjeta resumen de entrenadores (organismo)
 
 - **Fecha:** 2026-10-15
@@ -660,4 +699,3 @@ alcance. El resto del equipo añade aquí su fila.
 - **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno relevante. El mock de
   `AdminDashboardPage.test` se amplió con el hook para no romper sus tests.
 - **Revisión humana:** pendiente en el PR.
-

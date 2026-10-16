@@ -84,6 +84,23 @@ Regla para distinguir los tres que más se confunden:
 El login responde lo mismo si el email no existe que si la contraseña es incorrecta, para no revelar
 qué emails están registrados.
 
+### Login con GitHub
+
+`GET /auth/github/login` sin configurar responde en JSON. El callback, en cambio, lo abre el
+navegador al volver de GitHub: **no responde JSON**, sino que redirige a
+`FRONTEND_URL/auth/callback#error=<mensaje>`, y la web muestra el mensaje.
+
+| Situación | Respuesta | Mensaje |
+| --- | --- | --- |
+| `GITHUB_CLIENT_ID` vacío | 400 `business_rule` | El login con GitHub no está configurado |
+| Callback sin `state`, con uno distinto al de la cookie o caducado | Redirección con `#error=` | El login con GitHub ha caducado o no es válido. Inténtalo de nuevo |
+| La persona no autoriza la app en GitHub | Redirección con `#error=` | No se autorizó el acceso en GitHub |
+| GitHub rechaza el código o no responde | Redirección con `#error=` | No se pudo completar el login con GitHub |
+| La cuenta de GitHub no tiene un email principal verificado | Redirección con `#error=` | Tu cuenta de GitHub no tiene un email verificado |
+| El email de GitHub no pasa la validación de la API | Redirección con `#error=` | No se puede crear una cuenta con el email de GitHub |
+| La cuenta está desactivada | Redirección con `#error=` | La cuenta está desactivada |
+| La cuenta tiene verificación en dos pasos | Redirección con `#error=` | Esta cuenta tiene verificación en dos pasos: entra con tu email, contraseña y código |
+
 ### Usuarios
 
 | Situación | HTTP | `code` | `detail` |
