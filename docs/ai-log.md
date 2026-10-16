@@ -719,3 +719,26 @@ alcance. El resto del equipo añade aquí su fila.
   `await`. Lo detectaron los propios tests.
 - **Revisión humana:** pendiente en el PR.
 
+### #407 Comparativa de dos modelos gratuitos
+
+- **Fecha:** 2026-10-16
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Spec:** `docs/comparativa-modelos-407.md`, con la mini-spec de la tarea (molécula
+  `ConfirmDialog`) y el prompt exacto, idéntico para ambos modelos.
+- **Prompt clave:** la misma spec y el mismo prompt, con la restricción de no tocar nada fuera
+  de la carpeta del componente; dos subagentes en paralelo, cada uno en su worktree con las
+  dependencias ya instaladas.
+- **Qué generó el agente:** la comparativa completa; la molécula `ConfirmDialog` ejecutada dos
+  veces (MiMo Flash y DeepSeek V4.1 Flash); la tabla de resultados (calidad, checks, tiempo,
+  alucinaciones, correcciones) y la conclusión.
+- **Aceptado:** ambos entregaron código listo para merge con **0 correcciones** y checks
+  verificados de nuevo por la revisión humana; MiMo añadió 11 tests y fue más exhaustivo,
+  DeepSeek fue ≈3× más rápido con 9 tests. Conclusión: se mantiene MiMo como modelo del
+  proyecto y DeepSeek queda como alternativa para tareas pequeñas y bien cerradas.
+- **Rechazado o cambiado, y por qué:** comparar con Claude — no es gratuito y la #407 exige
+  modelos gratuitos (y no estaba configurado en OpenCode); se compara con DeepSeek.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno de los dos modelos:
+  solo usaron tokens de theme.css existentes (se verificó `text-text-soft` contra el archivo)
+  y copiaron bien el patrógn del `Sheet`. La revisión humana re-ejecutó los checks por sí misma
+  en lugar de fiarse del autocertificado de cada agente.
+- **Revisión humana:** pendiente en el PR.
