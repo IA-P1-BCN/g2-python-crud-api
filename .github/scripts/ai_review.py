@@ -1,9 +1,10 @@
-"""Review a pull request with a free GitHub Models model and post it as one PR comment.
+"""Review a pull request with a free Gemini model and post it as one PR comment.
 
 See specs/416-ai-pr-review.md. Standard library only. Any failure prints a warning and exits 0:
 the AI review must never break CI, and the human review stays mandatory.
 
-Environment: GITHUB_TOKEN, GITHUB_REPOSITORY, PR_NUMBER, and optionally AI_REVIEW_MODEL.
+Environment: GITHUB_TOKEN, GITHUB_REPOSITORY, PR_NUMBER, AI_REVIEW_API_KEY (a Gemini API key,
+stored as a repository secret), and optionally AI_REVIEW_MODEL.
 Pass --dry-run to print the review instead of commenting.
 """
 
@@ -14,11 +15,13 @@ import urllib.error
 import urllib.request
 
 API = "https://api.github.com"
-MODELS_URL = "https://models.github.ai/inference/chat/completions"
-DEFAULT_MODEL = "openai/gpt-4.1-mini"
+# Gemini's OpenAI-compatible endpoint
+MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+# Alias that follows the current Flash model; AI_REVIEW_MODEL can pin another one
+DEFAULT_MODEL = "gemini-flash-latest"
 MARKER = "<!-- ai-review -->"
-# The free tier allows about 8000 input tokens per request; leave room for the instructions.
-MAX_DIFF_CHARS = 20_000
+# Keeps each request small enough for the free tier's per-minute token limit.
+MAX_DIFF_CHARS = 60_000
 SKIPPED_FILES = ("package-lock.json", "frontend/src/types/schema.d.ts")
 
 INSTRUCTIONS = """You review pull requests of Athletica, a gym app: FastAPI backend in backend/,
@@ -86,10 +89,10 @@ def truncate(diff: str) -> tuple[str, bool]:
     return diff[:MAX_DIFF_CHARS], True
 
 
-def review(diff: str, token: str, model: str) -> str:
+def review(diff: str, api_key: str, model: str) -> str:
     answer = request(
-        MODELS_URL,
-        token,
+        MODEL_URL,
+        api_key,
         method="POST",
         body={
             "model": model,
@@ -100,8 +103,12 @@ def review(diff: str, token: str, model: str) -> str:
                 {"role": "user", "content": f"```diff\n{diff}\n```"},
             ],
         },
+        accept="application/json",
     )
-    return json.loads(answer)["choices"][0]["message"]["content"].strip()
+    try:
+        return json.loads(answer)["choices"][0]["message"]["content"].strip()
+    except (ValueError, KeyError, IndexError) as error:
+        raise RuntimeError(f"unexpected answer from the model: {answer[:300]!r}") from error
 
 
 def comment_body(text: str, model: str, truncated: bool) -> str:
@@ -113,7 +120,7 @@ def comment_body(text: str, model: str, truncated: bool) -> str:
     )
     return (
         f"{MARKER}\n## AI review\n\n{text}{note}\n\n---\n"
-        f"*Automatic review by `{model}` (GitHub Models). It does not approve or block this PR: "
+        f"*Automatic review by `{model}` (Gemini). It does not approve or block this PR: "
         "a human review is still required.*"
     )
 
@@ -139,10 +146,14 @@ def main() -> None:
     token = os.environ.get("GITHUB_TOKEN", "")
     repo = os.environ.get("GITHUB_REPOSITORY", "")
     number = os.environ.get("PR_NUMBER", "")
+    api_key = os.environ.get("AI_REVIEW_API_KEY", "")
     model = os.environ.get("AI_REVIEW_MODEL") or DEFAULT_MODEL
     dry_run = "--dry-run" in sys.argv
     if not (token and repo and number):
         warn("GITHUB_TOKEN, GITHUB_REPOSITORY and PR_NUMBER are required")
+        return
+    if not api_key:
+        warn("the AI_REVIEW_API_KEY repository secret is not set")
         return
     try:
         raw = request(
@@ -152,7 +163,7 @@ def main() -> None:
         if not diff.strip():
             print("Nothing to review.")
             return
-        body = comment_body(review(diff, token, model), model, truncated)
+        body = comment_body(review(diff, api_key, model), model, truncated)
         if dry_run:
             print(body)
         else:

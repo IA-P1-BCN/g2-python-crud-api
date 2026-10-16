@@ -11,11 +11,13 @@ revisión humana.
 
 ## Decisiones (16 de octubre)
 
-- **Modelo: GitHub Models**, gratuito con la cuenta de GitHub. Se llama con el `GITHUB_TOKEN` que
-  GitHub crea solo en cada ejecución del workflow (permiso `models: read`), así que **no hay clave
-  que guardar**: ningún secreto en el código ni en los ajustes del repositorio.
-- Modelo por defecto `openai/gpt-4.1-mini`, cambiable con la variable de repositorio
-  `AI_REVIEW_MODEL` sin tocar el código.
+- **Modelo: Google Gemini, plan gratuito**, por su endpoint compatible con el formato de OpenAI.
+  La clave se crea en Google AI Studio y se guarda como **secreto del repositorio**
+  `AI_REVIEW_API_KEY`; nunca aparece en el código.
+- Modelo por defecto `gemini-flash-latest` (alias que sigue al Flash vigente), cambiable con la
+  variable de repositorio `AI_REVIEW_MODEL` sin tocar el código.
+- **Cambio del 16 de octubre:** la primera elección fue GitHub Models, pero GitHub lo retiró el 30
+  de julio de 2026 y el endpoint responde «OK» a cualquier petición. Se cambió a Gemini.
 
 ## Requisitos
 
@@ -33,7 +35,7 @@ revisión humana.
 4. **Solo comenta:** no aprueba, no pide cambios ni bloquea. El comentario dice que la revisión
    humana sigue siendo obligatoria.
 5. **Un fallo no rompe la CI:** si el modelo no responde, se pasa del límite gratuito o falta el
-   permiso, el paso escribe un aviso en el log y termina bien. El check del workflow queda verde.
+   secreto, el paso escribe un aviso en el log y termina bien. El check del workflow queda verde.
 6. Los PRs que vienen de un *fork* no tienen permiso de escritura: se salta la revisión.
 7. Documentado en `docs/ai-log.md`.
 
@@ -43,9 +45,9 @@ revisión humana.
 | --- | --- |
 | Se abre un PR | Aparece un comentario «AI review» con la revisión |
 | Se sube otro commit al PR | Se actualiza el mismo comentario |
-| El modelo falla o no hay permiso | Aviso en el log; workflow en verde; sin comentario |
+| El modelo falla o falta el secreto | Aviso en el log; workflow en verde; sin comentario |
 | Diff enorme | Se revisa la primera parte y el comentario avisa del recorte |
-| Clave o token en el código | Ninguno: solo `GITHUB_TOKEN` |
+| Clave en el código | Ninguna: secreto `AI_REVIEW_API_KEY` y `GITHUB_TOKEN` |
 | Estado del PR | La IA nunca aprueba ni bloquea |
 
 ## Fuera de alcance
