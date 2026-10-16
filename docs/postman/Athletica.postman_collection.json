@@ -223,7 +223,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"\",\n  \"password\": \"\",\n  \"totp_code\": \"\"\n}",
+              "raw": "{\n  \"email\": \"\",\n  \"password\": \"\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -549,7 +549,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"\",\n  \"full_name\": \"\",\n  \"role\": \"admin\",\n  \"is_active\": false,\n  \"password\": \"\"\n}",
+              "raw": "{\n  \"email\": \"\",\n  \"full_name\": \"\",\n  \"password\": \"\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -825,7 +825,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"\",\n  \"description\": \"\",\n  \"price_cents\": 0,\n  \"duration_days\": 0,\n  \"is_active\": false\n}",
+              "raw": "{\n  \"name\": \"\",\n  \"price_cents\": 0,\n  \"duration_days\": 0\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1209,7 +1209,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"\",\n  \"capacity\": 0,\n  \"trainer_id\": 0,\n  \"room_id\": 0,\n  \"is_active\": false\n}",
+              "raw": "{\n  \"name\": \"\",\n  \"capacity\": 0,\n  \"trainer_id\": 0\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1629,7 +1629,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user_id\": 0,\n  \"membership_id\": 0,\n  \"amount_cents\": 0,\n  \"status\": \"pending\"\n}",
+              "raw": "{\n  \"user_id\": 0,\n  \"membership_id\": 0,\n  \"amount_cents\": 0\n}",
               "options": {
                 "raw": {
                   "language": "json"
