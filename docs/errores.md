@@ -74,6 +74,9 @@ Regla para distinguir los tres que más se confunden:
 | Logout enviando el token de refresco de otro usuario | 401 | `unauthorized` | Token inválido |
 | Login con email o contraseña incorrectos | 401 | `unauthorized` | Email o contraseña incorrectos |
 | Login con una cuenta dada de baja | 403 | `forbidden` | La cuenta está desactivada |
+| Login de una cuenta con verificación en dos pasos, sin `totp_code` | 401 | `totp_required` | Falta el código de verificación en dos pasos |
+| Login de una cuenta con verificación en dos pasos, con un código incorrecto | 401 | `totp_invalid` | El código de verificación en dos pasos no es correcto |
+| Login de Swagger (`/auth/token`) de una cuenta con verificación en dos pasos | 401 | `totp_required` | Esta cuenta tiene verificación en dos pasos: inicia sesión con /auth/login enviando el código en totp_code |
 | Más de 5 intentos de login en un minuto desde la misma IP | 429 | `too_many_requests` | Demasiados intentos de inicio de sesión. Vuelve a intentarlo en {n} segundos |
 | El rol no puede usar esa ruta | 403 | `forbidden` | No tienes permiso para realizar esta acción |
 | El dato es de otro usuario, o la clase es de otro entrenador | 403 | `forbidden` | No tienes permiso para acceder a este recurso |
@@ -91,6 +94,10 @@ qué emails están registrados.
 | Cambio de contraseña con la actual incorrecta | 400 | `business_rule` | La contraseña actual no es correcta |
 | Contraseña nueva débil | 422 | `validation_error` | Lista; `type: weak_password` |
 | Rol que no existe | 422 | `validation_error` | Lista |
+| Activar o desactivar la verificación en dos pasos con un código incorrecto | 400 | `business_rule` | El código no es correcto |
+| Activar la verificación en dos pasos sin haberla preparado | 400 | `business_rule` | Primero prepara la verificación en dos pasos |
+| Desactivar la verificación en dos pasos cuando no está activa | 400 | `business_rule` | La verificación en dos pasos no está activada |
+| Preparar o activar la verificación en dos pasos cuando ya está activa | 409 | `conflict` | La verificación en dos pasos ya está activada |
 | Enlace de verificación de email o de recuperación de contraseña caducado, manipulado, de otro tipo o ya usado | 400 | `business_rule` | El enlace no es válido o ha caducado |
 | Recuperación con una contraseña nueva débil | 422 | `validation_error` | Lista; `type: weak_password` |
 

@@ -7,6 +7,13 @@ from app.schemas.user import UserRead
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
+    totp_code: str | None = Field(
+        default=None,
+        pattern=r"^\d{6}$",
+        description=(
+            "Código de 6 cifras de la app; solo si la cuenta tiene verificación en dos pasos"
+        ),
+    )
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -106,3 +113,27 @@ class ResetPasswordRequest(BaseModel):
             "examples": [{"token": "eyJhbGciOiJIUzI1NiIs...", "new_password": "Nueva123!"}]
         }
     )
+
+
+class TotpSetup(BaseModel):
+    """Shown once, while two-factor authentication is being turned on."""
+
+    secret: str
+    otpauth_url: str
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "secret": "JBSWY3DPEHPK3PXP",
+                    "otpauth_url": "otpauth://totp/Athletica:socio%40example.com?secret=JBSWY3DPEHPK3PXP&issuer=Athletica",
+                }
+            ]
+        }
+    )
+
+
+class TotpCode(BaseModel):
+    code: str = Field(pattern=r"^\d{6}$", description="Código de 6 cifras de la app")
+
+    model_config = ConfigDict(json_schema_extra={"examples": [{"code": "123456"}]})
