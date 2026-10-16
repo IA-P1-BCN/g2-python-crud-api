@@ -556,3 +556,30 @@ alcance. El resto del equipo añade aquí su fila.
   `.animate-pulse` cuando hay 9 (3 tarjetas × 3 líneas) → se cuentan los `li`. `lint`,
   `format`, los 376 tests y `build` en verde tras corregir.
 - **Revisión humana:** pendiente en el PR.
+
+### #319 PlanEditForm (organismo)
+
+- **Fecha:** 2026-10-16
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Spec:** `specs/319-plan-edit-form.md`, escrita antes del código.
+- **Prompt clave:** «tarea: PlanEditForm (organismo) #319». Nayeli respondió a las dudas del agente:
+  la descripción se queda (opción A), patrón presentacional nuevo, organismo solo sin tocar la
+  página y «Cancelar» conservado.
+- **Qué generó el agente:** la spec; el organismo `PlanEditForm` (`FormField` para nombre,
+  descripción, precio y duración, `Toggle` de activo, «Guardar cambios» y «Cancelar»; validación
+  de precio y duración con los mensajes actuales; `error` de servidor en `Alert`); y nueve tests.
+- **Aceptado:** patrón presentacional (`onSubmit`, `isLoading`, `error`, `onCancel`) como
+  `LoginForm`/`RegisterForm`; descripción conservada; `PlansPage` intocada hasta #317; copys
+  idénticos a los del formulario actual.
+- **Rechazado o cambiado, y por qué:** descripción fuera del formulario — Nayeli la conserva
+  porque la `PlanCard` la muestra y nadie podría editarla; modo «crear» en el organismo — se
+  queda en el `PlanForm` viejo hasta #317.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** cuatro tests fallaron: (1) el
+  `input type="number"` devuelve valor numérico en jsdom, no cadena; (2) y (3) la validación
+  nativa del navegador (`required` y `min`) bloqueaba el envío antes de la lógica propia y
+  destapó que los mensajes «mayor que 0»/«entero de días» no llegan a aparecer nunca en el
+  navegador real → se añade `noValidate` al formulario para que la validación propia sea la
+  visible (documentado en la spec); (4) con `isLoading` el nombre accesible del botón es
+  «Cargando…», como en `RegisterForm.test`. `lint`, `format`, los 385 tests y `build` en verde
+  tras corregir.
+- **Revisión humana:** pendiente en el PR.
