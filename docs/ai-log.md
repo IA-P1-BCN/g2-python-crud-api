@@ -611,4 +611,38 @@ alcance. El resto del equipo añade aquí su fila.
   `save.isLoading`: en TanStack Query v5 las mutaciones usan `isPending`; (3) un edit del test
   del organismo no encontraba su texto porque una corrección previa ya había cambiado el assert.
   `lint`, `format`, los 389 tests y `build` en verde tras corregir.
+
+### #416 Revisión automática de PRs con un modelo gratuito
+
+- **Fecha:** 2026-10-16
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/416-ai-pr-review.md`, escrita antes del código.
+- **Prompt clave:** «seguimos con las tareas a tu criterio». El agente propuso la #416 porque no
+  dependía de nadie y preguntó qué modelo gratuito usar. Eva eligió GitHub Models, la opción que
+  recomendaba el agente porque no necesitaba clave. Resultó estar retirado (ver errores) y Eva
+  eligió después Google Gemini, con la clave guardada como secreto del repositorio.
+- **Qué generó el agente:** la spec; `.github/workflows/ai-review.yml`; y
+  `.github/scripts/ai_review.py`, solo con la librería estándar de Python, que llama al endpoint de
+  Gemini compatible con OpenAI (modelo `gemini-flash-latest`). El script lee el diff,
+  quita los archivos generados, pide la revisión con las reglas de `AGENTS.md` y deja un único
+  comentario por PR, que se actualiza en cada push.
+- **Aceptado:**
+  - Solo comenta: no aprueba ni bloquea, y el comentario recuerda que la revisión humana es
+    obligatoria.
+  - Cualquier fallo (modelo caído, límite gratuito, permisos) deja un aviso y el check en verde.
+  - El diff se recorta a 60.000 caracteres para no pasar del límite gratuito, y el comentario
+    avisa del recorte.
+- **Rechazado o cambiado, y por qué:** OpenRouter: sus modelos gratuitos tienen límites diarios más
+  bajos y menos estables que Gemini.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** el agente recomendó **GitHub
+  Models sin comprobar que siguiera existiendo**: GitHub lo retiró el 30 de julio de 2026, después
+  de lo que el modelo conocía. En local respondía «OK» a cualquier petición, y el agente lo achacó
+  por error a un filtro de la red del equipo de Eva. Al ejecutarse el workflow en GitHub dio lo
+  mismo; el agente probó una ruta inventada (también «OK»), buscó en la web, encontró la retirada
+  en la documentación de GitHub y se lo dijo a Eva. Lección: comprobar que un servicio externo
+  sigue activo antes de proponerlo.
+- **Comprobado a mano:** sin secreto, y con una clave falsa (Gemini responde «Please pass a valid
+  API key»), el script avisa y termina con código 0. En GitHub, con GitHub Models retirado, el
+  check quedó en verde con el aviso en el log, como pide la spec; la lectura
+  del diff de un PR real funciona; el filtrado de archivos generados y el recorte, con un ejemplo. Ese ejemplo destapó un fallo: `frontend/package-lock.json` no se filtraba porque se comparaba la ruta entera; se corrigió.
 - **Revisión humana:** pendiente en el PR.
