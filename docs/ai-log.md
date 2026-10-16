@@ -512,3 +512,33 @@ alcance. El resto del equipo añade aquí su fila.
 - **Revisión humana:** pendiente en el PR. Puntos de seguridad a mirar: que con contraseña mala la
   respuesta no cambia, que el secreto no aparece en ninguna respuesta tras activarlo, y que el
   login de Swagger no se salta el segundo paso.
+
+### #113 Despliegue en Render (también #111 y #112)
+
+- **Fecha:** 2026-10-16
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/113-deploy-to-render.md`, escrita antes del código.
+- **Prompt clave:** «ya tengo cuenta en render y vercel y cloudfare… nosotros seguimos a tu
+  criterio». El agente revisó el tablero, propuso lo mínimo para desplegar el lunes y eligió Render
+  porque da gratis las tres piezas (API en Docker, PostgreSQL y web estática) y se configura con un
+  archivo versionado.
+- **Qué generó el agente:** la spec; `render.yaml` (Blueprint con base de datos, API y web);
+  cambios en `backend/Dockerfile` (puerto de la plataforma, `--proxy-headers`, seed opcional con
+  `SEED_DEMO_DATA`); la conversión de la `DATABASE_URL` de Render al driver psycopg en
+  `app/core/config.py` con 4 tests; y `docs/deploy.md` con los pasos y la prueba de humo.
+- **Aceptado:**
+  - `--proxy-headers`: sin él, todas las peticiones llegan con la IP del proxy y el límite de
+    intentos de login (#409) bloquearía a todos los usuarios a la vez.
+  - El seed al arrancar solo si `SEED_DEMO_DATA=true`, porque el plan gratuito no tiene consola
+    para lanzarlo a mano; el seed ya no hace nada si hay usuarios.
+  - No tocar código del frontend: la URL de la API va en `VITE_API_URL` y las rutas se reescriben
+    a `index.html` en `render.yaml`.
+- **Rechazado o cambiado, y por qué:** Vercel para la web y Cloudflare delante: funcionan, pero
+  añaden una segunda plataforma y otra configuración de CORS sin ganar nada para la demo.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** un *docstring* pasaba de los 100
+  caracteres; se acortó.
+- **Comprobado a mano:** se construyó la imagen y se arrancó contra un PostgreSQL vacío con una URL
+  `postgresql://` como la de Render y `PORT=10000`: migraciones, seed, `/health`, login y estado
+  `healthy`. Con `X-Forwarded-For` distintos el login nunca dio 429; con el mismo, al sexto
+  intento. Tras reiniciar seguía habiendo 3 usuarios (el seed no duplica).
+- **Revisión humana:** pendiente en el PR.

@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -23,6 +24,15 @@ class Settings(BaseSettings):
     # Alembic is the single source of truth for the schema; set this to true only for a
     # throwaway database where you do not want to run migrations.
     auto_create_tables: bool = False
+
+    @field_validator("database_url")
+    @classmethod
+    def use_psycopg_driver(cls, url: str) -> str:
+        """Hosting platforms give `postgresql://` URLs; SQLAlchemy needs the psycopg 3 driver."""
+        for scheme in ("postgres://", "postgresql://"):
+            if url.startswith(scheme):
+                return "postgresql+psycopg://" + url.removeprefix(scheme)
+        return url
 
     @property
     def cors_origins_list(self) -> list[str]:
