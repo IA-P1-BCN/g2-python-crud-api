@@ -512,3 +512,103 @@ alcance. El resto del equipo añade aquí su fila.
 - **Revisión humana:** pendiente en el PR. Puntos de seguridad a mirar: que con contraseña mala la
   respuesta no cambia, que el secreto no aparece en ninguna respuesta tras activarlo, y que el
   login de Swagger no se salta el segundo paso.
+### #318 Sheet (molécula)
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Spec:** `specs/318-sheet.md`, escrita antes del código.
+- **Prompt clave:** «tarea: Sheet (molécula) #318». La issue no enlaza diseño, así que
+  Nayeli confirmó partir del enunciado (sin Figma).
+- **Qué generó el agente:** la spec; la molécula `Sheet` (portal a `document.body`, bottom
+  sheet en móvil y diálogo centrado en `md:`, focus trap manual, Escape, backdrop que cierra,
+  scroll del body bloqueado y `IconButton` de cerrar) con los tokens `--color-scrim` y
+  `rounded-card`; y ocho tests.
+- **Aceptado:** API controlada (`isOpen`/`onClose`), focus trap manual sin dependencias
+  nuevas, `z-50` como primera capa superpuesta, backdrop que cierra y scroll bloqueado
+  (confirmado por Nayeli en la revisión de la spec).
+- **Rechazado o cambiado, y por qué:** animaciones (la issue no las pide); usar una
+  biblioteca de foco (sin dependencias nuevas sin consultar al equipo).
+- **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno en esta tarea;
+  `lint`, `format`, los 369 tests unitarios y `build` pasaron a la primera.
+- **Revisión humana:** pendiente en el PR.
+
+### #320 Lista de planes de admin (organismo)
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Spec:** `specs/320-plans-admin-list.md`, escrita antes del código.
+- **Prompt clave:** «tarea: PlansAdminList (organismo) #320». Sin Figma; Nayeli eligió
+  conservar todas las acciones de la tabla (opción B: Editar, Activar/Desactivar y Borrar)
+  y el badge de estado junto a los botones.
+- **Qué generó el agente:** la spec; el organismo `PlansAdminList` (lista `ul`/`li` con una
+  `PlanCard` por plan, `Badge` de estado, las tres acciones emitidas como callbacks,
+  esqueletos con «Cargando…» y `EmptyState`); y siete tests.
+- **Aceptado:** organismo presentacional (la página conserva `window.confirm` y las
+  mutaciones); variantes de botón idénticas a la tabla; «Nuevo plan» fuera de la lista
+  (se decide en #317).
+- **Rechazado o cambiado, y por qué:** quitar toggle y borrar por los criterios de la epic —
+  Nayeli optó por la opción B, conservarlos; paginación dentro del organismo — es decisión
+  de la página, va a #317.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** dos tests fallaron: (1) el
+  assert del precio usaba `getByText(formatPrice(…))`, pero `Intl` es-ES inserta un NBSP y
+  testing-library v10 normaliza el texto del DOM y no el matcher → se convierte el NBSP a
+  espacio normal en el expected; (2) el conteo de esqueletos esperaba 3 nodos
+  `.animate-pulse` cuando hay 9 (3 tarjetas × 3 líneas) → se cuentan los `li`. `lint`,
+  `format`, los 376 tests y `build` en verde tras corregir.
+- **Revisión humana:** pendiente en el PR.
+
+### #319 PlanEditForm (organismo)
+
+- **Fecha:** 2026-10-16
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Spec:** `specs/319-plan-edit-form.md`, escrita antes del código.
+- **Prompt clave:** «tarea: PlanEditForm (organismo) #319». Nayeli respondió a las dudas del agente:
+  la descripción se queda (opción A), patrón presentacional nuevo, organismo solo sin tocar la
+  página y «Cancelar» conservado.
+- **Qué generó el agente:** la spec; el organismo `PlanEditForm` (`FormField` para nombre,
+  descripción, precio y duración, `Toggle` de activo, «Guardar cambios» y «Cancelar»; validación
+  de precio y duración con los mensajes actuales; `error` de servidor en `Alert`); y nueve tests.
+- **Aceptado:** patrón presentacional (`onSubmit`, `isLoading`, `error`, `onCancel`) como
+  `LoginForm`/`RegisterForm`; descripción conservada; `PlansPage` intocada hasta #317; copys
+  idénticos a los del formulario actual.
+- **Rechazado o cambiado, y por qué:** descripción fuera del formulario — Nayeli la conserva
+  porque la `PlanCard` la muestra y nadie podría editarla; modo «crear» en el organismo — se
+  queda en el `PlanForm` viejo hasta #317.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** cuatro tests fallaron: (1) el
+  `input type="number"` devuelve valor numérico en jsdom, no cadena; (2) y (3) la validación
+  nativa del navegador (`required` y `min`) bloqueaba el envío antes de la lógica propia y
+  destapó que los mensajes «mayor que 0»/«entero de días» no llegan a aparecer nunca en el
+  navegador real → se añade `noValidate` al formulario para que la validación propia sea la
+  visible (documentado en la spec); (4) con `isLoading` el nombre accesible del botón es
+  «Cargando…», como en `RegisterForm.test`. `lint`, `format`, los 385 tests y `build` en verde
+  tras corregir.
+- **Revisión humana:** pendiente en el PR.
+
+### #317 PlansPage de admin (composición)
+
+- **Fecha:** 2026-10-16
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Spec:** `specs/317-admin-plans-page.md`, escrita antes del código.
+- **Prompt clave:** «tarea: PlansPage (composición) #317». Nayeli decidió con el equipo conservar
+  «Nuevo plan» (opción A) y la paginación actual (opción A), y aprobó el formulario dentro del
+  `Sheet` con `title` + `hideTitle`; también confirmó borrar el `PlanForm` viejo tras explicarle
+  por qué quedaba sin consumidores.
+- **Qué generó el agente:** la spec; la `PlansPage` nueva (`Sheet` + `PlansAdminList` +
+  `PlanEditForm`, una única mutación `save` que crea o edita, invalida y cierra; paginación y
+  confirms intactos); `PlanEditForm` en modo creación (`plan` opcional) y con `hideTitle`; el
+  borrado de `pages/admin/plans/PlanForm.tsx`; y los tests: 8 de página (7 reescritas contra el
+  nuevo DOM + paginación) y 3 nuevos del organismo.
+- **Aceptado:** crear se queda (decisión del equipo frente a los AC, que lo dejan fuera);
+  payload de `update` con `is_active`; container + `page__header` como las páginas admin
+  hermanas; el bloque `parsePriceCents` conservado donde estaba.
+- **Rechazado o cambiado, y por qué:** borrar «Nuevo plan» — la epic manda decidir con el equipo
+  antes de quitarlo y el equipo lo conserva; traer todos los planes de golpe — se mantiene la
+  paginación de 10 por página; duplicar el encabezado del formulario — el `Sheet` pone el título
+  y el form oculta el suyo con `hideTitle`.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** tres: (1) el test de paginación
+  buscaba el botón por «Siguiente», pero el `Pagination` pone `aria-label="Página siguiente"`
+  que pisa el texto visible → se usa el nombre accesible real; (2) el build falló con
+  `save.isLoading`: en TanStack Query v5 las mutaciones usan `isPending`; (3) un edit del test
+  del organismo no encontraba su texto porque una corrección previa ya había cambiado el assert.
+  `lint`, `format`, los 389 tests y `build` en verde tras corregir.
+- **Revisión humana:** pendiente en el PR.
