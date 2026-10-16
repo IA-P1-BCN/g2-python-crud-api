@@ -12,6 +12,10 @@ vi.mock('@/api', () => ({
   toApiError: (error: unknown) => ({ status: 0, message: String(error) }),
 }))
 
+vi.mock('@/pages/admin/dashboard/useTrainersSummary', () => ({
+  useTrainersSummary: () => ({ trainers: [], isLoading: false, isError: false, error: null }),
+}))
+
 const summary: DashboardSummary = {
   period: { key: '7d', start: '2026-10-01', end: '2026-10-07' },
   members: { active: 248, signups: 12, sign_offs: 3 },
@@ -139,5 +143,12 @@ describe('AdminDashboardPage', () => {
       await screen.findByText('Ninguna membresía vence en los próximos 7 días.'),
     ).toBeInTheDocument()
     expect(screen.getByText('No hay reservas en este periodo.')).toBeInTheDocument()
+  })
+
+  it('muestra el resumen de entrenadores', async () => {
+    renderPage()
+
+    await screen.findByText('248')
+    expect(screen.getByRole('heading', { name: 'Entrenadores' })).toBeInTheDocument()
   })
 })
