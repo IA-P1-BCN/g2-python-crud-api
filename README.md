@@ -188,19 +188,31 @@ Más detalle (scripts, estructura, tests E2E) en [frontend/README.md](frontend/R
     └── .env.example
 ```
 
-Capas del backend: el **router** recibe y responde, el **service** decide y el **model**
-persiste. Las reglas de negocio van siempre en `services/`.
+Capas del backend: el **router** recibe y responde, el **service** decide, el
+**repository** lee y escribe y el **model** define la tabla. Las reglas de negocio
+van siempre en `services/`. Los usuarios pasan siempre por
+`app/repositories/user_repository.py`, cuyo cumplimiento enforcea un test.
 
 ## Cómo trabajamos
 
+Guía completa en [CONTRIBUTING.md](CONTRIBUTING.md).
+
+
 - **Idioma:** código, nombres y comentarios en inglés; documentación en español.
-- **Ramas:** salen de `dev` y vuelven a `dev` por pull request. Nombre:
-  `tipo/HU-XX-descripcion-corta`.
+- **Ramas:** se crean desde la tarea en GitHub (siempre base `dev`). El nombre que
+  se genera queda `<numero>-<título>` (por ejemplo
+  `414-social-login-with-oauth2-google-or-github`). Nunca se crean manualmente.
+
 - **Commits:** [Conventional Commits](https://www.conventionalcommits.org/es/):
   `feat(bookings): ...`, `fix: ...`, `test(auth): ...`, `docs: ...`, `refactor: ...`,
   `chore: ...`.
-- **Pull requests:** pequeños (una historia o menos), con `Closes #N` en la descripción,
-  una aprobación y la CI en verde.
+- **Pull requests:** pequeños (una historia o menos), con `Closes #N`, CI en verde y revisión
+  humana, con la opcion C: si hay alguien conectado, se le añade en **Reviewers** y
+  esa persona aprueba con un comentario y fusiona; si no, se revisa el propio PR
+  (`Files changed` -> `Review changes` -> **Comment**) antes de fusionar. Cada PR recibe un
+  comentario automatico *AI review* (Gemini) que solo orienta y no sustituye la
+  revisión humana.
+
 - **Secretos:** `.env` nunca se sube. Si añades una variable, añádela también a
   `.env.example` con un valor ficticio.
 
