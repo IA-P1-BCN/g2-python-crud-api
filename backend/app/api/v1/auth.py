@@ -1,11 +1,15 @@
 from typing import Annotated
+from urllib.parse import urlencode
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Cookie, Depends, status
+from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db, limit_login_attempts, oauth2_scheme
 from app.api.responses import errors
+from app.core.config import settings
+from app.core.exceptions import AppError
 from app.models.user import User
 from app.schemas.auth import (
     ForgotPasswordRequest,
@@ -20,9 +24,12 @@ from app.schemas.auth import (
     VerifyEmailRequest,
 )
 from app.schemas.user import UserRead
-from app.services import auth_service, two_factor_service
+from app.services import auth_service, social_login_service, two_factor_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+GITHUB_STATE_COOKIE = "github_oauth_state"
+GITHUB_CALLBACK_PATH = "/api/v1/auth/github/callback"
 
 
 @router.post(
@@ -208,3 +215,64 @@ def disable_two_factor(
 )
 def read_current_user(current_user: User = Depends(get_current_user)) -> UserRead:
     return current_user
+
+
+@router.get(
+    "/github/login",
+    responses=errors(400),
+    response_class=RedirectResponse,
+    status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+    summary="Entrar con GitHub",
+    description=(
+        "Redirige a GitHub para autorizar a Athletica. Al volver, `/auth/github/callback` lleva "
+        "a la web con la sesión abierta. Ábrelo en el navegador, no desde Swagger."
+    ),
+)
+def github_login() -> RedirectResponse:
+    state = social_login_service.new_state()
+    response = RedirectResponse(social_login_service.authorization_url(state))
+    response.set_cookie(
+        GITHUB_STATE_COOKIE,
+        state,
+        max_age=social_login_service.STATE_LIFETIME_SECONDS,
+        path=GITHUB_CALLBACK_PATH,
+        httponly=True,
+        samesite="lax",
+        secure=settings.github_redirect_uri.startswith("https://"),
+    )
+    return response
+
+
+@router.get(
+    "/github/callback",
+    responses=errors(422),
+    response_class=RedirectResponse,
+    status_code=status.HTTP_307_TEMPORARY_REDIRECT,
+    summary="Vuelta de GitHub",
+    description=(
+        "GitHub vuelve aquí tras autorizar. Redirige a `FRONTEND_URL/auth/callback` con los "
+        "tokens en el fragmento (`#access_token=...&refresh_token=...`), o con `#error=` y el "
+        "motivo. Crea la cuenta de socio si el email no existe, o entra en la que ya lo tiene."
+    ),
+)
+def github_callback(
+    code: str | None = None,
+    state: str | None = None,
+    error: str | None = None,
+    expected_state: Annotated[str | None, Cookie(alias=GITHUB_STATE_COOKIE)] = None,
+    db: Session = Depends(get_db),
+) -> RedirectResponse:
+    try:
+        token = social_login_service.complete_login(
+            db, code=code, state=state, expected_state=expected_state, error=error
+        )
+        fragment = {
+            "access_token": token.access_token,
+            "refresh_token": token.refresh_token,
+            "token_type": token.token_type,
+        }
+    except AppError as exc:
+        fragment = {"error": exc.detail}
+    response = RedirectResponse(f"{settings.frontend_url}/auth/callback#{urlencode(fragment)}")
+    response.delete_cookie(GITHUB_STATE_COOKIE, path=GITHUB_CALLBACK_PATH)
+    return response

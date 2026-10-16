@@ -28,6 +28,7 @@ MATRIX = [
     ("POST", "/auth/2fa/setup", *LOGGED_IN),
     ("POST", "/auth/2fa/enable", *LOGGED_IN),
     ("POST", "/auth/2fa/disable", *LOGGED_IN),
+    ("GET", "/auth/github/callback", *PUBLIC),
     ("GET", "/me/dashboard", *LOGGED_IN),
     # Membership plans: anyone reads, admin writes
     ("GET", "/membership-plans", *PUBLIC),
