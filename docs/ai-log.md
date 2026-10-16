@@ -583,3 +583,32 @@ alcance. El resto del equipo añade aquí su fila.
   «Cargando…», como en `RegisterForm.test`. `lint`, `format`, los 385 tests y `build` en verde
   tras corregir.
 - **Revisión humana:** pendiente en el PR.
+
+### #317 PlansPage de admin (composición)
+
+- **Fecha:** 2026-10-16
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Spec:** `specs/317-admin-plans-page.md`, escrita antes del código.
+- **Prompt clave:** «tarea: PlansPage (composición) #317». Nayeli decidió con el equipo conservar
+  «Nuevo plan» (opción A) y la paginación actual (opción A), y aprobó el formulario dentro del
+  `Sheet` con `title` + `hideTitle`; también confirmó borrar el `PlanForm` viejo tras explicarle
+  por qué quedaba sin consumidores.
+- **Qué generó el agente:** la spec; la `PlansPage` nueva (`Sheet` + `PlansAdminList` +
+  `PlanEditForm`, una única mutación `save` que crea o edita, invalida y cierra; paginación y
+  confirms intactos); `PlanEditForm` en modo creación (`plan` opcional) y con `hideTitle`; el
+  borrado de `pages/admin/plans/PlanForm.tsx`; y los tests: 8 de página (7 reescritas contra el
+  nuevo DOM + paginación) y 3 nuevos del organismo.
+- **Aceptado:** crear se queda (decisión del equipo frente a los AC, que lo dejan fuera);
+  payload de `update` con `is_active`; container + `page__header` como las páginas admin
+  hermanas; el bloque `parsePriceCents` conservado donde estaba.
+- **Rechazado o cambiado, y por qué:** borrar «Nuevo plan» — la epic manda decidir con el equipo
+  antes de quitarlo y el equipo lo conserva; traer todos los planes de golpe — se mantiene la
+  paginación de 10 por página; duplicar el encabezado del formulario — el `Sheet` pone el título
+  y el form oculta el suyo con `hideTitle`.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** tres: (1) el test de paginación
+  buscaba el botón por «Siguiente», pero el `Pagination` pone `aria-label="Página siguiente"`
+  que pisa el texto visible → se usa el nombre accesible real; (2) el build falló con
+  `save.isLoading`: en TanStack Query v5 las mutaciones usan `isPending`; (3) un edit del test
+  del organismo no encontraba su texto porque una corrección previa ya había cambiado el assert.
+  `lint`, `format`, los 389 tests y `build` en verde tras corregir.
+- **Revisión humana:** pendiente en el PR.
