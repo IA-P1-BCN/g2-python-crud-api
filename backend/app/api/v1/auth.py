@@ -15,10 +15,12 @@ from app.schemas.auth import (
     RegisterRequest,
     ResetPasswordRequest,
     Token,
+    TotpCode,
+    TotpSetup,
     VerifyEmailRequest,
 )
 from app.schemas.user import UserRead
-from app.services import auth_service
+from app.services import auth_service, two_factor_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -46,6 +48,7 @@ def register(data: RegisterRequest, db: Session = Depends(get_db)) -> Token:
 )
 def login(data: LoginRequest, db: Session = Depends(get_db)) -> Token:
     user = auth_service.authenticate(db, data.email, data.password)
+    two_factor_service.check_login(user, data.totp_code)
     return auth_service.issue_token(user)
 
 
@@ -65,6 +68,8 @@ def issue_oauth2_token(
     form: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)
 ) -> Token:
     user = auth_service.authenticate(db, form.username, form.password)
+    # The OAuth2 form has no field for the code: accounts with 2FA log in with /auth/login.
+    two_factor_service.check_login(user, None, form_login=True)
     return auth_service.issue_token(user)
 
 
@@ -144,6 +149,54 @@ def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)) 
 )
 def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)) -> None:
     auth_service.reset_password(db, data.token, data.new_password)
+
+
+@router.post(
+    "/2fa/setup",
+    responses=errors(401, 409),
+    response_model=TotpSetup,
+    summary="Preparar la verificación en dos pasos",
+    description=(
+        "Genera un secreto nuevo y su enlace `otpauth://` para la app de códigos (Google "
+        "Authenticator, Authy...). Todavía no queda activa: hay que confirmarla con "
+        "`/auth/2fa/enable`. Si ya está activa responde 409 y no devuelve ningún secreto."
+    ),
+)
+def setup_two_factor(
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
+) -> TotpSetup:
+    return two_factor_service.setup(db, current_user)
+
+
+@router.post(
+    "/2fa/enable",
+    responses=errors(400, 401, 409, 422),
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Activar la verificación en dos pasos",
+    description=(
+        "Activa la verificación en dos pasos con un código de la app. Desde ese momento el "
+        "login pide el código en `totp_code`."
+    ),
+)
+def enable_two_factor(
+    data: TotpCode, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
+) -> None:
+    two_factor_service.enable(db, current_user, data.code)
+
+
+@router.post(
+    "/2fa/disable",
+    responses=errors(400, 401, 422),
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Desactivar la verificación en dos pasos",
+    description=(
+        "Desactiva la verificación en dos pasos con un código de la app y borra el secreto."
+    ),
+)
+def disable_two_factor(
+    data: TotpCode, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
+) -> None:
+    two_factor_service.disable(db, current_user, data.code)
 
 
 @router.get(

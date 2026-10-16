@@ -48,6 +48,16 @@ class AuthenticationError(AppError):
     code = "unauthorized"
 
 
+class TotpRequiredError(AuthenticationError):
+    """Right password, but the account has two-factor authentication and no code was sent."""
+
+    code = "totp_required"
+
+
+class TotpInvalidError(AuthenticationError):
+    code = "totp_invalid"
+
+
 class PermissionDeniedError(AppError):
     status_code = 403
     code = "forbidden"
