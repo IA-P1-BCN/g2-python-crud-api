@@ -49,13 +49,14 @@ function renderPage() {
   )
 }
 
-function row(name: string): HTMLElement {
-  return within(screen.getByRole('table')).getByText(name).closest('tr') as HTMLElement
+function card(name: string): HTMLElement {
+  return screen.getByText(name).closest('li') as HTMLElement
 }
 
 async function openNewPlanForm(): Promise<HTMLElement> {
   await userEvent.click(screen.getByRole('button', { name: 'Nuevo plan' }))
-  return screen.getByRole('form', { name: 'Nuevo plan' })
+  const dialog = screen.getByRole('dialog', { name: 'Nuevo plan' })
+  return within(dialog).getByRole('form', { name: 'Nuevo plan' })
 }
 
 describe('PlansPage', () => {
@@ -74,17 +75,18 @@ describe('PlansPage', () => {
     vi.restoreAllMocks()
   })
 
-  it('lista todos los planes, también los inactivos', async () => {
+  it('lista todos los planes por tarjeta, también los inactivos', async () => {
     renderPage()
 
     await screen.findByText('Mensual')
     expect(membershipPlansApi.list).toHaveBeenCalledWith({ page: 1, size: 10 })
-    expect(within(row('Mensual')).getByText('39,99 €')).toBeInTheDocument()
-    expect(within(row('Mensual')).getByText('Activo')).toBeInTheDocument()
-    expect(within(row('Antiguo')).getByText('Inactivo')).toBeInTheDocument()
+    expect(within(card('Mensual')).getByText('39,99 €')).toBeInTheDocument()
+    expect(within(card('Mensual')).getByText('30 días')).toBeInTheDocument()
+    expect(within(card('Mensual')).getByText('Activo')).toBeInTheDocument()
+    expect(within(card('Antiguo')).getByText('Inactivo')).toBeInTheDocument()
   })
 
-  it('crea un plan convirtiendo el precio a céntimos', async () => {
+  it('crea un plan convirtiendo el precio a céntimos y cierra el diálogo', async () => {
     vi.mocked(membershipPlansApi.create).mockResolvedValue(monthly)
     renderPage()
     await screen.findByText('Mensual')
@@ -106,6 +108,7 @@ describe('PlansPage', () => {
         is_active: true,
       }),
     )
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   })
 
   it('no envía un precio no válido', async () => {
@@ -121,12 +124,12 @@ describe('PlansPage', () => {
     expect(membershipPlansApi.create).not.toHaveBeenCalled()
   })
 
-  it('edita un plan con sus datos actuales', async () => {
+  it('edita un plan con sus datos actuales y guarda el toggle', async () => {
     vi.mocked(membershipPlansApi.update).mockResolvedValue(monthly)
     renderPage()
     await screen.findByText('Mensual')
 
-    await userEvent.click(within(row('Mensual')).getByRole('button', { name: 'Editar' }))
+    await userEvent.click(within(card('Mensual')).getByRole('button', { name: 'Editar' }))
     const form = screen.getByRole('form', { name: 'Editar plan' })
     expect(within(form).getByLabelText('Precio (€)')).toHaveValue('39.99')
     const price = within(form).getByLabelText('Precio (€)')
@@ -140,6 +143,7 @@ describe('PlansPage', () => {
         description: '30 días',
         price_cents: 4499,
         duration_days: 30,
+        is_active: true,
       }),
     )
   })
@@ -150,7 +154,7 @@ describe('PlansPage', () => {
     renderPage()
     await screen.findByText('Mensual')
 
-    await userEvent.click(within(row('Mensual')).getByRole('button', { name: 'Desactivar' }))
+    await userEvent.click(within(card('Mensual')).getByRole('button', { name: 'Desactivar' }))
 
     await waitFor(() =>
       expect(membershipPlansApi.update).toHaveBeenCalledWith(1, { is_active: false }),
@@ -165,7 +169,7 @@ describe('PlansPage', () => {
     renderPage()
     await screen.findByText('Mensual')
 
-    await userEvent.click(within(row('Mensual')).getByRole('button', { name: 'Borrar' }))
+    await userEvent.click(within(card('Mensual')).getByRole('button', { name: 'Borrar' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('desactívalo en su lugar')
   })
@@ -175,9 +179,25 @@ describe('PlansPage', () => {
     renderPage()
     await screen.findByText('Mensual')
 
-    await userEvent.click(within(row('Mensual')).getByRole('button', { name: 'Borrar' }))
+    await userEvent.click(within(card('Mensual')).getByRole('button', { name: 'Borrar' }))
 
     expect(membershipPlansApi.remove).not.toHaveBeenCalled()
+  })
+
+  it('navega a la página siguiente cuando hay más de una', async () => {
+    vi.mocked(membershipPlansApi.list).mockResolvedValue({
+      items: [monthly],
+      total: 12,
+      page: 1,
+      size: 10,
+      pages: 2,
+    })
+    renderPage()
+    await screen.findByText('Mensual')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Página siguiente' }))
+
+    await waitFor(() => expect(membershipPlansApi.list).toHaveBeenCalledWith({ page: 2, size: 10 }))
   })
 })
 

@@ -1,18 +1,17 @@
 import { useState } from 'react'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Badge } from '@/components/ui/atoms/Badge'
 import { Button } from '@/components/ui/atoms/Button'
 import { Alert } from '@/components/ui/molecules/Alert'
 import { Pagination } from '@/components/ui/molecules/Pagination'
-import { Table, type Column } from '@/components/ui/organisms/Table'
+import { Sheet } from '@/components/ui/molecules/Sheet'
+import { PlanEditForm, type PlanEditValues } from '@/components/ui/organisms/PlanEditForm'
+import { PlansAdminList } from '@/components/ui/organisms/PlansAdminList'
 import { membershipPlansApi, toApiError } from '@/api'
-import { formatPrice } from '@/lib/format'
 import type { MembershipPlan } from '@/types/api'
-import { PlanForm } from './plans/PlanForm'
 
 const PAGE_SIZE = 10
 
-/** Which form is open below the table. */
+/** Which form is open inside the sheet. */
 type Panel = { kind: 'create' } | { kind: 'edit'; plan: MembershipPlan }
 
 export function PlansPage() {
@@ -27,6 +26,15 @@ export function PlansPage() {
   })
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['membership-plans'] })
+
+  const save = useMutation({
+    mutationFn: ({ id, values }: { id?: number; values: PlanEditValues }) =>
+      id === undefined ? membershipPlansApi.create(values) : membershipPlansApi.update(id, values),
+    onSuccess: () => {
+      refresh()
+      setPanel(null)
+    },
+  })
 
   const toggleActive = useMutation({
     mutationFn: (plan: MembershipPlan) =>
@@ -52,45 +60,16 @@ export function PlansPage() {
     }
   }
 
-  const columns: Column<MembershipPlan>[] = [
-    { key: 'name', header: 'Plan' },
-    { key: 'price_cents', header: 'Precio', render: (row) => formatPrice(row.price_cents) },
-    { key: 'duration_days', header: 'Duración', render: (row) => `${row.duration_days} días` },
-    { key: 'description', header: 'Descripción', render: (row) => row.description ?? '' },
-    {
-      key: 'is_active',
-      header: 'Estado',
-      render: (row) =>
-        row.is_active ? <Badge tone="success">Activo</Badge> : <Badge>Inactivo</Badge>,
-    },
-    {
-      key: 'actions',
-      header: 'Acciones',
-      render: (row) => (
-        <div className="table-actions">
-          <Button variant="secondary" onClick={() => setPanel({ kind: 'edit', plan: row })}>
-            Editar
-          </Button>
-          <Button variant={row.is_active ? 'ghost' : 'primary'} onClick={() => handleToggle(row)}>
-            {row.is_active ? 'Desactivar' : 'Activar'}
-          </Button>
-          <Button variant="danger" onClick={() => handleRemove(row)}>
-            Borrar
-          </Button>
-        </div>
-      ),
-    },
-  ]
-
   const actionError = toggleActive.error ?? remove.error
+  const editing = panel?.kind === 'edit' ? panel.plan : undefined
 
   return (
-    <div className="page">
+    <div className="flex flex-col gap-4">
       <div className="page__header">
-        <h1>Planes</h1>
+        <h1 className="font-display text-headline text-text">Planes</h1>
         <Button onClick={() => setPanel({ kind: 'create' })}>Nuevo plan</Button>
       </div>
-      <p className="card__meta">
+      <p className="text-small text-text-muted">
         Un plan con socios no se puede borrar: desactívalo para que no se asigne a nuevas
         membresías.
       </p>
@@ -98,22 +77,35 @@ export function PlansPage() {
       {plans.isError ? <Alert variant="error">{toApiError(plans.error).message}</Alert> : null}
       {actionError ? <Alert variant="error">{toApiError(actionError).message}</Alert> : null}
 
-      <Table
-        columns={columns}
-        rows={plans.data?.items ?? []}
-        rowKey={(row) => row.id}
+      <PlansAdminList
+        plans={plans.data?.items ?? []}
         isLoading={plans.isLoading}
-        emptyMessage="Todavía no hay planes."
+        onEdit={(plan) => setPanel({ kind: 'edit', plan })}
+        onToggle={handleToggle}
+        onRemove={handleRemove}
       />
 
       {plans.data && plans.data.pages > 1 ? (
         <Pagination page={page} pages={plans.data.pages} onChange={setPage} />
       ) : null}
 
-      {panel?.kind === 'create' ? <PlanForm onDone={() => setPanel(null)} /> : null}
-      {panel?.kind === 'edit' ? (
-        <PlanForm key={panel.plan.id} plan={panel.plan} onDone={() => setPanel(null)} />
-      ) : null}
+      <Sheet
+        isOpen={panel !== null}
+        onClose={() => setPanel(null)}
+        title={panel?.kind === 'create' ? 'Nuevo plan' : 'Editar plan'}
+      >
+        {panel ? (
+          <PlanEditForm
+            key={editing ? editing.id : 'new'}
+            plan={editing}
+            hideTitle
+            isLoading={save.isPending}
+            error={save.error ? toApiError(save.error).message : null}
+            onSubmit={(values) => save.mutate(editing ? { id: editing.id, values } : { values })}
+            onCancel={() => setPanel(null)}
+          />
+        ) : null}
+      </Sheet>
     </div>
   )
 }

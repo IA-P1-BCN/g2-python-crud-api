@@ -16,30 +16,40 @@ export type PlanEditValues = {
 }
 
 export type PlanEditFormProps = {
-  plan: MembershipPlan
+  /** Plan to edit; without it the form starts empty to create a new one. */
+  plan?: MembershipPlan
   /** Called with the parsed values when the form is valid and submitted. */
   onSubmit: (values: PlanEditValues) => void
   isLoading?: boolean
   /** Server error shown in an Alert (e.g. a failed update). */
   error?: string | null
   onCancel?: () => void
+  /** Hides the visible heading; the accessible name of the form stays. */
+  hideTitle?: boolean
   className?: string
 }
 
-/** Admin plan edit form: name, description, price, duration and the active toggle. */
+/**
+ * Admin plan form: name, description, price, duration and the active toggle.
+ * Edits the given plan, or starts empty to create one.
+ */
 export function PlanEditForm({
   plan,
   onSubmit,
   isLoading = false,
   error = null,
   onCancel,
+  hideTitle = false,
   className,
 }: PlanEditFormProps) {
-  const [name, setName] = useState(plan.name)
-  const [description, setDescription] = useState(plan.description ?? '')
-  const [price, setPrice] = useState((plan.price_cents / 100).toFixed(2))
-  const [duration, setDuration] = useState(String(plan.duration_days))
-  const [isActive, setIsActive] = useState(plan.is_active)
+  const isEdit = plan !== undefined
+  const title = isEdit ? 'Editar plan' : 'Nuevo plan'
+  const submitLabel = isEdit ? 'Guardar cambios' : 'Crear plan'
+  const [name, setName] = useState(plan?.name ?? '')
+  const [description, setDescription] = useState(plan?.description ?? '')
+  const [price, setPrice] = useState(plan ? (plan.price_cents / 100).toFixed(2) : '')
+  const [duration, setDuration] = useState(String(plan?.duration_days ?? 30))
+  const [isActive, setIsActive] = useState(plan?.is_active ?? true)
   const [formError, setFormError] = useState<string | null>(null)
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -71,11 +81,11 @@ export function PlanEditForm({
         'flex w-full flex-col gap-4 rounded-card border border-line bg-surface p-6',
         className,
       )}
-      aria-label="Editar plan"
+      aria-label={title}
       noValidate
       onSubmit={handleSubmit}
     >
-      <h2 className="font-display text-headline text-text">Editar plan</h2>
+      {hideTitle ? null : <h2 className="font-display text-headline text-text">{title}</h2>}
 
       {formError ? <Alert variant="error">{formError}</Alert> : null}
       {error ? <Alert variant="error">{error}</Alert> : null}
@@ -125,7 +135,7 @@ export function PlanEditForm({
 
       <div className="flex gap-2">
         <Button type="submit" isLoading={isLoading} className="flex-1">
-          Guardar cambios
+          {submitLabel}
         </Button>
         {onCancel ? (
           <Button type="button" variant="secondary" onClick={onCancel}>

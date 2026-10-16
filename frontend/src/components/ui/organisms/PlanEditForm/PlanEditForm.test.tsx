@@ -92,4 +92,34 @@ describe('PlanEditForm', () => {
     renderForm({ isLoading: true })
     expect(screen.getByRole('button', { name: 'Cargando…' })).toBeDisabled()
   })
+
+  it('modo creación: empieza vacío, con duración 30 y activo', () => {
+    renderForm({ plan: undefined })
+    expect(screen.getByRole('form', { name: 'Nuevo plan' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Nombre')).toHaveValue('')
+    expect(screen.getByLabelText('Descripción')).toHaveValue('')
+    expect(screen.getByLabelText('Precio (€)')).toHaveValue('')
+    expect(screen.getByLabelText('Duración (días)')).toHaveValue(30)
+    expect(screen.getByRole('switch', { name: 'Plan activo' })).toBeChecked()
+  })
+
+  it('modo creación: «Crear plan» emite los valores', async () => {
+    const { onSubmit } = renderForm({ plan: undefined })
+    await userEvent.type(screen.getByLabelText('Nombre'), 'Anual')
+    await userEvent.type(screen.getByLabelText('Precio (€)'), '12,50')
+    await userEvent.click(screen.getByRole('button', { name: 'Crear plan' }))
+    expect(onSubmit).toHaveBeenCalledWith({
+      name: 'Anual',
+      description: null,
+      price_cents: 1250,
+      duration_days: 30,
+      is_active: true,
+    })
+  })
+
+  it('hideTitle oculta el encabezado pero el formulario mantiene su nombre accesible', () => {
+    renderForm({ hideTitle: true })
+    expect(screen.queryByRole('heading', { name: 'Editar plan' })).not.toBeInTheDocument()
+    expect(screen.getByRole('form', { name: 'Editar plan' })).toBeInTheDocument()
+  })
 })
