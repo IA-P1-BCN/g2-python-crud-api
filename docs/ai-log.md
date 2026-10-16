@@ -478,6 +478,40 @@ alcance. El resto del equipo añade aquí su fila.
   la rama iba por detrás en `ai-log`; se actualizó con `dev` antes de añadir esta entrada.
 - **Revisión humana:** pendiente en el PR.
 
+
+
+
+### #415 Autenticación en dos pasos (2FA con TOTP)
+
+- **Fecha:** 2026-10-15
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/415-two-factor-authentication.md`, escrita antes del código.
+- **Prompt clave:** «si ya no tenemos tareas pendientes, pilla por orden las de backend sin
+  asignar». El agente explicó que la #414 (login social) necesitaba que Eva registrase una app en
+  GitHub, empezó por la #415 y preguntó dos decisiones antes de escribir la spec. Eva eligió las
+  recomendadas: el código va en un campo opcional del login, y se usa la librería `pyotp`.
+- **Qué generó el agente:** la spec; la dependencia `pyotp`; las columnas `users.totp_secret` y
+  `users.totp_enabled_at` con su migración; `app/services/two_factor_service.py`; los endpoints
+  `POST /auth/2fa/setup`, `/auth/2fa/enable` y `/auth/2fa/disable`; el campo `totp_code` del
+  login; los errores `totp_required` y `totp_invalid`; y 29 tests nuevos.
+- **Aceptado:**
+  - Activar en dos pasos (preparar y confirmar con un código), para que nadie quede fuera de su
+    cuenta por un secreto mal copiado.
+  - Comprobar la contraseña antes que el código, para no revelar qué cuentas tienen 2FA.
+  - Aceptar el código de los 30 segundos anteriores y siguientes, por si el reloj del móvil va
+    algo desfasado.
+  - Rechazar en el login de Swagger (`/auth/token`) a las cuentas con 2FA, con un mensaje que
+    indica usar `/auth/login`, porque el formulario estándar de OAuth2 no tiene campo para el código.
+- **Rechazado o cambiado, y por qué:**
+  - Escribir el cálculo TOTP a mano: es código de seguridad y `pyotp` es la implementación habitual.
+  - Cifrar el secreto en la base de datos y los códigos de recuperación: quedan fuera de alcance.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** dos líneas pasaban de los 100
+  caracteres que permite el *linter*; se partieron. Además, la sesión se cortó justo al guardar el
+  archivo de tests y hubo que volver a escribirlo.
+- **Comprobado a mano:** la migración sube, baja y vuelve a subir contra PostgreSQL.
+- **Revisión humana:** pendiente en el PR. Puntos de seguridad a mirar: que con contraseña mala la
+  respuesta no cambia, que el secreto no aparece en ninguna respuesta tras activarlo, y que el
+  login de Swagger no se salta el segundo paso.
 ### #318 Sheet (molécula)
 
 - **Fecha:** 2026-10-15

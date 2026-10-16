@@ -146,6 +146,16 @@ def reset_password(db: Session, user: User, new_password: str) -> None:
     user_repository.save(db, user)
 
 
+def save_two_factor(
+    db: Session, user: User, *, secret: str | None, enabled_at: datetime | None
+) -> None:
+    """Store the two-factor state the user chose; it counts as a change made by the user."""
+    user.totp_secret = secret
+    user.totp_enabled_at = enabled_at
+    _touch(user, user)
+    user_repository.save(db, user)
+
+
 def mark_email_verified(db: Session, user: User) -> None:
     """Record the first time the user confirmed their email."""
     if user.email_verified_at is None:
