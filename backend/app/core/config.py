@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     # Where the links sent by email point to
     frontend_url: str = "http://localhost:5173"
     cors_origins: str = "http://localhost:5173"
+    # Login with GitHub (OAuth App); empty client id means it is turned off
+    github_client_id: str = ""
+    github_client_secret: str = ""
+    github_redirect_uri: str = "http://localhost:8000/api/v1/auth/github/callback"
     log_level: str = "INFO"
     log_file: str = "logs/app.log"
     # Alembic is the single source of truth for the schema; set this to true only for a

@@ -28,6 +28,9 @@ Las tres van en la región de Frankfurt, la más cercana.
    | `CORS_ORIGINS` | `athletica-api` | `https://athletica-web.onrender.com` |
    | `FRONTEND_URL` | `athletica-api` | `https://athletica-web.onrender.com` |
    | `VITE_API_URL` | `athletica-web` | `https://athletica-api.onrender.com/api/v1` |
+| `GITHUB_CLIENT_ID` | `athletica-api` | El *Client ID* de la OAuth App de producción (ver abajo) |
+| `GITHUB_CLIENT_SECRET` | `athletica-api` | Su *Client secret* |
+| `GITHUB_REDIRECT_URI` | `athletica-api` | `https://athletica-api.onrender.com/api/v1/auth/github/callback` |
 
 3. **Apply.** Render crea la base de datos, construye la imagen y la web. Tarda unos minutos.
 4. Comprobar las URLs reales en el panel de cada servicio. Si Render ha añadido un sufijo al nombre
@@ -54,11 +57,23 @@ Las tres van en la región de Frankfurt, la más cercana.
 | `LOG_FILE` | Vacío | `render.yaml`. Los logs se ven en la pestaña **Logs** |
 | `SEED_DEMO_DATA` | `true` | `render.yaml` |
 | `VITE_API_URL` | URL de la API con `/api/v1` | A mano (paso 2), en la web |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `GITHUB_REDIRECT_URI` | Login con GitHub | A mano (paso 2). Si `GITHUB_CLIENT_ID` está vacío, el login con GitHub queda desactivado |
 
 El resto (`ACCESS_TOKEN_EXPIRE_MINUTES`, `LOGIN_RATE_LIMIT_ATTEMPTS`...) usa los valores por
 defecto de `backend/app/core/config.py`; se pueden añadir en **Environment** si hace falta.
 
 Ningún secreto se escribe en el repositorio.
+
+## Login con GitHub en producción
+
+GitHub solo acepta una URL de vuelta por aplicación, así que la de producción es una **OAuth App
+distinta** de la de local. En GitHub: **Settings → Developer settings → OAuth Apps → New OAuth App**:
+
+- *Homepage URL:* la URL de la web.
+- *Authorization callback URL:* la URL de la API + `/api/v1/auth/github/callback`.
+
+Copiar el *Client ID*, generar un *Client secret* y ponerlos en `athletica-api`. El secreto solo se
+ve una vez; no se guarda en ningún archivo.
 
 ## Prueba de humo (#114)
 

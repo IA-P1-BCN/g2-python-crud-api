@@ -31,6 +31,13 @@ services:
         sync: false
       - key: FRONTEND_URL
         sync: false
+      # Login with GitHub: an OAuth App whose callback is the API URL + /api/v1/auth/github/callback
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_REDIRECT_URI
+        sync: false
       # Logs go to stdout; the container user cannot write to /app
       - key: LOG_FILE
         value: ''
