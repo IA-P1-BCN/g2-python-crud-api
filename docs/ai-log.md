@@ -512,3 +512,31 @@ alcance. El resto del equipo añade aquí su fila.
 - **Revisión humana:** pendiente en el PR. Puntos de seguridad a mirar: que con contraseña mala la
   respuesta no cambia, que el secreto no aparece en ninguna respuesta tras activarlo, y que el
   login de Swagger no se salta el segundo paso.
+
+### #416 Revisión automática de PRs con un modelo gratuito
+
+- **Fecha:** 2026-10-16
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/416-ai-pr-review.md`, escrita antes del código.
+- **Prompt clave:** «seguimos con las tareas a tu criterio». El agente propuso la #416 porque no
+  dependía de nadie y preguntó qué modelo gratuito usar. Eva eligió GitHub Models, que se llama con
+  el token que GitHub crea en cada ejecución y no necesita guardar ninguna clave.
+- **Qué generó el agente:** la spec; `.github/workflows/ai-review.yml`; y
+  `.github/scripts/ai_review.py`, solo con la librería estándar de Python. El script lee el diff,
+  quita los archivos generados, pide la revisión con las reglas de `AGENTS.md` y deja un único
+  comentario por PR, que se actualiza en cada push.
+- **Aceptado:**
+  - Solo comenta: no aprueba ni bloquea, y el comentario recuerda que la revisión humana es
+    obligatoria.
+  - Cualquier fallo (modelo caído, límite gratuito, permisos) deja un aviso y el check en verde.
+  - El diff se recorta a 20.000 caracteres para caber en el límite gratuito, y el comentario
+    avisa del recorte.
+- **Rechazado o cambiado, y por qué:** Gemini u OpenRouter: piden una clave y que alguien con
+  permisos de administración la guarde como secreto del repositorio.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** la primera prueba local falló
+  porque, en el equipo de Eva, `models.github.ai` responde un «OK» en texto plano a cualquier
+  petición: algo de la red lo intercepta. El agente lo vio en las cabeceras, que no eran las de
+  GitHub. La prueba real se hace en GitHub Actions con el propio PR.
+- **Comprobado a mano:** con un token inválido el script avisa y termina con código 0; la lectura
+  del diff de un PR real funciona; el filtrado de archivos generados y el recorte, con un ejemplo. Ese ejemplo destapó un fallo: `frontend/package-lock.json` no se filtraba porque se comparaba la ruta entera; se corrigió.
+- **Revisión humana:** pendiente en el PR.

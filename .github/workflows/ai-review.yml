@@ -1,0 +1,37 @@
+# AI review of each pull request with a free GitHub Models model (specs/416-ai-pr-review.md).
+# It only comments: it never approves or blocks, and a failure leaves the check green.
+name: AI review
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  models: read
+
+concurrency:
+  group: ai-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: AI review
+    # Pull requests from forks get a read-only token; drafts are reviewed when they are ready
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+
+      - name: Review the diff and comment
+        run: python3 .github/scripts/ai_review.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          AI_REVIEW_MODEL: ${{ vars.AI_REVIEW_MODEL }}
