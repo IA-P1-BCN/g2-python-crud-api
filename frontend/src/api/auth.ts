@@ -17,4 +17,9 @@ export const authApi = {
     const { data } = await apiClient.get<User>('/auth/me')
     return data
   },
+
+  /** Confirms the email with the token from the verification link (204, no body). */
+  async verifyEmail(token: string): Promise<void> {
+    await apiClient.post('/auth/verify-email', { token })
+  },
 }

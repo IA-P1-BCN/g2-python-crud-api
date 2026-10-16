@@ -699,3 +699,23 @@ alcance. El resto del equipo añade aquí su fila.
 - **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno relevante. El mock de
   `AdminDashboardPage.test` se amplió con el hook para no romper sus tests.
 - **Revisión humana:** pendiente en el PR.
+
+### #461 Página de verificación de correo electrónico
+
+- **Fecha:** 2026-10-16
+- **Persona, herramienta y modelo:** Elena, OpenCode, modelo gratuito (OpenCode Zen).
+- **Spec:** `specs/461-verify-email-page.md`, escrita antes del código.
+- **Prompt clave:** «tarea: Interfaz de usuario: página de verificación de correo electrónico #461».
+- **Qué generó el agente:** la spec; `authApi.verifyEmail(token)`; la página `VerifyEmailPage` (lee
+  el `token` de la URL, `useQuery` con `enabled` y `retry: false`, estados de carga/éxito/error y
+  enlaces al login o al inicio del rol); la ruta pública `/verify-email` en el `AuthLayout`; y cuatro
+  tests.
+- **Aceptado:** ruta pública dentro del `AuthLayout`; sin token no se llama a la API (mismo mensaje);
+  enlace al inicio del rol cuando ya hay sesión.
+- **Rechazado o cambiado, y por qué:** nada fuera del alcance; el envío real de correos es del
+  backend, aquí solo el enlace del log.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** React Query v5 no admite que la
+  `queryFn` devuelva `undefined` (usaba el 204 como éxito); se cambió para devolver `true` tras el
+  `await`. Lo detectaron los propios tests.
+- **Revisión humana:** pendiente en el PR.
+
