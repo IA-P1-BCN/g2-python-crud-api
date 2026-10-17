@@ -30,3 +30,8 @@ class GymClass(Base):
     schedules: Mapped[list["ClassSchedule"]] = relationship(
         "ClassSchedule", back_populates="gym_class", cascade="all, delete-orphan"
     )
+
+    @property
+    def trainer_name(self) -> str:
+        """The trainer's full name, which members may see; read endpoints are public."""
+        return self.trainer.full_name

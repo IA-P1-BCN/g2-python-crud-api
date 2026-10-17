@@ -764,3 +764,24 @@ alcance. El resto del equipo añade aquí su fila.
   tienen finales de línea LF, pero Windows los deja en CRLF (`core.autocrlf`). En la CI, con
   Linux, pasan.
 - **Revisión humana:** pendiente en el PR.
+
+### #486 Nombre del entrenador en las respuestas de clases
+
+- **Fecha:** 2026-10-17
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/486-trainer-name-in-class-responses.md`, escrita antes del código.
+- **Prompt clave:** Eva vio en la web el mensaje «Input should be less than or equal to 100» y
+  preguntó qué era. El agente encontró que las pantallas del socio pedían 200 elementos y, al
+  revisarlas, que además llamaban a `GET /users` y `GET /bookings`, que un socio no puede usar
+  (403). Preguntó de dónde sacar el nombre del entrenador; Eva eligió añadirlo a la API. Se
+  abrieron dos tareas: esta (backend) y la #487 (frontend).
+- **Qué generó el agente:** la spec; la propiedad `GymClass.trainer_name`; el campo
+  `trainer_name` en `GymClassRead`; la carga de los entrenadores junto con la lista
+  (`selectinload`); y 6 tests.
+- **Aceptado:** exponer solo el nombre completo del entrenador, nunca su email; sin migración.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** el test que comprueba que la lista
+  no hace una consulta por clase **pasaba también sin el arreglo**: la sesión de los tests ya tenía
+  los entrenadores en memoria. El agente lo vio al quitar a propósito la carga conjunta; vació esa
+  memoria en el test y ahora falla sin el arreglo (4 consultas en vez de 3) y pasa con él.
+- **Comprobado a mano:** `ruff` y `pytest` (1352 tests, 98,9 %).
+- **Revisión humana:** pendiente en el PR.

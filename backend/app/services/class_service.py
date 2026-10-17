@@ -1,5 +1,5 @@
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.core.exceptions import BusinessRuleError, NotFoundError
 from app.models.class_schedule import ClassSchedule
@@ -19,7 +19,8 @@ def list_classes(
     trainer_id: int | None = None,
     active_only: bool = False,
 ) -> tuple[list[GymClass], int]:
-    stmt = select(GymClass)
+    # The trainer comes with the page in one query, for `trainer_name`.
+    stmt = select(GymClass).options(selectinload(GymClass.trainer))
     count_stmt = select(func.count()).select_from(GymClass)
     if trainer_id is not None:
         stmt = stmt.where(GymClass.trainer_id == trainer_id)
