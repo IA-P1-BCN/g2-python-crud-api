@@ -11,6 +11,7 @@ Pass --dry-run to print the review instead of commenting.
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -22,6 +23,13 @@ DEFAULT_MODEL = "gemini-flash-latest"
 MARKER = "<!-- ai-review -->"
 # Keeps each request small enough for the free tier's per-minute token limit.
 MAX_DIFF_CHARS = 60_000
+# Flash models think before answering and that thinking uses the same output budget, so a tight
+# limit cuts the visible review off. Little thinking and a wide limit leave room for the answer.
+MAX_OUTPUT_TOKENS = 8_000
+REASONING_EFFORT = "low"
+# Busy free tier (429) or overloaded model (503): wait and try once more
+RETRY_STATUSES = (429, 503)
+RETRY_WAIT_SECONDS = 20
 SKIPPED_FILES = ("package-lock.json", "frontend/src/types/schema.d.ts")
 
 INSTRUCTIONS = """You review pull requests of Athletica, a gym app: FastAPI backend in backend/,
@@ -89,35 +97,43 @@ def truncate(diff: str) -> tuple[str, bool]:
     return diff[:MAX_DIFF_CHARS], True
 
 
-def review(diff: str, api_key: str, model: str) -> str:
-    answer = request(
-        MODEL_URL,
-        api_key,
-        method="POST",
-        body={
-            "model": model,
-            "temperature": 0.2,
-            "max_tokens": 1000,
-            "messages": [
-                {"role": "system", "content": INSTRUCTIONS},
-                {"role": "user", "content": f"```diff\n{diff}\n```"},
-            ],
-        },
-        accept="application/json",
-    )
+def review(diff: str, api_key: str, model: str) -> tuple[str, bool]:
+    """The review text, and whether the model stopped because it ran out of output tokens."""
+    body = {
+        "model": model,
+        "temperature": 0.2,
+        "max_tokens": MAX_OUTPUT_TOKENS,
+        "reasoning_effort": REASONING_EFFORT,
+        "messages": [
+            {"role": "system", "content": INSTRUCTIONS},
+            {"role": "user", "content": f"```diff\n{diff}\n```"},
+        ],
+    }
     try:
-        return json.loads(answer)["choices"][0]["message"]["content"].strip()
-    except (ValueError, KeyError, IndexError) as error:
+        answer = request(MODEL_URL, api_key, method="POST", body=body, accept="application/json")
+    except urllib.error.HTTPError as error:
+        if error.code not in RETRY_STATUSES:
+            raise
+        print(f"Model answered HTTP {error.code}; retrying in {RETRY_WAIT_SECONDS} seconds.")
+        time.sleep(RETRY_WAIT_SECONDS)
+        answer = request(MODEL_URL, api_key, method="POST", body=body, accept="application/json")
+    try:
+        choice = json.loads(answer)["choices"][0]
+        return choice["message"]["content"].strip(), choice.get("finish_reason") == "length"
+    except (ValueError, KeyError, IndexError, AttributeError) as error:
         raise RuntimeError(f"unexpected answer from the model: {answer[:300]!r}") from error
 
 
-def comment_body(text: str, model: str, truncated: bool) -> str:
-    note = (
-        f"\n\n> The diff was longer than {MAX_DIFF_CHARS:,} characters: only the first part was "
-        "reviewed."
-        if truncated
-        else ""
-    )
+def comment_body(text: str, model: str, truncated: bool, cut_off: bool = False) -> str:
+    notes = []
+    if truncated:
+        notes.append(
+            f"> The diff was longer than {MAX_DIFF_CHARS:,} characters: only the first part was "
+            "reviewed."
+        )
+    if cut_off:
+        notes.append("> The model ran out of space and this review is incomplete.")
+    note = "".join(f"\n\n{line}" for line in notes)
     return (
         f"{MARKER}\n## AI review\n\n{text}{note}\n\n---\n"
         f"*Automatic review by `{model}` (Gemini). It does not approve or block this PR: "
@@ -163,7 +179,8 @@ def main() -> None:
         if not diff.strip():
             print("Nothing to review.")
             return
-        body = comment_body(review(diff, api_key, model), model, truncated)
+        text, cut_off = review(diff, api_key, model)
+        body = comment_body(text, model, truncated, cut_off)
         if dry_run:
             print(body)
         else:

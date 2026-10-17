@@ -785,3 +785,24 @@ alcance. El resto del equipo añade aquí su fila.
   memoria en el test y ahora falla sin el arreglo (4 consultas en vez de 3) y pasa con él.
 - **Comprobado a mano:** `ruff` y `pytest` (1352 tests, 98,9 %).
 - **Revisión humana:** pendiente en el PR.
+
+### #489 El comentario de la revisión con IA sale cortado
+
+- **Fecha:** 2026-10-17
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Prompt clave:** «revisa el fallo 416». El comentario «AI review» salía cortado a media frase
+  (PR #485 y #488), y en el #477 no salió porque Gemini respondió 503 por saturación.
+- **Causa:** `gemini-flash-latest` razona antes de responder, y ese razonamiento gasta el mismo
+  límite de respuesta, que era de 1000 tokens. La parte visible se quedaba sin espacio.
+- **Qué generó el agente:** en `.github/scripts/ai_review.py`, límite de 8000 tokens,
+  `reasoning_effort: "low"`, un reintento a los 20 segundos si Gemini responde 429 o 503, y un
+  aviso en el comentario si la respuesta llega cortada (`finish_reason: "length"`), en vez de
+  publicarla como si estuviera completa.
+- **Comprobado a mano:** con una API simulada, un 503 se reintenta una vez y un 400 no; la
+  respuesta cortada lleva el aviso; y la petición lleva el nuevo límite y `reasoning_effort`. La
+  prueba real es el comentario de la IA en el propio PR.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** al pedir 1000 tokens en la #416,
+  el agente no tuvo en cuenta que los modelos que razonan gastan parte de ese límite pensando. Un
+  primer intento de editar el script con un programa de reemplazo falló por los escapes de `\n`;
+  se hizo con ediciones directas.
+- **Revisión humana:** pendiente en el PR.
