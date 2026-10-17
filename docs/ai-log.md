@@ -742,3 +742,25 @@ alcance. El resto del equipo añade aquí su fila.
   y copiaron bien el patrógn del `Sheet`. La revisión humana re-ejecutó los checks por sí misma
   en lugar de fiarse del autocertificado de cada agente.
 - **Revisión humana:** pendiente en el PR.
+
+### #139 Tests E2E de los flujos principales
+
+- **Fecha:** 2026-10-16
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/139-e2e-main-flows.md`, escrita antes del código.
+- **Prompt clave:** «asígnanos la tarea 139». Antes de escribir, el agente revisó lo que ya
+  había en `frontend/tests/e2e/`: login, reservar y cancelar ya estaban cubiertos (`auth.spec.ts`
+  y `member.spec.ts`), así que solo faltaba el acceso prohibido por rol, y no duplicó lo demás.
+- **Qué generó el agente:** la spec y `frontend/tests/e2e/access.spec.ts`, con 8 tests: una ruta
+  protegida sin sesión lleva al login; seis combinaciones de rol equivocado acaban en «403 · Acceso
+  denegado»; y el rol correcto entra sin bloqueo. Usa el `mockApi` existente, sin backend real.
+- **Aceptado:** no tocar el código de la aplicación ni los tests existentes; los permisos de la
+  API ya los cubre `backend/tests/integration/test_permissions.py`.
+- **Comprobado a mano:** se desactivó un momento la comprobación de rol de `ProtectedRoute` y
+  fallaron justo los 6 tests de rol equivocado, así que los tests detectan el fallo; después se
+  restauró el archivo. `lint`, `test` (399), `build` y los 18 tests E2E en verde.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno en el código. En local,
+  `format:check` avisa de 8 archivos de configuración que no son de esta tarea: en el repositorio
+  tienen finales de línea LF, pero Windows los deja en CRLF (`core.autocrlf`). En la CI, con
+  Linux, pasan.
+- **Revisión humana:** pendiente en el PR.
