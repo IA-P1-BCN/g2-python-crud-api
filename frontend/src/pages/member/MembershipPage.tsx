@@ -6,31 +6,11 @@ import { MembershipCard } from '@/components/ui/molecules/MembershipCard'
 import { PlanBenefitsList } from '@/components/ui/molecules/PlanBenefitsList'
 import { membershipPlansApi, membershipsApi, toApiError } from '@/api'
 import { useAuth } from '@/auth'
+import { utcDay, utcToday } from '@/lib/dates'
+import { formatUtcDate } from '@/lib/format'
 import type { Membership } from '@/types/api'
 
 const DAY_MS = 86_400_000
-
-/** Midnight (UTC) of a "YYYY-MM-DD" date, so the calendar day never shifts with the timezone. */
-function utcDay(value: string): number {
-  const [year, month, day] = value.split('-').map(Number)
-  return Date.UTC(year, month - 1, day)
-}
-
-/** Midnight (UTC) of today, to compare against the membership dates. */
-function utcToday(): number {
-  const now = new Date()
-  return Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
-}
-
-/** "31/10/2026", formatted in UTC so the day is the one the API sent. */
-function formatUtcDate(value: string): string {
-  return new Date(utcDay(value)).toLocaleDateString('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    timeZone: 'UTC',
-  })
-}
 
 /** Days left until the end date, never below zero. */
 function daysLeft(membership: Membership): number {
@@ -72,6 +52,15 @@ export function MembershipPage() {
     body = <Alert variant="error">{toApiError(memberships.error).message}</Alert>
   } else if (!membership) {
     body = <Alert variant="info">No tienes ninguna membresía asignada.</Alert>
+  } else if (plans.isLoading) {
+    // Only the card needs the plan name: keep it out of view until the lookup resolves, so the
+    // fallback "Plan #<id>" never flashes on screen. A failed query falls through to the fallback.
+    body = (
+      <div className="flex flex-col gap-4" aria-busy="true">
+        <Skeleton className="h-44 rounded-card" />
+        <PlanBenefitsList title="Tu plan incluye" />
+      </div>
+    )
   } else {
     body = (
       <>

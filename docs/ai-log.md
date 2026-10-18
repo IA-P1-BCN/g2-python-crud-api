@@ -869,17 +869,29 @@ alcance. El resto del equipo añade aquí su fila.
   la rama de la #273, en un solo commit, para enviar una sola PR.
 - **Qué generó el agente:** la página `pages/member/MembershipPage.tsx` reescrita con tokens
   (título, `MembershipCard`, `PlanBenefitsList` con «Tu plan incluye», `Skeleton` en la carga y los
-  mismos `Alert` de error y vacío); los días restantes y la duración calculados en el front; y el
-  test de la página (4 tests: tarjeta activa, vacío, carga y error). También esta entrada.
+  mismos `Alert` de error y vacío); los días restantes y la duración calculados en el front; los
+  helpers UTC compartidos en `lib/dates.ts` y `lib/format.ts`; y el test de la página (6 tests:
+  tarjeta activa, vacío, carga, error, espera de planes y fallback `Plan #<id>`). También esta
+  entrada.
 - **Aceptado:** parsear las fechas por año/mes/día en **UTC** (medianoche UTC y «hoy» en UTC), que
   es lo que pide la spec. `formatDate` parsea con `new Date('YYYY-MM-DD')` —medianoche UTC— pero
   formatea en hora local, así que en UTC-6 (México) la fecha se mostraba un día antes; con el
   formateo UTC la tarjeta muestra el día que manda la API.
-- **Rechazado o cambiado, y por qué:** reutilizar `parseIsoDate` de `lib/dates.ts`, que parsea como
-  fecha **local**: Nayeli eligió lo que pide la spec (UTC), inmune a la zona horaria. Los helpers de
-  fecha viven en la propia página, sin tocar `lib/` ni las moléculas.
+- **Rechazado o cambiado, y por qué:**
+  - Reutilizar `parseIsoDate` de `lib/dates.ts`, que parsea como fecha **local**: Nayeli eligió lo
+    que pide la spec (UTC), inmune a la zona horaria.
+  - **Revisión con IA del PR:** el reviewer señaló que los helpers UTC duplicaban `lib/dates.ts` y
+    `lib/format.ts`, y que el nombre del plan podía destellar el fallback `Plan #<id>` mientras
+    cargaban los planes. Nayeli aprobó las dos: `utcDay` y `utcToday` pasaron a `lib/dates.ts` y
+    `formatUtcDate` a `lib/format.ts` (con docstring que explica por qué no es lo mismo que
+    `parseIsoDate`/`formatDate`), y la tarjeta espera a `plans.isLoading` con su propio `Skeleton`.
+    `daysLeft` y `totalDays` se quedan en la página por ser lógica del socio, no utilidad genérica.
+  - Arreglar `formatDate` para las ~12 llamadas que hoy reciben fechas solo-fecha y muestran el
+    día anterior en UTC-6 (`AdminMembershipsPage`, `MemberDetail`, `BookingsPage`,
+    `ExpiringMembershipsList`…): es un bug preexistente de otras páginas, fuera del alcance de
+    #273; Nayeli lo dejará como issue aparte.
 - **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno en la ejecución. En la
   revisión previa el agente vio que la rama no tenía commits (solo el spec sin trackear) y lo dijo
   antes de escribir código.
-- **Comprobado a mano:** `lint`, `format:check`, 415 tests unitarios (4 nuevos) y `build` en verde.
+- **Comprobado a mano:** `lint`, `format:check`, 417 tests unitarios (6 nuevos) y `build` en verde.
 - **Revisión humana:** pendiente en el PR.

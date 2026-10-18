@@ -16,6 +16,24 @@ export function parseIsoDate(value: string): Date {
   return new Date(year, month - 1, day)
 }
 
+/**
+ * Milliseconds since the epoch of midnight (UTC) for a "YYYY-MM-DD" calendar day.
+ *
+ * Unlike `parseIsoDate`, which builds a *local* date, this stays on the UTC calendar, so two days
+ * always differ by a whole number of days regardless of the timezone. Use it for day arithmetic
+ * (days left, durations); use `parseIsoDate` when you need the date in the user's timezone.
+ */
+export function utcDay(value: string): number {
+  const [year, month, day] = value.split('-').map(Number)
+  return Date.UTC(year, month - 1, day)
+}
+
+/** Midnight (UTC) of today, the counterpart of `utcDay` for "now". */
+export function utcToday(): number {
+  const now = new Date()
+  return Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+}
+
 /** Numeric weekday of a `YYYY-MM-DD` date or a `Date`, with 0 = Monday. */
 export function weekdayOf(value: string | Date): number {
   const date = typeof value === 'string' ? parseIsoDate(value) : value

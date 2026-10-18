@@ -134,6 +134,27 @@ describe('MembershipPage', () => {
     expect(screen.queryByText('No tienes ninguna membresía asignada.')).not.toBeInTheDocument()
   })
 
+  it('espera a los planes antes de enseñar la tarjeta, sin destellar el fallback', async () => {
+    mockedListForUser.mockResolvedValue(membershipPage([membership]))
+    mockedListPlans.mockReturnValue(new Promise<MembershipPlanPage>(() => {}))
+
+    const { container } = render(<MembershipPage />, { wrapper })
+
+    expect(await screen.findByRole('heading', { name: 'Tu plan incluye' })).toBeInTheDocument()
+    expect(container.querySelectorAll('.animate-pulse')).toHaveLength(1)
+    expect(screen.queryByText(/Plan #\d/)).not.toBeInTheDocument()
+    expect(screen.queryByText('Mensual')).not.toBeInTheDocument()
+  })
+
+  it('usa el fallback Plan #id cuando los planes no llegan', async () => {
+    mockedListForUser.mockResolvedValue(membershipPage([membership]))
+    mockedListPlans.mockResolvedValue(planPage([]))
+
+    render(<MembershipPage />, { wrapper })
+
+    expect(await screen.findByRole('heading', { name: 'Plan #2' })).toBeInTheDocument()
+  })
+
   it('muestra el error de la API', async () => {
     mockedListForUser.mockRejectedValue(new Error('boom'))
 
