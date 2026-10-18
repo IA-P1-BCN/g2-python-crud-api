@@ -33,8 +33,8 @@ export function SessionDetailPage() {
   })
 
   function invalidate() {
-    queryClient.invalidateQueries({ queryKey: ['session-bookings', id, date] })
-    queryClient.invalidateQueries({ queryKey: ['member-sessions-bookings'] })
+    queryClient.invalidateQueries({ queryKey: ['availability', id, date] })
+    queryClient.invalidateQueries({ queryKey: ['my-bookings'] })
     queryClient.invalidateQueries({ queryKey: ['bookings'] })
   }
 

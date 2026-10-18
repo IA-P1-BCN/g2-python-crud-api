@@ -39,6 +39,186 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Obtener token (OAuth2)
+         * @description Login estándar de OAuth2 Password Flow: recibe un formulario con `username` (el email) y `password`, y devuelve el token JWT. Es el endpoint que usa el botón **Authorize** de esta documentación. Aplica las mismas reglas que `/auth/login`.
+         */
+        post: operations["issue_oauth2_token_api_v1_auth_token_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Renovar el token de acceso
+         * @description Cambia un token de refresco válido por un token de acceso nuevo, sin volver a pedir la contraseña. Devuelve el mismo token de refresco. Un token de refresco revocado o caducado responde 401.
+         */
+        post: operations["refresh_token_api_v1_auth_refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cerrar sesión
+         * @description Revoca el token de acceso con el que se llama, que deja de valer aunque no haya caducado. Si se envía `refresh_token`, también se revoca y ya no sirve para renovar.
+         */
+        post: operations["logout_api_v1_auth_logout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/verify-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verificar email
+         * @description Confirma el email con el token del enlace que se envía al registrarse. Repetirlo no es un error. Por ahora los correos no se envían: el enlace aparece en el log del backend.
+         */
+        post: operations["verify_email_api_v1_auth_verify_email_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/forgot-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * He olvidado mi contraseña
+         * @description Si el email es de una cuenta activa, envía un enlace para crear una contraseña nueva. Responde 202 siempre, exista o no la cuenta, para no revelar qué emails están registrados. Por ahora el enlace aparece en el log del backend.
+         */
+        post: operations["forgot_password_api_v1_auth_forgot_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restablecer contraseña
+         * @description Cambia la contraseña con el token del enlace de recuperación. El enlace caduca y solo vale una vez. La contraseña nueva debe cumplir la regla de contraseña fuerte.
+         */
+        post: operations["reset_password_api_v1_auth_reset_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/2fa/setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preparar la verificación en dos pasos
+         * @description Genera un secreto nuevo y su enlace `otpauth://` para la app de códigos (Google Authenticator, Authy...). Todavía no queda activa: hay que confirmarla con `/auth/2fa/enable`. Si ya está activa responde 409 y no devuelve ningún secreto.
+         */
+        post: operations["setup_two_factor_api_v1_auth_2fa_setup_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/2fa/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Activar la verificación en dos pasos
+         * @description Activa la verificación en dos pasos con un código de la app. Desde ese momento el login pide el código en `totp_code`.
+         */
+        post: operations["enable_two_factor_api_v1_auth_2fa_enable_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/2fa/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Desactivar la verificación en dos pasos
+         * @description Desactiva la verificación en dos pasos con un código de la app y borra el secreto.
+         */
+        post: operations["disable_two_factor_api_v1_auth_2fa_disable_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/me": {
         parameters: {
             query?: never;
@@ -51,6 +231,46 @@ export interface paths {
          * @description Devuelve el usuario actual a partir del token Bearer.
          */
         get: operations["read_current_user_api_v1_auth_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/github/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Entrar con GitHub
+         * @description Redirige a GitHub para autorizar a Athletica. Al volver, `/auth/github/callback` lleva a la web con la sesión abierta. Ábrelo en el navegador, no desde Swagger.
+         */
+        get: operations["github_login_api_v1_auth_github_login_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/github/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Vuelta de GitHub
+         * @description GitHub vuelve aquí tras autorizar. Redirige a `FRONTEND_URL/auth/callback` con los tokens en el fragmento (`#access_token=...&refresh_token=...`), o con `#error=` y el motivo. Crea la cuenta de socio si el email no existe, o entra en la que ya lo tiene.
+         */
+        get: operations["github_callback_api_v1_auth_github_callback_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -77,6 +297,26 @@ export interface paths {
          * @description Crea un usuario. Requiere rol administrador.
          */
         post: operations["create_user_api_v1_users_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Mi usuario
+         * @description Devuelve el usuario del token. Disponible para cualquier rol.
+         */
+        get: operations["read_own_user_api_v1_users_me_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -144,6 +384,26 @@ export interface paths {
          * @description Cambia la contraseña del propio usuario.
          */
         put: operations["change_password_api_v1_users__user_id__password_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/{user_id}/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Auditoría de un usuario
+         * @description Quién creó el usuario y cuándo, y quién lo modificó por última vez y cuándo. Los usuarios anteriores a la auditoría tienen estos datos vacíos. Solo administradores.
+         */
+        get: operations["get_user_audit_api_v1_users__user_id__audit_get"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -551,7 +811,7 @@ export interface paths {
         post?: never;
         /**
          * Cancelar reserva
-         * @description Cancela una reserva. Solo el socio propietario o un administrador.
+         * @description Cancela una reserva. Solo el socio propietario o un administrador. El socio puede cancelar hasta 2 horas antes del inicio de la sesión; el administrador, siempre.
          */
         delete: operations["cancel_booking_api_v1_bookings__booking_id__delete"];
         options?: never;
@@ -671,6 +931,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Socios con su plan y su último pago
+         * @description Lista los socios paginados, cada uno con su membresía en vigor (o la última que tuvo) y su pago más reciente, en una sola llamada. Acepta los filtros de `GET /users` (`search`, `is_active` y fechas de alta y de baja); `role` se ignora porque siempre devuelve socios. Solo administradores.
+         */
+        get: operations["list_members_api_v1_admin_members_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Resumen del socio
+         * @description Lo que necesita la pantalla de inicio del usuario con sesión, en una sola llamada: membresía en vigor con días restantes, próximas reservas confirmadas (con clase, horario, sala y entrenador) y reservas del mes. Solo devuelve datos propios.
+         */
+        get: operations["get_my_dashboard_api_v1_me_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -695,6 +995,79 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AdminMember
+         * @description A member as the admin panel lists them: user data, plan and last payment.
+         * @example {
+         *       "created_at": "2026-01-01T10:00:00Z",
+         *       "email": "socio@example.com",
+         *       "full_name": "Socio Uno",
+         *       "id": 1,
+         *       "is_active": true,
+         *       "last_payment": {
+         *         "amount_cents": 3999,
+         *         "created_at": "2026-01-01T10:00:00Z",
+         *         "payment_id": 1,
+         *         "status": "paid"
+         *       },
+         *       "membership": {
+         *         "end_date": "2026-01-31",
+         *         "membership_id": 1,
+         *         "plan_id": 1,
+         *         "plan_name": "Mensual",
+         *         "start_date": "2026-01-01",
+         *         "status": "active"
+         *       },
+         *       "role": "member"
+         *     }
+         */
+        AdminMember: {
+            /** Id */
+            id: number;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /** Full Name */
+            full_name: string;
+            role: components["schemas"]["UserRole"];
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Deactivated At */
+            deactivated_at: string | null;
+            membership: components["schemas"]["MembershipSummary"] | null;
+            last_payment: components["schemas"]["MemberLastPayment"] | null;
+        };
+        /** Body_issue_oauth2_token_api_v1_auth_token_post */
+        Body_issue_oauth2_token_api_v1_auth_token_post: {
+            /** Grant Type */
+            grant_type?: string | null;
+            /** Username */
+            username: string;
+            /**
+             * Password
+             * Format: password
+             */
+            password: string;
+            /**
+             * Scope
+             * @default
+             */
+            scope: string;
+            /** Client Id */
+            client_id?: string | null;
+            /**
+             * Client Secret
+             * Format: password
+             */
+            client_secret?: string | null;
+        };
         /**
          * BookingCreate
          * @example {
@@ -850,6 +1223,28 @@ export interface components {
             /** Room Id */
             room_id?: number | null;
         };
+        /** CurrentMembership */
+        CurrentMembership: {
+            /** Membership Id */
+            membership_id: number;
+            /** Plan Id */
+            plan_id: number;
+            /** Plan Name */
+            plan_name: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            status: components["schemas"]["MembershipStatus"];
+            /** Days Left */
+            days_left: number;
+        };
         /** DailyBookings */
         DailyBookings: {
             /**
@@ -863,7 +1258,7 @@ export interface components {
         /** DashboardSummary */
         DashboardSummary: {
             period: components["schemas"]["PeriodRange"];
-            members: components["schemas"]["MemberStats"];
+            members: components["schemas"]["app__schemas__dashboard__MemberStats"];
             /** Weekly Movements */
             weekly_movements: components["schemas"]["WeeklyMovement"][];
             bookings: components["schemas"]["BookingStats"];
@@ -873,6 +1268,20 @@ export interface components {
             plans: components["schemas"]["PlanStats"];
             /** Popular Classes */
             popular_classes: components["schemas"]["PopularClass"][];
+        };
+        /**
+         * ErrorResponse
+         * @description Formato de error común: `detail` con el mensaje y `code` de dominio.
+         * @example {
+         *       "code": "not_found",
+         *       "detail": "Recurso no encontrado"
+         *     }
+         */
+        ErrorResponse: {
+            /** Detail */
+            detail: string;
+            /** Code */
+            code: string;
         };
         /** ExpiringMembership */
         ExpiringMembership: {
@@ -891,6 +1300,19 @@ export interface components {
             end_date: string;
             /** Days Left */
             days_left: number;
+        };
+        /**
+         * ForgotPasswordRequest
+         * @example {
+         *       "email": "socio@example.com"
+         *     }
+         */
+        ForgotPasswordRequest: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
         };
         /**
          * GymClassCreate
@@ -926,7 +1348,8 @@ export interface components {
          *       "is_active": true,
          *       "name": "Yoga",
          *       "room_id": 1,
-         *       "trainer_id": 2
+         *       "trainer_id": 2,
+         *       "trainer_name": "Laura Entrenadora"
          *     }
          */
         GymClassRead: {
@@ -938,6 +1361,8 @@ export interface components {
             capacity: number;
             /** Trainer Id */
             trainer_id: number;
+            /** Trainer Name */
+            trainer_name: string;
             /** Room Id */
             room_id: number | null;
             /** Is Active */
@@ -961,16 +1386,11 @@ export interface components {
             /** Is Active */
             is_active?: boolean | null;
         };
-        /** HTTPValidationError */
-        HTTPValidationError: {
-            /** Detail */
-            detail?: components["schemas"]["ValidationError"][];
-        };
         /**
          * LoginRequest
          * @example {
          *       "email": "socio@example.com",
-         *       "password": "gymflow123"
+         *       "password": "Athletica123!"
          *     }
          */
         LoginRequest: {
@@ -981,15 +1401,42 @@ export interface components {
             email: string;
             /** Password */
             password: string;
+            /**
+             * Totp Code
+             * @description Código de 6 cifras de la app; solo si la cuenta tiene verificación en dos pasos
+             */
+            totp_code?: string | null;
         };
-        /** MemberStats */
-        MemberStats: {
-            /** Active */
-            active: number;
-            /** Signups */
-            signups: number;
-            /** Sign Offs */
-            sign_offs: number;
+        /**
+         * LogoutRequest
+         * @description The refresh token is optional: send it so it is revoked too.
+         * @example {
+         *       "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+         *     }
+         */
+        LogoutRequest: {
+            /** Refresh Token */
+            refresh_token?: string | null;
+        };
+        /** MemberDashboard */
+        MemberDashboard: {
+            membership: components["schemas"]["CurrentMembership"] | null;
+            /** Upcoming Bookings */
+            upcoming_bookings: components["schemas"]["UpcomingBooking"][];
+            stats: components["schemas"]["app__schemas__member_dashboard__MemberStats"];
+        };
+        /** MemberLastPayment */
+        MemberLastPayment: {
+            /** Payment Id */
+            payment_id: number;
+            /** Amount Cents */
+            amount_cents: number;
+            status: components["schemas"]["PaymentStatus"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * MembershipCreate
@@ -1120,6 +1567,29 @@ export interface components {
          * @enum {string}
          */
         MembershipStatus: "active" | "expired" | "cancelled";
+        /**
+         * MembershipSummary
+         * @description A membership with the name of its plan, as the member and admin screens show it.
+         */
+        MembershipSummary: {
+            /** Membership Id */
+            membership_id: number;
+            /** Plan Id */
+            plan_id: number;
+            /** Plan Name */
+            plan_name: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            status: components["schemas"]["MembershipStatus"];
+        };
         /** MembershipUpdate */
         MembershipUpdate: {
             /** Start Date */
@@ -1132,6 +1602,19 @@ export interface components {
             average_rate: number;
             /** By Class */
             by_class: components["schemas"]["ClassOccupancy"][];
+        };
+        /** Page[AdminMember] */
+        Page_AdminMember_: {
+            /** Items */
+            items: components["schemas"]["AdminMember"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Size */
+            size: number;
+            /** Pages */
+            pages: number;
         };
         /** Page[BookingRead] */
         Page_BookingRead_: {
@@ -1241,7 +1724,10 @@ export interface components {
         PasswordChange: {
             /** Current Password */
             current_password: string;
-            /** New Password */
+            /**
+             * New Password
+             * @description La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial
+             */
             new_password: string;
         };
         /**
@@ -1358,11 +1844,21 @@ export interface components {
             full_name?: string | null;
         };
         /**
+         * RefreshRequest
+         * @example {
+         *       "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+         *     }
+         */
+        RefreshRequest: {
+            /** Refresh Token */
+            refresh_token: string;
+        };
+        /**
          * RegisterRequest
          * @example {
          *       "email": "nuevo@example.com",
          *       "full_name": "Nuevo Socio",
-         *       "password": "gymflow123"
+         *       "password": "Athletica123!"
          *     }
          */
         RegisterRequest: {
@@ -1373,8 +1869,27 @@ export interface components {
             email: string;
             /** Full Name */
             full_name: string;
-            /** Password */
+            /**
+             * Password
+             * @description La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial
+             */
             password: string;
+        };
+        /**
+         * ResetPasswordRequest
+         * @example {
+         *       "new_password": "Nueva123!",
+         *       "token": "eyJhbGciOiJIUzI1NiIs..."
+         *     }
+         */
+        ResetPasswordRequest: {
+            /** Token */
+            token: string;
+            /**
+             * New Password
+             * @description La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial
+             */
+            new_password: string;
         };
         /**
          * RoomCreate
@@ -1435,6 +1950,7 @@ export interface components {
          * Token
          * @example {
          *       "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+         *       "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
          *       "token_type": "bearer",
          *       "user": {
          *         "created_at": "2026-01-01T10:00:00Z",
@@ -1449,6 +1965,8 @@ export interface components {
         Token: {
             /** Access Token */
             access_token: string;
+            /** Refresh Token */
+            refresh_token: string;
             /**
              * Token Type
              * @default bearer
@@ -1457,12 +1975,101 @@ export interface components {
             user: components["schemas"]["UserRead"];
         };
         /**
+         * TotpCode
+         * @example {
+         *       "code": "123456"
+         *     }
+         */
+        TotpCode: {
+            /**
+             * Code
+             * @description Código de 6 cifras de la app
+             */
+            code: string;
+        };
+        /**
+         * TotpSetup
+         * @description Shown once, while two-factor authentication is being turned on.
+         * @example {
+         *       "otpauth_url": "otpauth://totp/Athletica:socio%40example.com?secret=JBSWY3DPEHPK3PXP&issuer=Athletica",
+         *       "secret": "JBSWY3DPEHPK3PXP"
+         *     }
+         */
+        TotpSetup: {
+            /** Secret */
+            secret: string;
+            /** Otpauth Url */
+            otpauth_url: string;
+        };
+        /** UpcomingBooking */
+        UpcomingBooking: {
+            /** Booking Id */
+            booking_id: number;
+            /**
+             * Booking Date
+             * Format: date
+             */
+            booking_date: string;
+            /** Schedule Id */
+            schedule_id: number;
+            /** Class Id */
+            class_id: number;
+            /** Class Name */
+            class_name: string;
+            /**
+             * Start Time
+             * Format: time
+             */
+            start_time: string;
+            /**
+             * End Time
+             * Format: time
+             */
+            end_time: string;
+            /** Room Name */
+            room_name: string | null;
+            /** Trainer Name */
+            trainer_name: string;
+        };
+        /**
+         * UserAudit
+         * @description Who created and last changed a user, and when. Empty values: unknown (older accounts).
+         * @example {
+         *       "created_at": "2026-10-15T09:30:00Z",
+         *       "created_by": {
+         *         "email": "admin@example.com",
+         *         "full_name": "Admin",
+         *         "id": 1
+         *       },
+         *       "updated_at": "2026-10-15T11:02:00Z",
+         *       "updated_by": {
+         *         "email": "socia@example.com",
+         *         "full_name": "Socia Uno",
+         *         "id": 7
+         *       },
+         *       "user_id": 7
+         *     }
+         */
+        UserAudit: {
+            /** User Id */
+            user_id: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            created_by: components["schemas"]["UserRef"] | null;
+            /** Updated At */
+            updated_at: string | null;
+            updated_by: components["schemas"]["UserRef"] | null;
+        };
+        /**
          * UserCreate
          * @example {
          *       "email": "socio@example.com",
          *       "full_name": "Socio Uno",
          *       "is_active": true,
-         *       "password": "gymflow123",
+         *       "password": "Athletica123!",
          *       "role": "member"
          *     }
          */
@@ -1481,7 +2088,10 @@ export interface components {
              * @default true
              */
             is_active: boolean;
-            /** Password */
+            /**
+             * Password
+             * @description La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial
+             */
             password: string;
         };
         /**
@@ -1551,6 +2161,21 @@ export interface components {
             deactivated_at: string | null;
         };
         /**
+         * UserRef
+         * @description A person named in the audit trail.
+         */
+        UserRef: {
+            /** Id */
+            id: number;
+            /** Full Name */
+            full_name: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+        };
+        /**
          * UserRole
          * @enum {string}
          */
@@ -1567,18 +2192,53 @@ export interface components {
             /** Password */
             password?: string | null;
         };
-        /** ValidationError */
+        /**
+         * ValidationError
+         * @description One field that failed validation. Same name and shape FastAPI gives it, so API clients
+         *     generated from the schema keep their `ValidationError` type.
+         */
         ValidationError: {
-            /** Location */
+            /** Loc */
             loc: (string | number)[];
-            /** Message */
+            /** Msg */
             msg: string;
-            /** Error Type */
+            /** Type */
             type: string;
-            /** Input */
-            input?: unknown;
-            /** Context */
-            ctx?: Record<string, never>;
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * ValidationErrorResponse
+         * @description A 422: `detail` is a message, or the list of fields that failed validation.
+         * @example {
+         *       "code": "validation_error",
+         *       "detail": [
+         *         {
+         *           "loc": [
+         *             "body",
+         *             "email"
+         *           ],
+         *           "msg": "Field required",
+         *           "type": "missing"
+         *         }
+         *       ]
+         *     }
+         */
+        ValidationErrorResponse: {
+            /** Detail */
+            detail: string | components["schemas"]["ValidationError"][];
+            /** Code */
+            code: string;
+        };
+        /**
+         * VerifyEmailRequest
+         * @example {
+         *       "token": "eyJhbGciOiJIUzI1NiIs..."
+         *     }
+         */
+        VerifyEmailRequest: {
+            /** Token */
+            token: string;
         };
         /**
          * WeeklyMovement
@@ -1599,6 +2259,22 @@ export interface components {
             signups: number;
             /** Sign Offs */
             sign_offs: number;
+        };
+        /** MemberStats */
+        app__schemas__dashboard__MemberStats: {
+            /** Active */
+            active: number;
+            /** Signups */
+            signups: number;
+            /** Sign Offs */
+            sign_offs: number;
+        };
+        /** MemberStats */
+        app__schemas__member_dashboard__MemberStats: {
+            /** Bookings This Month */
+            bookings_this_month: number;
+            /** Total Bookings */
+            total_bookings: number;
         };
     };
     responses: never;
@@ -1631,13 +2307,44 @@ export interface operations {
                     "application/json": components["schemas"]["Token"];
                 };
             };
-            /** @description Validation Error */
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -1664,13 +2371,686 @@ export interface operations {
                     "application/json": components["schemas"]["Token"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Demasiados intentos en poco tiempo. La cabecera `Retry-After` indica cuántos segundos esperar. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Demasiados intentos de inicio de sesión. Vuelve a intentarlo en 42 segundos",
+                     *       "code": "too_many_requests"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    issue_oauth2_token_api_v1_auth_token_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/x-www-form-urlencoded": components["schemas"]["Body_issue_oauth2_token_api_v1_auth_token_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Token"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Demasiados intentos en poco tiempo. La cabecera `Retry-After` indica cuántos segundos esperar. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Demasiados intentos de inicio de sesión. Vuelve a intentarlo en 42 segundos",
+                     *       "code": "too_many_requests"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    refresh_token_api_v1_auth_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Token"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+        };
+    };
+    logout_api_v1_auth_logout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["LogoutRequest"] | null;
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+        };
+    };
+    verify_email_api_v1_auth_verify_email_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyEmailRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Los datos son correctos, pero una regla de negocio lo impide. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El socio no tiene una membresía activa en esa fecha",
+                     *       "code": "business_rule"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+        };
+    };
+    forgot_password_api_v1_auth_forgot_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForgotPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+        };
+    };
+    reset_password_api_v1_auth_reset_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Los datos son correctos, pero una regla de negocio lo impide. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El socio no tiene una membresía activa en esa fecha",
+                     *       "code": "business_rule"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+        };
+    };
+    setup_two_factor_api_v1_auth_2fa_setup_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TotpSetup"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    enable_two_factor_api_v1_auth_2fa_enable_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TotpCode"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Los datos son correctos, pero una regla de negocio lo impide. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El socio no tiene una membresía activa en esa fecha",
+                     *       "code": "business_rule"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+        };
+    };
+    disable_two_factor_api_v1_auth_2fa_disable_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TotpCode"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Los datos son correctos, pero una regla de negocio lo impide. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El socio no tiene una membresía activa en esa fecha",
+                     *       "code": "business_rule"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -1691,6 +3071,103 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserRead"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    github_login_api_v1_auth_github_login_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            307: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Los datos son correctos, pero una regla de negocio lo impide. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El socio no tiene una membresía activa en esa fecha",
+                     *       "code": "business_rule"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    github_callback_api_v1_auth_github_callback_get: {
+        parameters: {
+            query?: {
+                code?: string | null;
+                state?: string | null;
+                error?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: {
+                github_oauth_state?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            307: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -1719,13 +3196,59 @@ export interface operations {
                     "application/json": components["schemas"]["Page_UserRead_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -1752,13 +3275,109 @@ export interface operations {
                     "application/json": components["schemas"]["UserRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+        };
+    };
+    read_own_user_api_v1_users_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserRead"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
@@ -1783,13 +3402,74 @@ export interface operations {
                     "application/json": components["schemas"]["UserRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -1818,13 +3498,89 @@ export interface operations {
                     "application/json": components["schemas"]["UserRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -1847,13 +3603,89 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -1882,13 +3714,89 @@ export interface operations {
                     "application/json": components["schemas"]["UserRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -1915,13 +3823,181 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Validation Error */
+            /** @description Los datos son correctos, pero una regla de negocio lo impide. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El socio no tiene una membresía activa en esa fecha",
+                     *       "code": "business_rule"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+        };
+    };
+    get_user_audit_api_v1_users__user_id__audit_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserAudit"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -1951,13 +4027,74 @@ export interface operations {
                     "application/json": components["schemas"]["Page_MembershipRead_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -1987,13 +4124,74 @@ export interface operations {
                     "application/json": components["schemas"]["Page_BookingRead_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2022,13 +4220,29 @@ export interface operations {
                     "application/json": components["schemas"]["Page_MembershipPlanRead_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2055,13 +4269,74 @@ export interface operations {
                     "application/json": components["schemas"]["MembershipPlanRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2086,13 +4361,44 @@ export interface operations {
                     "application/json": components["schemas"]["MembershipPlanRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2121,13 +4427,89 @@ export interface operations {
                     "application/json": components["schemas"]["MembershipPlanRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2150,13 +4532,89 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2186,13 +4644,59 @@ export interface operations {
                     "application/json": components["schemas"]["Page_MembershipRead_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2219,13 +4723,89 @@ export interface operations {
                     "application/json": components["schemas"]["MembershipRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Los datos son correctos, pero una regla de negocio lo impide. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El socio no tiene una membresía activa en esa fecha",
+                     *       "code": "business_rule"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2250,13 +4830,74 @@ export interface operations {
                     "application/json": components["schemas"]["MembershipRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2285,13 +4926,74 @@ export interface operations {
                     "application/json": components["schemas"]["MembershipRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2314,13 +5016,89 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2348,13 +5126,44 @@ export interface operations {
                     "application/json": components["schemas"]["Page_RoomRead_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2381,13 +5190,74 @@ export interface operations {
                     "application/json": components["schemas"]["RoomRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2412,13 +5282,59 @@ export interface operations {
                     "application/json": components["schemas"]["RoomRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2447,13 +5363,89 @@ export interface operations {
                     "application/json": components["schemas"]["RoomRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2476,13 +5468,89 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2512,13 +5580,29 @@ export interface operations {
                     "application/json": components["schemas"]["Page_GymClassRead_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2545,13 +5629,89 @@ export interface operations {
                     "application/json": components["schemas"]["GymClassRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Los datos son correctos, pero una regla de negocio lo impide. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El socio no tiene una membresía activa en esa fecha",
+                     *       "code": "business_rule"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2576,13 +5736,44 @@ export interface operations {
                     "application/json": components["schemas"]["GymClassRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2611,13 +5802,104 @@ export interface operations {
                     "application/json": components["schemas"]["GymClassRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Los datos son correctos, pero una regla de negocio lo impide. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El socio no tiene una membresía activa en esa fecha",
+                     *       "code": "business_rule"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2640,13 +5922,89 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2676,13 +6034,44 @@ export interface operations {
                     "application/json": components["schemas"]["Page_ClassScheduleRead_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2712,13 +6101,29 @@ export interface operations {
                     "application/json": components["schemas"]["Page_ClassScheduleRead_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2745,13 +6150,89 @@ export interface operations {
                     "application/json": components["schemas"]["ClassScheduleRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2776,13 +6257,44 @@ export interface operations {
                     "application/json": components["schemas"]["ClassScheduleRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2811,13 +6323,89 @@ export interface operations {
                     "application/json": components["schemas"]["ClassScheduleRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2840,13 +6428,89 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2873,13 +6537,44 @@ export interface operations {
                     "application/json": components["schemas"]["ScheduleAvailability"];
                 };
             };
-            /** @description Validation Error */
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2909,13 +6604,74 @@ export interface operations {
                     "application/json": components["schemas"]["Page_BookingRead_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2947,13 +6703,59 @@ export interface operations {
                     "application/json": components["schemas"]["Page_BookingRead_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -2980,13 +6782,104 @@ export interface operations {
                     "application/json": components["schemas"]["BookingRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Los datos son correctos, pero una regla de negocio lo impide. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El socio no tiene una membresía activa en esa fecha",
+                     *       "code": "business_rule"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -3011,13 +6904,74 @@ export interface operations {
                     "application/json": components["schemas"]["BookingRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -3040,13 +6994,104 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Validation Error */
+            /** @description Los datos son correctos, pero una regla de negocio lo impide. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El socio no tiene una membresía activa en esa fecha",
+                     *       "code": "business_rule"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description La petición choca con datos que ya existen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "El email ya está registrado",
+                     *       "code": "conflict"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -3076,13 +7121,59 @@ export interface operations {
                     "application/json": components["schemas"]["Page_PaymentRead_"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -3109,13 +7200,74 @@ export interface operations {
                     "application/json": components["schemas"]["PaymentRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -3140,13 +7292,74 @@ export interface operations {
                     "application/json": components["schemas"]["PaymentRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -3175,13 +7388,74 @@ export interface operations {
                     "application/json": components["schemas"]["PaymentRead"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -3204,13 +7478,74 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description El recurso indicado no existe. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Usuario 999 no encontrado",
+                     *       "code": "not_found"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -3233,13 +7568,59 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -3265,13 +7646,59 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
                 };
             };
         };
@@ -3296,13 +7723,175 @@ export interface operations {
                     "application/json": components["schemas"]["DashboardSummary"];
                 };
             };
-            /** @description Validation Error */
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+        };
+    };
+    list_members_api_v1_admin_members_get: {
+        parameters: {
+            query: {
+                filters: components["schemas"]["UserFilters"];
+                /** @description Número de página (empieza en 1) */
+                page?: number;
+                /** @description Elementos por página */
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Page_AdminMember_"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Hay sesión, pero ese rol o ese usuario no tiene permiso. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "No tienes permiso para realizar esta acción",
+                     *       "code": "forbidden"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Datos mal formados o incoherentes. `detail` es un texto o la lista de campos que fallan. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": [
+                     *         {
+                     *           "type": "missing",
+                     *           "loc": [
+                     *             "body",
+                     *             "email"
+                     *           ],
+                     *           "msg": "Field required",
+                     *           "input": {}
+                     *         }
+                     *       ],
+                     *       "code": "validation_error"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+        };
+    };
+    get_my_dashboard_api_v1_me_dashboard_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDashboard"];
+                };
+            };
+            /** @description Falta el token, ha caducado o no es válido; o las credenciales son incorrectas. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "detail": "Falta el token de acceso",
+                     *       "code": "unauthorized"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };

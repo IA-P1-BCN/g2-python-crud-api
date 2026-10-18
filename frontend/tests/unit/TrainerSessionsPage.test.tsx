@@ -35,6 +35,7 @@ const gymClass: GymClass = {
   name: 'Yoga',
   capacity: 20,
   trainer_id: 2,
+  trainer_name: 'Entrenador Uno',
   room_id: 1,
   is_active: true,
   created_at: '2026-10-01T10:00:00Z',

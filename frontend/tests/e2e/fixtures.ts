@@ -16,6 +16,7 @@ export type MockClass = {
   name: string
   capacity: number
   trainer_id: number
+  trainer_name: string
   room_id: number | null
   is_active: boolean
   created_at: string
@@ -99,6 +100,7 @@ export const defaultClasses: MockClass[] = [
     name: 'Yoga',
     capacity: 20,
     trainer_id: 2,
+    trainer_name: 'Entrenador Uno',
     room_id: 1,
     is_active: true,
     created_at: '2026-10-01T10:00:00Z',
@@ -108,6 +110,7 @@ export const defaultClasses: MockClass[] = [
     name: 'Spinning',
     capacity: 15,
     trainer_id: 2,
+    trainer_name: 'Entrenador Uno',
     room_id: 2,
     is_active: true,
     created_at: '2026-10-01T10:00:00Z',
@@ -238,6 +241,15 @@ export async function mockApi(page: Page, options: MockApiOptions) {
       return json(route, 200, options.user)
     }
 
+    // Like the API: listing all users or all bookings is for trainers and admins only
+    const staffOnly = method === 'GET' && (path === '/api/v1/users' || path === '/api/v1/bookings')
+    if (staffOnly && options.user.role === 'member') {
+      return json(route, 403, {
+        detail: 'No tienes permiso para realizar esta acción',
+        code: 'forbidden',
+      })
+    }
+
     if (path === '/api/v1/users' && method === 'GET') {
       const role = params.get('role')
       const items = Object.values(users).filter((user) => !role || user.role === role)
@@ -266,6 +278,27 @@ export async function mockApi(page: Page, options: MockApiOptions) {
     if (scheduleMatch && method === 'GET') {
       const item = schedules.find((entry) => entry.id === Number(scheduleMatch[1]))
       return item ? json(route, 200, item) : json(route, 404, { detail: 'Horario no encontrado' })
+    }
+
+    const availabilityMatch = path.match(/^\/api\/v1\/class-schedules\/(\d+)\/availability$/)
+    if (availabilityMatch && method === 'GET') {
+      const scheduleId = Number(availabilityMatch[1])
+      const onDate = params.get('on_date') ?? ''
+      const schedule = schedules.find((entry) => entry.id === scheduleId)
+      const capacity = classes.find((entry) => entry.id === schedule?.class_id)?.capacity ?? 0
+      const booked = bookings.filter(
+        (item) =>
+          item.schedule_id === scheduleId &&
+          item.booking_date === onDate &&
+          item.status === 'confirmed',
+      ).length
+      return json(route, 200, {
+        schedule_id: scheduleId,
+        on_date: onDate,
+        capacity,
+        booked,
+        available: Math.max(capacity - booked, 0),
+      })
     }
 
     if (path === '/api/v1/class-schedules' && method === 'GET') {

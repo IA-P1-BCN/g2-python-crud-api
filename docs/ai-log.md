@@ -806,3 +806,32 @@ alcance. El resto del equipo añade aquí su fila.
   primer intento de editar el script con un programa de reemplazo falló por los escapes de `\n`;
   se hizo con ediciones directas.
 - **Revisión humana:** pendiente en el PR.
+
+### #487 Pantallas del socio que funcionan con un socio real
+
+- **Fecha:** 2026-10-18
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/487-member-pages-for-real-members.md`, escrita antes del código.
+- **Prompt clave:** «pues la hacemos y a la tarde el deploy». Segunda parte del fallo que Eva vio en
+  la web («Input should be less than or equal to 100»); la primera fue la #486.
+- **Qué generó el agente:**
+  - `useMemberSessions.ts` y `useSessionDetail.ts` reescritos. Solo usan endpoints que un socio
+    puede llamar: plazas con `/class-schedules/{id}/availability`, entrenador con `trainer_name`
+    (#486), y «ya reservada» con las reservas del propio socio.
+  - `bookingsApi.listAllForUser`, que recorre todas las páginas, porque `/users/{id}/bookings`
+    ordena por id sin filtrar por fecha y la primera página perdería las reservas más recientes.
+  - `schedulesApi.availability` y `MAX_PAGE_SIZE = 100` en la capa `api/`.
+  - Tipos de la API regenerados: llevaban sin regenerarse desde el 8 de octubre (29 endpoints de
+    44). Eso obligó a añadir `trainer_name` a los datos de prueba de 10 archivos de tests.
+  - `mockApi` de los E2E responde ahora 403 a un socio en `GET /users` y `GET /bookings`, como la
+    API, y simula la disponibilidad.
+- **Comprobado a mano:** con los hooks antiguos, y el simulador nuevo, fallan 2 de los 3 E2E del
+  socio, así que el fallo ya no pasaría desapercibido; después se restauraron los nuevos. `lint`,
+  formato, 407 tests unitarios (2 nuevos de la capa `api/`), `build` y 18 E2E en verde.
+- **Errores o alucinaciones del agente y cómo se corrigieron:**
+  - Un primer test de «sesión reservada» calculaba la fecha según el orden de las peticiones y
+    podía fallar a veces; se cambió para calcular el lunes igual que la página.
+  - Usó textos de estado inventados («llena») en vez de mirar el componente («Completa»); se
+    corrigió al leerlo.
+  - Al quitar `/users` de los tests, quedó una variable sin usar que rompía el build; se quitó.
+- **Revisión humana:** pendiente en el PR. Es código del frontend de Elena; conviene que lo mire.
