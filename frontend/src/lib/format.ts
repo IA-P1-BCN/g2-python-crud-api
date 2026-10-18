@@ -1,3 +1,5 @@
+import { utcDay } from './dates'
+
 const DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 const SHORT_DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 
@@ -43,6 +45,24 @@ export function formatDate(value: string): string {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
+  })
+}
+
+/**
+ * "31/10/2026" for a "YYYY-MM-DD" calendar day, read and written in UTC.
+ *
+ * `formatDate` above parses a date-only string as UTC midnight but formats it in *local* time, so
+ * on a negative offset (e.g. UTC-6) it shows the previous day. Use this for date-only API values
+ * where the calendar day must not move.
+ */
+export function formatUtcDate(value: string): string {
+  const date = new Date(utcDay(value))
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    timeZone: 'UTC',
   })
 }
 
