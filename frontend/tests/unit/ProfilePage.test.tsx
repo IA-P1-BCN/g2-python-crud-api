@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { usersApi } from '@/api'
+import { authApi, usersApi } from '@/api'
 import { useAuth, type AuthContextValue } from '@/auth'
 import { ProfilePage } from '@/pages/member/ProfilePage'
 import type { User } from '@/types/api'
@@ -11,6 +11,11 @@ vi.mock('@/auth', () => ({ useAuth: vi.fn() }))
 
 vi.mock('@/api', () => ({
   usersApi: { updateProfile: vi.fn(), changePassword: vi.fn() },
+  authApi: {
+    setupTwoFactor: vi.fn(),
+    enableTwoFactor: vi.fn(),
+    disableTwoFactor: vi.fn(),
+  },
   toApiError: (error: unknown) => ({ status: 0, message: String(error) }),
 }))
 
@@ -92,5 +97,56 @@ describe('ProfilePage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }))
 
     expect(logout).toHaveBeenCalledOnce()
+  })
+
+  it('activa la verificación en dos pasos con el código del usuario', async () => {
+    const setup = vi.fn().mockResolvedValue({
+      secret: 'JBSWY3DPEHPK3PXP',
+      otpauth_url: 'otpauth://totp/Athletica?secret=JBSWY3DPEHPK3PXP',
+    })
+    const enable = vi.fn().mockResolvedValue(undefined)
+
+    vi.mocked(authApi.setupTwoFactor).mockImplementation(setup)
+    vi.mocked(authApi.enableTwoFactor).mockImplementation(enable)
+
+    renderPage()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Activar verificación en dos pasos' }))
+
+    expect(await screen.findByText('JBSWY3DPEHPK3PXP')).toBeInTheDocument()
+    await userEvent.type(screen.getByLabelText('Código de 6 cifras'), '123456')
+
+    await userEvent.click(screen.getByRole('button', { name: 'Activar' }))
+
+    await waitFor(() => expect(enable).toHaveBeenCalledWith({ code: '123456' }))
+    expect(setup).toHaveBeenCalledOnce()
+  })
+
+  it('desactiva la verificación en dos pasos con el código del usuario', async () => {
+    const setup = vi.fn().mockResolvedValue({
+      secret: 'JBSWY3DPEHPK3PXP',
+      otpauth_url: 'otpauth://totp/Athletica?secret=JBSWY3DPEHPK3PXP',
+    })
+    const enable = vi.fn().mockResolvedValue(undefined)
+    const disable = vi.fn().mockResolvedValue(undefined)
+
+    vi.mocked(authApi.setupTwoFactor).mockImplementation(setup)
+    vi.mocked(authApi.enableTwoFactor).mockImplementation(enable)
+    vi.mocked(authApi.disableTwoFactor).mockImplementation(disable)
+
+    renderPage()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Activar verificación en dos pasos' }))
+    expect(await screen.findByText('JBSWY3DPEHPK3PXP')).toBeInTheDocument()
+
+    await userEvent.type(screen.getByLabelText('Código de 6 cifras'), '123456')
+    await userEvent.click(screen.getByRole('button', { name: 'Activar' }))
+
+    expect(await screen.findByRole('button', { name: 'Desactivar' })).toBeInTheDocument()
+
+    await userEvent.type(screen.getByLabelText('Código de 6 cifras'), '654321')
+    await userEvent.click(screen.getByRole('button', { name: 'Desactivar' }))
+
+    await waitFor(() => expect(disable).toHaveBeenCalledWith({ code: '654321' }))
   })
 })

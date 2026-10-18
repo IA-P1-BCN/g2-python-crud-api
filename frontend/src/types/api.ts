@@ -46,6 +46,8 @@ export type PaymentStatus = Schemas['PaymentStatus']
 export type PaymentPage = Schemas['Page_PaymentRead_']
 
 export type LoginRequest = Schemas['LoginRequest']
+export type TotpSetup = Schemas['TotpSetup']
+export type TotpCode = Schemas['TotpCode']
 export type RegisterRequest = Schemas['RegisterRequest']
 export type Token = Schemas['Token']
 

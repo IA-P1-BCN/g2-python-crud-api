@@ -1,5 +1,5 @@
 import { apiClient } from './client'
-import type { LoginRequest, RegisterRequest, Token, User } from '@/types/api'
+import type { LoginRequest, RegisterRequest, Token, TotpCode, TotpSetup, User } from '@/types/api'
 
 /** JWT auth endpoints. Paths are relative to `/api/v1`. */
 export const authApi = {
@@ -21,5 +21,18 @@ export const authApi = {
   /** Confirms the email with the token from the verification link (204, no body). */
   async verifyEmail(token: string): Promise<void> {
     await apiClient.post('/auth/verify-email', { token })
+  },
+
+  async setupTwoFactor(): Promise<TotpSetup> {
+    const { data } = await apiClient.post<TotpSetup>('/auth/2fa/setup')
+    return data
+  },
+
+  async enableTwoFactor(payload: TotpCode): Promise<void> {
+    await apiClient.post('/auth/2fa/enable', payload)
+  },
+
+  async disableTwoFactor(payload: TotpCode): Promise<void> {
+    await apiClient.post('/auth/2fa/disable', payload)
   },
 }

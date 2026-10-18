@@ -89,4 +89,62 @@ describe('LoginPage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Home del socio' })).toBeInTheDocument()
   })
+
+  it('pide el código de verificación cuando el login responde totp_required', async () => {
+    const login = vi
+      .fn()
+      .mockRejectedValueOnce({
+        isAxiosError: true,
+        message: 'Request failed',
+        response: {
+          status: 401,
+          data: { detail: 'Se requiere el segundo factor.', code: 'totp_required' },
+        },
+      })
+      .mockResolvedValueOnce(user)
+
+    mockedUseAuth.mockReturnValue(authValue({ login }))
+
+    renderPage()
+
+    await userEvent.type(screen.getByLabelText('Correo electrónico'), 'marcos@example.com')
+    await userEvent.type(screen.getByLabelText('Contraseña'), 'secretPassword123')
+    await userEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
+
+    expect(await screen.findByText('Se requiere el segundo factor.')).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: 'Verificación en dos pasos' }),
+    ).toBeInTheDocument()
+
+    await userEvent.type(screen.getByLabelText('Código de 6 cifras'), '123456')
+    await userEvent.click(screen.getByRole('button', { name: 'Verificar' }))
+
+    expect(login).toHaveBeenCalledTimes(2)
+    expect(login).toHaveBeenLastCalledWith({
+      email: 'marcos@example.com',
+      password: 'secretPassword123',
+      totp_code: '123456',
+    })
+    expect(await screen.findByRole('heading', { name: 'Home del socio' })).toBeInTheDocument()
+  })
+
+  it('no pide el código cuando el error no es totp_required', async () => {
+    const login = vi.fn().mockRejectedValue({
+      isAxiosError: true,
+      message: 'Request failed',
+      response: { status: 401, data: { detail: 'Credenciales inválidas' } },
+    })
+
+    mockedUseAuth.mockReturnValue(authValue({ login }))
+
+    renderPage()
+
+    await userEvent.type(screen.getByLabelText('Correo electrónico'), 'marcos@example.com')
+    await userEvent.type(screen.getByLabelText('Contraseña'), 'badPassword')
+    await userEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }))
+
+    expect(
+      screen.queryByRole('heading', { name: 'Verificación en dos pasos' }),
+    ).not.toBeInTheDocument()
+  })
 })

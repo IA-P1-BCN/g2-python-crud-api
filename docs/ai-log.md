@@ -743,6 +743,28 @@ alcance. El resto del equipo añade aquí su fila.
   en lugar de fiarse del autocertificado de cada agente.
 - **Revisión humana:** pendiente en el PR.
 
+### #472 Frontend: 2FA en login y perfil
+
+- **Fecha:** 2026-10-18
+- **Persona, herramienta y modelo:** PDguezPgr, OpenCode (Cat Jam Free) y ChatGPT app de escritorio (GPT-4o, consultas).
+- **Spec:** `specs/472-frontend-two-factor-authentication-in-login-and-profile.md`, escrita antes del código.
+- **Prompt clave:** «implementar 2FA en el front: pedir código al login si el backend responde 401 con `code: "totp_required"`, y gestionar activación/desactivación en el perfil».
+- **Qué generó el agente:** la spec; alias `TotpSetup` y `TotpCode` en `src/types/api.ts` (tras regenerar tipos con `npm run api:types:file`); métodos `setupTwoFactor`, `enableTwoFactor` y `disableTwoFactor` en `src/api/auth.ts`; extracción del campo `code` en `toApiError` de `src/api/client.ts`; `LoginPage` con segundo paso de verificación (campo de 6 dígitos, reintento del login con `totp_code`, botón Volver y mensajes de error); mutaciones de setup/enable/disable en `src/pages/member/useProfile.ts`; sección «Verificación en dos pasos» en `ProfilePage` (activar con secreto y `otpauth_url`, desactivar con código, estados de carga y error); y 4 tests nuevos (2 de login + 2 de perfil).
+- **Aceptado:**
+  - Login pide el código de 6 cifras cuando el backend responde 401 `totp_required` y reintenta enviando `totp_code`.
+  - Errores `totp_invalid` u otros no rompen el flujo.
+  - Perfil permite activar y desactivar la 2FA con mensajes de error visibles (400, 409).
+  - Diseño con tokens de `theme.css` y componentes del kit (`FormField`, `Alert`, `Button`).
+  - Tipos regenerados y tests nuevos; `lint`, `format`, `build` y los 403 tests unitarios en verde.
+- **Rechazado o cambiado, y por qué:**
+  - Se eliminó el estado `totpRequired` de `AuthContext`: la página detecta el código rechazado directamente con `toApiError`, así que el estado del contexto era código muerto (DRY).
+  - No se añadió librería de QR: se muestra el secreto y el enlace `otpauth_url` para escanear manualmente (el criterio «y, si se puede, el QR» es opcional y evitar una librería nueva y enviar el secreto a un generador externo era preferible).
+  - El estado de 2FA no se lee de `/auth/me` (la API no lo expone en `UserRead`); se trackea en sesión local tras activar o desactivar.
+- **Errores o alucinaciones del agente y cómo se corrigieron:**
+  - Primera versión de los tests simulaba errores de axios sin `isAxiosError: true`; `toApiError` los ignora si no es axios. Se corrigió añadiendo la bandera a los mocks.
+  - Un test de perfil usaba un selector de id inexistente en `FormField` (usa `useId` generado); se corrigió usando `getByLabelText`.
+- **Revisión humana:** pendiente en el PR.
+
 ### #139 Tests E2E de los flujos principales
 
 - **Fecha:** 2026-10-16
