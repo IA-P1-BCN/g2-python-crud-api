@@ -1,15 +1,45 @@
+import type { ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Badge, type BadgeTone } from '@/components/ui/atoms/Badge'
+import { Skeleton } from '@/components/ui/atoms/Skeleton'
 import { Alert } from '@/components/ui/molecules/Alert'
+import { MembershipCard } from '@/components/ui/molecules/MembershipCard'
+import { PlanBenefitsList } from '@/components/ui/molecules/PlanBenefitsList'
 import { membershipPlansApi, membershipsApi, toApiError } from '@/api'
 import { useAuth } from '@/auth'
-import { formatDate } from '@/lib/format'
-import type { MembershipStatus } from '@/types/api'
+import type { Membership } from '@/types/api'
 
-const STATUS: Record<MembershipStatus, { label: string; tone: BadgeTone }> = {
-  active: { label: 'Activa', tone: 'success' },
-  expired: { label: 'Caducada', tone: 'warning' },
-  cancelled: { label: 'Cancelada', tone: 'danger' },
+const DAY_MS = 86_400_000
+
+/** Midnight (UTC) of a "YYYY-MM-DD" date, so the calendar day never shifts with the timezone. */
+function utcDay(value: string): number {
+  const [year, month, day] = value.split('-').map(Number)
+  return Date.UTC(year, month - 1, day)
+}
+
+/** Midnight (UTC) of today, to compare against the membership dates. */
+function utcToday(): number {
+  const now = new Date()
+  return Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+}
+
+/** "31/10/2026", formatted in UTC so the day is the one the API sent. */
+function formatUtcDate(value: string): string {
+  return new Date(utcDay(value)).toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    timeZone: 'UTC',
+  })
+}
+
+/** Days left until the end date, never below zero. */
+function daysLeft(membership: Membership): number {
+  return Math.max(0, Math.ceil((utcDay(membership.end_date) - utcToday()) / DAY_MS))
+}
+
+/** Full length of the membership in days, for the progress bar. */
+function totalDays(membership: Membership): number {
+  return Math.round((utcDay(membership.end_date) - utcDay(membership.start_date)) / DAY_MS)
 }
 
 export function MembershipPage() {
@@ -26,44 +56,41 @@ export function MembershipPage() {
     queryFn: () => membershipPlansApi.list({ size: 100 }),
   })
 
-  if (memberships.isLoading) {
-    return <p className="table-status">Cargando…</p>
-  }
-
-  if (memberships.isError) {
-    return (
-      <div className="page">
-        <h1>Mi membresía</h1>
-        <Alert variant="error">{toApiError(memberships.error).message}</Alert>
-      </div>
-    )
-  }
-
   const membership = memberships.data?.items[0]
+  const plan = plans.data?.items.find((item) => item.id === membership?.plan_id)
 
-  if (!membership) {
-    return (
-      <div className="page">
-        <h1>Mi membresía</h1>
-        <Alert variant="info">No tienes ninguna membresía asignada.</Alert>
+  let body: ReactNode
+
+  if (memberships.isLoading) {
+    body = (
+      <div className="flex flex-col gap-4" aria-busy="true">
+        <Skeleton className="h-44 rounded-card" />
+        <Skeleton className="h-32 rounded-card" />
       </div>
     )
+  } else if (memberships.isError) {
+    body = <Alert variant="error">{toApiError(memberships.error).message}</Alert>
+  } else if (!membership) {
+    body = <Alert variant="info">No tienes ninguna membresía asignada.</Alert>
+  } else {
+    body = (
+      <>
+        <MembershipCard
+          planName={plan?.name ?? `Plan #${membership.plan_id}`}
+          status={membership.status}
+          endDate={formatUtcDate(membership.end_date)}
+          daysLeft={daysLeft(membership)}
+          totalDays={totalDays(membership)}
+        />
+        <PlanBenefitsList title="Tu plan incluye" />
+      </>
+    )
   }
-
-  const plan = plans.data?.items.find((item) => item.id === membership.plan_id)
-  const status = STATUS[membership.status]
 
   return (
-    <div className="page">
-      <h1>Mi membresía</h1>
-      <div className="card">
-        <p className="card__title">{plan?.name ?? `Plan #${membership.plan_id}`}</p>
-        <p>
-          Estado: <Badge tone={status.tone}>{status.label}</Badge>
-        </p>
-        <p>Desde: {formatDate(membership.start_date)}</p>
-        <p>Hasta: {formatDate(membership.end_date)}</p>
-      </div>
+    <div className="flex flex-col gap-6">
+      <h1 className="font-display text-headline text-text">Mi membresía</h1>
+      {body}
     </div>
   )
 }

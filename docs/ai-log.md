@@ -857,3 +857,29 @@ alcance. El resto del equipo añade aquí su fila.
     corrigió al leerlo.
   - Al quitar `/users` de los tests, quedó una variable sin usar que rompía el build; se quitó.
 - **Revisión humana:** pendiente en el PR. Es código del frontend de Elena; conviene que lo mire.
+
+### #273 Mi plan page (socio, incluye la subtask #277)
+
+- **Fecha:** 2026-10-18
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, MiMo-V2.6-Flash Free.
+- **Spec:** `specs/273-mi-plan-page-member.md`, escrita antes del código.
+- **Prompt clave:** «Revisa mi tarea, que falta hacer de la issue 273?». La user story #273 tenía
+  3 de 4 subtasks cerradas (#274 `MembershipCard`, #275 `PlanBenefitsList`, #276 datos de la
+  membresía); solo quedaba #277, componer la página. **Decisión de Nayeli:** la #277 se ejecuta en
+  la rama de la #273, en un solo commit, para enviar una sola PR.
+- **Qué generó el agente:** la página `pages/member/MembershipPage.tsx` reescrita con tokens
+  (título, `MembershipCard`, `PlanBenefitsList` con «Tu plan incluye», `Skeleton` en la carga y los
+  mismos `Alert` de error y vacío); los días restantes y la duración calculados en el front; y el
+  test de la página (4 tests: tarjeta activa, vacío, carga y error). También esta entrada.
+- **Aceptado:** parsear las fechas por año/mes/día en **UTC** (medianoche UTC y «hoy» en UTC), que
+  es lo que pide la spec. `formatDate` parsea con `new Date('YYYY-MM-DD')` —medianoche UTC— pero
+  formatea en hora local, así que en UTC-6 (México) la fecha se mostraba un día antes; con el
+  formateo UTC la tarjeta muestra el día que manda la API.
+- **Rechazado o cambiado, y por qué:** reutilizar `parseIsoDate` de `lib/dates.ts`, que parsea como
+  fecha **local**: Nayeli eligió lo que pide la spec (UTC), inmune a la zona horaria. Los helpers de
+  fecha viven en la propia página, sin tocar `lib/` ni las moléculas.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno en la ejecución. En la
+  revisión previa el agente vio que la rama no tenía commits (solo el spec sin trackear) y lo dijo
+  antes de escribir código.
+- **Comprobado a mano:** `lint`, `format:check`, 415 tests unitarios (4 nuevos) y `build` en verde.
+- **Revisión humana:** pendiente en el PR.
