@@ -9,6 +9,7 @@ import { cn } from '@/lib/cn'
 export type LoginCredentials = {
   email: string
   password: string
+  totp_code?: string
 }
 
 export type LoginFormProps = {

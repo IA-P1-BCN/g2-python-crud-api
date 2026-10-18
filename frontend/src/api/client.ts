@@ -43,6 +43,7 @@ apiClient.interceptors.response.use(
 export type ApiError = {
   status: number
   message: string
+  code?: string
   details?: components['schemas']['ValidationError'][]
 }
 
@@ -50,10 +51,12 @@ export function toApiError(error: unknown): ApiError {
   if (axios.isAxiosError(error)) {
     const status = error.response?.status ?? 0
     const data = error.response?.data as
-      { detail?: string | components['schemas']['ValidationError'] } | undefined
+      { detail?: string | components['schemas']['ValidationError'][]; code?: string } | undefined
+
+    const code = data?.code
 
     if (typeof data?.detail === 'string') {
-      return { status, message: data.detail }
+      return { status, message: data.detail, code }
     }
     if (Array.isArray(data?.detail)) {
       const [first] = data.detail as components['schemas']['ValidationError'][]
@@ -62,9 +65,10 @@ export function toApiError(error: unknown): ApiError {
         // Surface the backend message (e.g. the password rule) instead of a generic one.
         message: first?.msg ?? 'Datos inválidos',
         details: data.detail,
+        code,
       }
     }
-    return { status, message: error.message }
+    return { status, message: error.message, code: code ?? undefined }
   }
   return { status: 0, message: 'Error inesperado' }
 }

@@ -70,7 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const result = await authApi.login(payload)
         return startSession(result)
       } catch (err) {
-        setError(toApiError(err).message)
+        const apiError = toApiError(err)
+        setError(apiError.message)
         throw err
       } finally {
         setIsLoading(false)
