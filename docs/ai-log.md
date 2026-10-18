@@ -764,3 +764,96 @@ alcance. El resto del equipo añade aquí su fila.
   - Primera versión de los tests simulaba errores de axios sin `isAxiosError: true`; `toApiError` los ignora si no es axios. Se corrigió añadiendo la bandera a los mocks.
   - Un test de perfil usaba un selector de id inexistente en `FormField` (usa `useId` generado); se corrigió usando `getByLabelText`.
 - **Revisión humana:** pendiente en el PR.
+
+### #139 Tests E2E de los flujos principales
+
+- **Fecha:** 2026-10-16
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/139-e2e-main-flows.md`, escrita antes del código.
+- **Prompt clave:** «asígnanos la tarea 139». Antes de escribir, el agente revisó lo que ya
+  había en `frontend/tests/e2e/`: login, reservar y cancelar ya estaban cubiertos (`auth.spec.ts`
+  y `member.spec.ts`), así que solo faltaba el acceso prohibido por rol, y no duplicó lo demás.
+- **Qué generó el agente:** la spec y `frontend/tests/e2e/access.spec.ts`, con 8 tests: una ruta
+  protegida sin sesión lleva al login; seis combinaciones de rol equivocado acaban en «403 · Acceso
+  denegado»; y el rol correcto entra sin bloqueo. Usa el `mockApi` existente, sin backend real.
+- **Aceptado:** no tocar el código de la aplicación ni los tests existentes; los permisos de la
+  API ya los cubre `backend/tests/integration/test_permissions.py`.
+- **Comprobado a mano:** se desactivó un momento la comprobación de rol de `ProtectedRoute` y
+  fallaron justo los 6 tests de rol equivocado, así que los tests detectan el fallo; después se
+  restauró el archivo. `lint`, `test` (399), `build` y los 18 tests E2E en verde.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno en el código. En local,
+  `format:check` avisa de 8 archivos de configuración que no son de esta tarea: en el repositorio
+  tienen finales de línea LF, pero Windows los deja en CRLF (`core.autocrlf`). En la CI, con
+  Linux, pasan.
+- **Revisión humana:** pendiente en el PR.
+
+### #486 Nombre del entrenador en las respuestas de clases
+
+- **Fecha:** 2026-10-17
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/486-trainer-name-in-class-responses.md`, escrita antes del código.
+- **Prompt clave:** Eva vio en la web el mensaje «Input should be less than or equal to 100» y
+  preguntó qué era. El agente encontró que las pantallas del socio pedían 200 elementos y, al
+  revisarlas, que además llamaban a `GET /users` y `GET /bookings`, que un socio no puede usar
+  (403). Preguntó de dónde sacar el nombre del entrenador; Eva eligió añadirlo a la API. Se
+  abrieron dos tareas: esta (backend) y la #487 (frontend).
+- **Qué generó el agente:** la spec; la propiedad `GymClass.trainer_name`; el campo
+  `trainer_name` en `GymClassRead`; la carga de los entrenadores junto con la lista
+  (`selectinload`); y 6 tests.
+- **Aceptado:** exponer solo el nombre completo del entrenador, nunca su email; sin migración.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** el test que comprueba que la lista
+  no hace una consulta por clase **pasaba también sin el arreglo**: la sesión de los tests ya tenía
+  los entrenadores en memoria. El agente lo vio al quitar a propósito la carga conjunta; vació esa
+  memoria en el test y ahora falla sin el arreglo (4 consultas en vez de 3) y pasa con él.
+- **Comprobado a mano:** `ruff` y `pytest` (1352 tests, 98,9 %).
+- **Revisión humana:** pendiente en el PR.
+
+### #489 El comentario de la revisión con IA sale cortado
+
+- **Fecha:** 2026-10-17
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Prompt clave:** «revisa el fallo 416». El comentario «AI review» salía cortado a media frase
+  (PR #485 y #488), y en el #477 no salió porque Gemini respondió 503 por saturación.
+- **Causa:** `gemini-flash-latest` razona antes de responder, y ese razonamiento gasta el mismo
+  límite de respuesta, que era de 1000 tokens. La parte visible se quedaba sin espacio.
+- **Qué generó el agente:** en `.github/scripts/ai_review.py`, límite de 8000 tokens,
+  `reasoning_effort: "low"`, un reintento a los 20 segundos si Gemini responde 429 o 503, y un
+  aviso en el comentario si la respuesta llega cortada (`finish_reason: "length"`), en vez de
+  publicarla como si estuviera completa.
+- **Comprobado a mano:** con una API simulada, un 503 se reintenta una vez y un 400 no; la
+  respuesta cortada lleva el aviso; y la petición lleva el nuevo límite y `reasoning_effort`. La
+  prueba real es el comentario de la IA en el propio PR.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** al pedir 1000 tokens en la #416,
+  el agente no tuvo en cuenta que los modelos que razonan gastan parte de ese límite pensando. Un
+  primer intento de editar el script con un programa de reemplazo falló por los escapes de `\n`;
+  se hizo con ediciones directas.
+- **Revisión humana:** pendiente en el PR.
+
+### #487 Pantallas del socio que funcionan con un socio real
+
+- **Fecha:** 2026-10-18
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/487-member-pages-for-real-members.md`, escrita antes del código.
+- **Prompt clave:** «pues la hacemos y a la tarde el deploy». Segunda parte del fallo que Eva vio en
+  la web («Input should be less than or equal to 100»); la primera fue la #486.
+- **Qué generó el agente:**
+  - `useMemberSessions.ts` y `useSessionDetail.ts` reescritos. Solo usan endpoints que un socio
+    puede llamar: plazas con `/class-schedules/{id}/availability`, entrenador con `trainer_name`
+    (#486), y «ya reservada» con las reservas del propio socio.
+  - `bookingsApi.listAllForUser`, que recorre todas las páginas, porque `/users/{id}/bookings`
+    ordena por id sin filtrar por fecha y la primera página perdería las reservas más recientes.
+  - `schedulesApi.availability` y `MAX_PAGE_SIZE = 100` en la capa `api/`.
+  - Tipos de la API regenerados: llevaban sin regenerarse desde el 8 de octubre (29 endpoints de
+    44). Eso obligó a añadir `trainer_name` a los datos de prueba de 10 archivos de tests.
+  - `mockApi` de los E2E responde ahora 403 a un socio en `GET /users` y `GET /bookings`, como la
+    API, y simula la disponibilidad.
+- **Comprobado a mano:** con los hooks antiguos, y el simulador nuevo, fallan 2 de los 3 E2E del
+  socio, así que el fallo ya no pasaría desapercibido; después se restauraron los nuevos. `lint`,
+  formato, 407 tests unitarios (2 nuevos de la capa `api/`), `build` y 18 E2E en verde.
+- **Errores o alucinaciones del agente y cómo se corrigieron:**
+  - Un primer test de «sesión reservada» calculaba la fecha según el orden de las peticiones y
+    podía fallar a veces; se cambió para calcular el lunes igual que la página.
+  - Usó textos de estado inventados («llena») en vez de mirar el componente («Completa»); se
+    corrigió al leerlo.
+  - Al quitar `/users` de los tests, quedó una variable sin usar que rompía el build; se quitó.
+- **Revisión humana:** pendiente en el PR. Es código del frontend de Elena; conviene que lo mire.

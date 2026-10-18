@@ -45,6 +45,7 @@ class GymClassRead(BaseModel):
                     "name": "Yoga",
                     "capacity": 15,
                     "trainer_id": 2,
+                    "trainer_name": "Laura Entrenadora",
                     "room_id": 1,
                     "is_active": True,
                     "created_at": "2026-01-01T10:00:00Z",
@@ -57,6 +58,7 @@ class GymClassRead(BaseModel):
     name: str
     capacity: int
     trainer_id: int
+    trainer_name: str
     room_id: int | None
     is_active: bool
     created_at: datetime

@@ -72,3 +72,6 @@ export function toApiError(error: unknown): ApiError {
   }
   return { status: 0, message: 'Error inesperado' }
 }
+
+/** The largest `size` the API accepts on any list. */
+export const MAX_PAGE_SIZE = 100

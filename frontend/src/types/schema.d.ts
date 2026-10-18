@@ -1348,7 +1348,8 @@ export interface components {
          *       "is_active": true,
          *       "name": "Yoga",
          *       "room_id": 1,
-         *       "trainer_id": 2
+         *       "trainer_id": 2,
+         *       "trainer_name": "Laura Entrenadora"
          *     }
          */
         GymClassRead: {
@@ -1360,6 +1361,8 @@ export interface components {
             capacity: number;
             /** Trainer Id */
             trainer_id: number;
+            /** Trainer Name */
+            trainer_name: string;
             /** Room Id */
             room_id: number | null;
             /** Is Active */
