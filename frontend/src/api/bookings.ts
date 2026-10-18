@@ -1,4 +1,4 @@
-import { apiClient } from './client'
+import { apiClient, MAX_PAGE_SIZE } from './client'
 import type { Booking, BookingCreate, BookingPage, BookingStatus } from '@/types/api'
 
 export type ListParams = {
@@ -17,6 +17,19 @@ export const bookingsApi = {
   async listForUser(userId: number, params: ListParams = {}): Promise<BookingPage> {
     const { data } = await apiClient.get<BookingPage>(`/users/${userId}/bookings`, { params })
     return data
+  },
+
+  /**
+   * Every booking of a user, walking all pages. The endpoint sorts by id and has no date filter,
+   * so the first page alone would miss the newest bookings of a long-time member.
+   */
+  async listAllForUser(userId: number): Promise<Booking[]> {
+    const first = await bookingsApi.listForUser(userId, { page: 1, size: MAX_PAGE_SIZE })
+    const items = [...first.items]
+    for (let page = 2; page <= first.pages; page++) {
+      items.push(...(await bookingsApi.listForUser(userId, { page, size: MAX_PAGE_SIZE })).items)
+    }
+    return items
   },
 
   async list(params: ListBookingsParams = {}): Promise<BookingPage> {

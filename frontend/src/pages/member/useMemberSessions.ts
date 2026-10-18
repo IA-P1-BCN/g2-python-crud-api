@@ -1,11 +1,10 @@
-import { useQuery } from '@tanstack/react-query'
-import { bookingsApi, classesApi, roomsApi, schedulesApi, usersApi } from '@/api'
+import { useQueries, useQuery } from '@tanstack/react-query'
+import { bookingsApi, classesApi, MAX_PAGE_SIZE, roomsApi, schedulesApi } from '@/api'
 import { useAuth } from '@/auth'
 import type { SessionState } from '@/components/ui/molecules/SessionCard'
 import { addDays, parseIsoDate, startOfWeek } from '@/lib/dates'
 import { formatTime } from '@/lib/format'
 
-const PAGE_SIZE = 200
 const DAYS_IN_WEEK = 7
 
 export type MemberSession = {
@@ -39,82 +38,75 @@ function weekdayOf(isoDate: string): number {
 /**
  * Sessions of the selected day with their free spots and the member's booking state.
  *
- * Composes the public schedules/classes/rooms/users endpoints with the day's bookings
- * (`GET /bookings?on_date=`), so free spots and "already booked" come from real data.
+ * Uses only endpoints a member may call: the public schedules, classes (with `trainer_name`)
+ * and per-session availability, the rooms list, and the member's own bookings.
  */
 export function useMemberSessions(selectedDate: string): UseMemberSessionsResult {
   const { user } = useAuth()
 
   const schedules = useQuery({
     queryKey: ['schedules', 'all'],
-    queryFn: () => schedulesApi.list({ size: PAGE_SIZE }),
+    queryFn: () => schedulesApi.list({ size: MAX_PAGE_SIZE }),
   })
   const classes = useQuery({
     queryKey: ['classes'],
-    queryFn: () => classesApi.list({ size: PAGE_SIZE }),
+    queryFn: () => classesApi.list({ size: MAX_PAGE_SIZE }),
   })
   const rooms = useQuery({
     queryKey: ['rooms'],
-    queryFn: () => roomsApi.list({ size: PAGE_SIZE }),
+    queryFn: () => roomsApi.list({ size: MAX_PAGE_SIZE }),
   })
-  const users = useQuery({
-    queryKey: ['users'],
-    queryFn: () => usersApi.list({ size: PAGE_SIZE }),
+  const userId = user?.id
+  const myBookings = useQuery({
+    queryKey: ['my-bookings', userId],
+    enabled: userId !== undefined,
+    queryFn: () => bookingsApi.listAllForUser(userId as number),
   })
-  const bookings = useQuery({
-    queryKey: ['member-sessions-bookings', selectedDate],
-    queryFn: () => bookingsApi.list({ on_date: selectedDate, size: PAGE_SIZE }),
+
+  const allSchedules = schedules.data?.items ?? []
+  const weekday = weekdayOf(selectedDate)
+  const daySchedules = allSchedules
+    .filter((schedule) => schedule.day_of_week === weekday)
+    .sort((a, b) => a.start_time.localeCompare(b.start_time))
+
+  const availability = useQueries({
+    queries: daySchedules.map((schedule) => ({
+      queryKey: ['availability', schedule.id, selectedDate],
+      queryFn: () => schedulesApi.availability(schedule.id, selectedDate),
+    })),
   })
 
   const classMap = new Map((classes.data?.items ?? []).map((item) => [item.id, item]))
   const roomMap = new Map((rooms.data?.items ?? []).map((item) => [item.id, item.name]))
-  const userMap = new Map((users.data?.items ?? []).map((item) => [item.id, item.full_name]))
+  const myBookingBySchedule = new Map(
+    (myBookings.data ?? [])
+      .filter((booking) => booking.status === 'confirmed' && booking.booking_date === selectedDate)
+      .map((booking) => [booking.schedule_id, booking.id]),
+  )
 
-  const confirmedBySchedule = new Map<number, number>()
-  const myBookingBySchedule = new Map<number, number>()
-  for (const booking of bookings.data?.items ?? []) {
-    if (booking.status !== 'confirmed') continue
-    confirmedBySchedule.set(
-      booking.schedule_id,
-      (confirmedBySchedule.get(booking.schedule_id) ?? 0) + 1,
-    )
-    if (booking.member_id === user?.id) {
-      myBookingBySchedule.set(booking.schedule_id, booking.id)
+  const sessions: MemberSession[] = daySchedules.map((schedule, index) => {
+    const gymClass = classMap.get(schedule.class_id)
+    const spots = availability.at(index)?.data
+    const capacity = spots?.capacity ?? gymClass?.capacity ?? 0
+    const enrolled = spots?.booked ?? 0
+    const available = spots?.available ?? capacity
+    const bookingId = myBookingBySchedule.get(schedule.id) ?? null
+    const state: SessionState =
+      bookingId !== null ? 'booked' : available <= 0 ? 'full' : 'available'
+
+    return {
+      id: schedule.id,
+      title: gymClass?.name ?? `Clase #${schedule.class_id}`,
+      time: `${formatTime(schedule.start_time)} – ${formatTime(schedule.end_time)}`,
+      room: schedule.room_id ? (roomMap.get(schedule.room_id) ?? `Sala #${schedule.room_id}`) : '—',
+      trainerName: gymClass?.trainer_name ?? '—',
+      capacity,
+      enrolled,
+      available,
+      state,
+      bookingId,
     }
-  }
-
-  const allSchedules = schedules.data?.items ?? []
-  const weekday = weekdayOf(selectedDate)
-
-  const sessions: MemberSession[] = allSchedules
-    .filter((schedule) => schedule.day_of_week === weekday)
-    .sort((a, b) => a.start_time.localeCompare(b.start_time))
-    .map((schedule) => {
-      const gymClass = classMap.get(schedule.class_id)
-      const capacity = gymClass?.capacity ?? 0
-      const enrolled = confirmedBySchedule.get(schedule.id) ?? 0
-      const available = Math.max(capacity - enrolled, 0)
-      const bookingId = myBookingBySchedule.get(schedule.id) ?? null
-      const state: SessionState =
-        bookingId !== null ? 'booked' : available <= 0 ? 'full' : 'available'
-
-      return {
-        id: schedule.id,
-        title: gymClass?.name ?? `Clase #${schedule.class_id}`,
-        time: `${formatTime(schedule.start_time)} – ${formatTime(schedule.end_time)}`,
-        room: schedule.room_id
-          ? (roomMap.get(schedule.room_id) ?? `Sala #${schedule.room_id}`)
-          : '—',
-        trainerName: gymClass
-          ? (userMap.get(gymClass.trainer_id) ?? `Entrenador #${gymClass.trainer_id}`)
-          : '—',
-        capacity,
-        enrolled,
-        available,
-        state,
-        bookingId,
-      }
-    })
+  })
 
   const scheduledWeekdays = new Set(allSchedules.map((schedule) => schedule.day_of_week))
   const monday = startOfWeek(selectedDate)
@@ -122,19 +114,13 @@ export function useMemberSessions(selectedDate: string): UseMemberSessionsResult
     addDays(monday, index),
   ).filter((isoDate) => scheduledWeekdays.has(weekdayOf(isoDate)))
 
-  const isError =
-    schedules.isError || classes.isError || rooms.isError || users.isError || bookings.isError
+  const queries = [schedules, classes, rooms, myBookings, ...availability]
 
   return {
     sessions,
     sessionDates,
-    isLoading:
-      schedules.isLoading ||
-      classes.isLoading ||
-      rooms.isLoading ||
-      users.isLoading ||
-      bookings.isLoading,
-    isError,
-    error: schedules.error ?? classes.error ?? rooms.error ?? users.error ?? bookings.error ?? null,
+    isLoading: queries.some((query) => query.isLoading),
+    isError: queries.some((query) => query.isError),
+    error: queries.find((query) => query.error)?.error ?? null,
   }
 }

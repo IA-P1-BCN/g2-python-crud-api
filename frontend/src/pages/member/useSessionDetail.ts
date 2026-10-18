@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { bookingsApi, classesApi, roomsApi, schedulesApi, usersApi } from '@/api'
+import { bookingsApi, classesApi, MAX_PAGE_SIZE, roomsApi, schedulesApi } from '@/api'
 import { useAuth } from '@/auth'
 import type { BookingState } from '@/components/ui/organisms/BookingActionBar'
 import { formatDate, formatTime } from '@/lib/format'
@@ -29,7 +29,8 @@ export type UseSessionDetailResult = {
 /**
  * Detail of one session (a schedule) on a date, with the member's booking state.
  *
- * Composes the schedule/class/rooms/users endpoints with the session's bookings.
+ * Uses only endpoints a member may call: the schedule, its class (with `trainer_name`), the
+ * session's availability, the rooms list, and the member's own bookings.
  */
 export function useSessionDetail(scheduleId: number | null, date: string): UseSessionDetailResult {
   const { user } = useAuth()
@@ -49,39 +50,40 @@ export function useSessionDetail(scheduleId: number | null, date: string): UseSe
 
   const rooms = useQuery({
     queryKey: ['rooms'],
-    queryFn: () => roomsApi.list({ size: 200 }),
+    queryFn: () => roomsApi.list({ size: MAX_PAGE_SIZE }),
   })
-  const users = useQuery({
-    queryKey: ['users'],
-    queryFn: () => usersApi.list({ size: 200 }),
-  })
-  const bookings = useQuery({
-    queryKey: ['session-bookings', scheduleId, date],
+  const availability = useQuery({
+    queryKey: ['availability', scheduleId, date],
     enabled: scheduleId !== null,
-    queryFn: () =>
-      bookingsApi.list({ schedule_id: scheduleId as number, on_date: date, size: 200 }),
+    queryFn: () => schedulesApi.availability(scheduleId as number, date),
+  })
+  const userId = user?.id
+  const myBookings = useQuery({
+    queryKey: ['my-bookings', userId],
+    enabled: userId !== undefined,
+    queryFn: () => bookingsApi.listAllForUser(userId as number),
   })
 
   let detail: SessionDetail | null = null
   if (schedule.data && gymClass.data) {
     const scheduleItem = schedule.data
     const classItem = gymClass.data
-    const confirmed = (bookings.data?.items ?? []).filter(
-      (booking) => booking.status === 'confirmed',
+    const myBooking = (myBookings.data ?? []).find(
+      (booking) =>
+        booking.status === 'confirmed' &&
+        booking.schedule_id === scheduleItem.id &&
+        booking.booking_date === date,
     )
-    const myBooking = confirmed.find((booking) => booking.member_id === user?.id)
-    const enrolled = confirmed.length
-    const capacity = classItem.capacity
-    const available = Math.max(capacity - enrolled, 0)
+    const capacity = availability.data?.capacity ?? classItem.capacity
+    const enrolled = availability.data?.booked ?? 0
+    const available = availability.data?.available ?? capacity
 
     detail = {
       id: scheduleItem.id,
       title: classItem.name,
       date: formatDate(date),
       time: `${formatTime(scheduleItem.start_time)} – ${formatTime(scheduleItem.end_time)}`,
-      trainerName:
-        (users.data?.items ?? []).find((item) => item.id === classItem.trainer_id)?.full_name ??
-        `Entrenador #${classItem.trainer_id}`,
+      trainerName: classItem.trainer_name,
       room: scheduleItem.room_id
         ? ((rooms.data?.items ?? []).find((item) => item.id === scheduleItem.room_id)?.name ??
           `Sala #${scheduleItem.room_id}`)
@@ -94,18 +96,12 @@ export function useSessionDetail(scheduleId: number | null, date: string): UseSe
     }
   }
 
-  const isError =
-    schedule.isError || gymClass.isError || rooms.isError || users.isError || bookings.isError
+  const queries = [schedule, gymClass, rooms, availability, myBookings]
 
   return {
     detail,
-    isLoading:
-      schedule.isLoading ||
-      gymClass.isLoading ||
-      rooms.isLoading ||
-      users.isLoading ||
-      bookings.isLoading,
-    isError,
-    error: schedule.error ?? gymClass.error ?? rooms.error ?? users.error ?? bookings.error ?? null,
+    isLoading: queries.some((query) => query.isLoading),
+    isError: queries.some((query) => query.isError),
+    error: queries.find((query) => query.error)?.error ?? null,
   }
 }

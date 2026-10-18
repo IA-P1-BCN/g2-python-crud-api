@@ -8,6 +8,7 @@ import type {
   GymClassCreate,
   GymClassPage,
   GymClassUpdate,
+  ScheduleAvailability,
 } from '@/types/api'
 
 export type ListParams = {
@@ -59,6 +60,15 @@ export const schedulesApi = {
 
   async get(id: number): Promise<ClassSchedule> {
     const { data } = await apiClient.get<ClassSchedule>(`/class-schedules/${id}`)
+    return data
+  },
+
+  /** Capacity, booked and free spots of one session (a schedule on a date). Public. */
+  async availability(id: number, onDate: string): Promise<ScheduleAvailability> {
+    const { data } = await apiClient.get<ScheduleAvailability>(
+      `/class-schedules/${id}/availability`,
+      { params: { on_date: onDate } },
+    )
     return data
   },
 

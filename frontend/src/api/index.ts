@@ -1,4 +1,4 @@
-export { apiClient, setUnauthorizedHandler, toApiError } from './client'
+export { apiClient, MAX_PAGE_SIZE, setUnauthorizedHandler, toApiError } from './client'
 export type { ApiError } from './client'
 export { authApi } from './auth'
 export { membershipPlansApi } from './membership-plans'

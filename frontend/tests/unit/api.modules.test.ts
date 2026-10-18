@@ -170,4 +170,33 @@ describe('api modules', () => {
     expect(captured).toMatchObject({ url: '/bookings', method: 'get' })
     expect(captured.params).toMatchObject({ schedule_id: 1, on_date: '2026-10-06' })
   })
+
+  it('bookingsApi.listAllForUser recorre todas las páginas de 100 en 100', async () => {
+    const requested: Array<Record<string, unknown> | undefined> = []
+    apiClient.defaults.adapter = async (config) => {
+      const params = config.params as Record<string, unknown> | undefined
+      requested.push(params)
+      const data = { items: [{ id: params?.page }], total: 3, page: params?.page, pages: 3 }
+      return { data, status: 200, statusText: 'OK', headers: {}, config }
+    }
+
+    const bookings = await bookingsApi.listAllForUser(7)
+
+    expect(bookings.map((booking) => booking.id)).toEqual([1, 2, 3])
+    expect(requested).toEqual([
+      { page: 1, size: 100 },
+      { page: 2, size: 100 },
+      { page: 3, size: 100 },
+    ])
+  })
+
+  it('schedulesApi.availability pide las plazas de una sesión en una fecha', async () => {
+    const captured: Captured = {}
+    apiClient.defaults.adapter = captureAdapter(captured)
+
+    await schedulesApi.availability(10, '2026-10-06')
+
+    expect(captured).toMatchObject({ url: '/class-schedules/10/availability', method: 'get' })
+    expect(captured.params).toEqual({ on_date: '2026-10-06' })
+  })
 })

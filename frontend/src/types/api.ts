@@ -27,6 +27,7 @@ export type ClassSchedule = Schemas['ClassScheduleRead']
 export type ClassScheduleCreate = Schemas['ClassScheduleCreate']
 export type ClassScheduleUpdate = Schemas['ClassScheduleUpdate']
 export type ClassSchedulePage = Schemas['Page_ClassScheduleRead_']
+export type ScheduleAvailability = Schemas['ScheduleAvailability']
 
 export type Membership = Schemas['MembershipRead']
 export type MembershipCreate = Schemas['MembershipCreate']
