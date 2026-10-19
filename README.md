@@ -3,16 +3,15 @@
 Aplicación de gestión de un gimnasio: socios, membresías, clases y reservas.
 Monorepo con una API REST en FastAPI (`backend/`) y una web en React (`frontend/`).
 
-> **Estado:** el backend tiene la estructura de carpetas y las dependencias.
-> El frontend ya arranca. Este README se irá completando (usuarios demo, Docker
-> y enlaces a Swagger).
+![CI](https://github.com/IA-P1-BCN/g2-python-crud-api/actions/workflows/ci.yml/badge.svg)
+
 ## Demo en línea
 
 Puedes probar la aplicación sin instalar nada: **[Athletica en Render](https://athletica-web.onrender.com/)**
 
 - **API (Swagger de producción):** [https://athletica-api-w9f4.onrender.com/docs](https://athletica-api-w9f4.onrender.com/docs)
-- **Usuarios de prueba:** tres cuentas de demo con la contraseña `Athletica123!`
-- **Aviso:** la API gratuita de Render puede tardar unos segundos en despertar tras la primera petición.
+- **Usuarios de prueba:** `admin@athletica.dev`, `trainer@athletica.dev` y `member@athletica.dev`, todos con la contraseña `Athletica123!`
+- **Aviso:** la API gratuita de Render puede tardar entre 30 y 60 segundos en despertar tras la primera petición.
 
 ## Documentación
 
@@ -177,7 +176,7 @@ Más detalle (scripts, estructura, tests E2E) en [frontend/README.md](frontend/R
 | `LOGIN_RATE_LIMIT_WINDOW_SECONDS` | Ventana de tiempo del límite de login (segundos) |
 | `EMAIL_VERIFICATION_EXPIRE_HOURS` | Horas de validez del enlace de verificación de email |
 | `PASSWORD_RESET_EXPIRE_MINUTES` | Minutos de validez del enlace de recuperación de contraseña |
-| `FRONTENDURL` | URL del frontend para redirecciones OAuth |
+| `FRONTEND_URL` | URL del frontend para redirecciones OAuth y enlaces de los correos de verificación y recuperación |
 | `GITHUB_CLIENT_ID` | ID de la aplicación GitHub OAuth |
 | `GITHUB_CLIENT_SECRET` | Secreto de la aplicación GitHub OAuth |
 | `GITHUB_REDIRECT_URI` | URI de callback de GitHub OAuth |
@@ -263,8 +262,6 @@ Guía completa en [CONTRIBUTING.md](CONTRIBUTING.md).
 - **Secretos:** `.env` nunca se sube. Si añades una variable, añádela también a
   `.env.example` con un valor ficticio.
 
-## Documentación
-
 ## Equipo
 
 Contribuidores de GitHub:
@@ -273,5 +270,3 @@ Contribuidores de GitHub:
 - [@miskybox](https://github.com/miskybox)
 - [@nagicome03](https://github.com/nagicome03)
 - [@PDguezPgr](https://github.com/PDguezPgr)
-- [@IvannaRCA](https://github.com/IvannaRCA)
-- Nayeli
