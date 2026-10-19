@@ -1,0 +1,12 @@
+# Normalize line endings to LF across the repository so Prettier passes on
+# Windows as well as on macOS/Linux (see issue #129).
+* text=auto eol=lf
+
+# Binary files must never be normalized.
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.woff binary
+*.woff2 binary

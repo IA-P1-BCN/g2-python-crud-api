@@ -1,0 +1,70 @@
+export type CalendarPeriod = 'week' | 'month' | 'year'
+
+export type DateRange = { from: string; to: string }
+
+/** Local date as YYYY-MM-DD, the format the API expects for dates. */
+export function toIsoDate(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+/** Parses a YYYY-MM-DD string as a local date, avoiding the UTC shift of `new Date(value)`. */
+export function parseIsoDate(value: string): Date {
+  const [year, month, day] = value.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+/**
+ * Milliseconds since the epoch of midnight (UTC) for a "YYYY-MM-DD" calendar day.
+ *
+ * Unlike `parseIsoDate`, which builds a *local* date, this stays on the UTC calendar, so two days
+ * always differ by a whole number of days regardless of the timezone. Use it for day arithmetic
+ * (days left, durations); use `parseIsoDate` when you need the date in the user's timezone.
+ */
+export function utcDay(value: string): number {
+  const [year, month, day] = value.split('-').map(Number)
+  return Date.UTC(year, month - 1, day)
+}
+
+/** Midnight (UTC) of today, the counterpart of `utcDay` for "now". */
+export function utcToday(): number {
+  const now = new Date()
+  return Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+}
+
+/** Numeric weekday of a `YYYY-MM-DD` date or a `Date`, with 0 = Monday. */
+export function weekdayOf(value: string | Date): number {
+  const date = typeof value === 'string' ? parseIsoDate(value) : value
+  return (date.getDay() + 6) % 7
+}
+
+/** ISO date of the Monday of the week that contains `value`. */
+export function startOfWeek(value: string): string {
+  const date = parseIsoDate(value)
+  const daysSinceMonday = (date.getDay() + 6) % 7
+  date.setDate(date.getDate() - daysSinceMonday)
+  return toIsoDate(date)
+}
+
+/** ISO date `days` after `value`; pass a negative number to go back. */
+export function addDays(value: string, days: number): string {
+  const date = parseIsoDate(value)
+  date.setDate(date.getDate() + days)
+  return toIsoDate(date)
+}
+
+/** From the first day of the current week (Monday), month or year up to today. */
+export function currentPeriodRange(period: CalendarPeriod, today: Date = new Date()): DateRange {
+  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  if (period === 'week') {
+    const daysSinceMonday = (start.getDay() + 6) % 7
+    start.setDate(start.getDate() - daysSinceMonday)
+  } else if (period === 'month') {
+    start.setDate(1)
+  } else {
+    start.setMonth(0, 1)
+  }
+  return { from: toIsoDate(start), to: toIsoDate(today) }
+}

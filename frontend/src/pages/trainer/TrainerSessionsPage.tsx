@@ -1,0 +1,126 @@
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { bookingsApi, roomsApi, toApiError } from '@/api'
+import { EnrolledMembersPanel } from '@/components/ui/organisms/EnrolledMembersPanel'
+import { SessionList, type SessionListItem } from '@/components/ui/organisms/SessionList'
+import { WeekSelector } from '@/components/ui/organisms/WeekSelector'
+import { addDays, startOfWeek, toIsoDate, weekdayOf } from '@/lib/dates'
+import { formatDate, formatTime } from '@/lib/format'
+import { useEnrolledMembers } from './useEnrolledMembers'
+import { useTrainerSessions } from './useTrainerSessions'
+
+const PAGE_SIZE = 100
+const DAYS_IN_WEEK = 7
+
+export function TrainerSessionsPage() {
+  const [selectedDate, setSelectedDate] = useState(() => toIsoDate(new Date()))
+  const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(null)
+
+  const {
+    sessions,
+    isLoading: isLoadingSessions,
+    isError: isSessionsError,
+    error: sessionsError,
+  } = useTrainerSessions()
+
+  const rooms = useQuery({
+    queryKey: ['rooms'],
+    queryFn: () => roomsApi.list({ size: PAGE_SIZE }),
+  })
+
+  const bookings = useQuery({
+    queryKey: ['trainer', 'sessions', selectedDate],
+    queryFn: () => bookingsApi.list({ on_date: selectedDate, size: PAGE_SIZE }),
+  })
+
+  const roomNames = new Map((rooms.data?.items ?? []).map((room) => [room.id, room.name]))
+
+  const confirmedBySchedule = new Map<number, number>()
+  for (const booking of bookings.data?.items ?? []) {
+    if (booking.status === 'confirmed') {
+      confirmedBySchedule.set(
+        booking.schedule_id,
+        (confirmedBySchedule.get(booking.schedule_id) ?? 0) + 1,
+      )
+    }
+  }
+
+  const scheduledWeekdays = new Set(sessions.map((session) => session.schedule.day_of_week))
+  const sessionDates = Array.from({ length: DAYS_IN_WEEK }, (_, index) =>
+    addDays(startOfWeek(selectedDate), index),
+  ).filter((isoDate) => scheduledWeekdays.has(weekdayOf(isoDate)))
+
+  const selectedWeekday = weekdayOf(selectedDate)
+  const items: SessionListItem[] = sessions
+    .filter((session) => session.schedule.day_of_week === selectedWeekday)
+    .map(({ gymClass, schedule }) => ({
+      id: schedule.id,
+      title: gymClass.name,
+      time: `${formatTime(schedule.start_time)} – ${formatTime(schedule.end_time)}`,
+      room: schedule.room_id
+        ? (roomNames.get(schedule.room_id) ?? `Sala #${schedule.room_id}`)
+        : '—',
+      enrolled: confirmedBySchedule.get(schedule.id) ?? 0,
+      capacity: gymClass.capacity,
+    }))
+
+  const selectedSession = sessions.find((session) => session.schedule.id === selectedScheduleId)
+
+  const {
+    members,
+    isLoading: isLoadingMembers,
+    isError: isMembersError,
+    error: membersError,
+  } = useEnrolledMembers(selectedScheduleId, selectedDate)
+
+  const error = isSessionsError
+    ? toApiError(sessionsError).message
+    : bookings.isError
+      ? toApiError(bookings.error).message
+      : rooms.isError
+        ? toApiError(rooms.error).message
+        : null
+
+  function handleSelectDate(isoDate: string) {
+    setSelectedDate(isoDate)
+    setSelectedScheduleId(null)
+  }
+
+  return (
+    <div className="page">
+      <div className="page__header">
+        <h1>Mis sesiones</h1>
+      </div>
+
+      <WeekSelector
+        selectedDate={selectedDate}
+        onSelectDate={handleSelectDate}
+        sessionDates={sessionDates}
+      />
+
+      <SessionList
+        sessions={items}
+        role="trainer"
+        isLoading={isLoadingSessions || bookings.isLoading || rooms.isLoading}
+        error={error}
+        emptyMessage="No tienes sesiones para este día."
+        onAction={setSelectedScheduleId}
+      />
+
+      {selectedSession ? (
+        <section className="members">
+          <EnrolledMembersPanel
+            title={selectedSession.gymClass.name}
+            date={formatDate(selectedDate)}
+            enrolled={members.length}
+            capacity={selectedSession.gymClass.capacity}
+            members={members}
+            isLoading={isLoadingMembers}
+            error={isMembersError ? toApiError(membersError).message : null}
+            onClose={() => setSelectedScheduleId(null)}
+          />
+        </section>
+      ) : null}
+    </div>
+  )
+}

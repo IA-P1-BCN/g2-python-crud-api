@@ -1,0 +1,15 @@
+meta {
+  name: Exportar socios a CSV
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/export/members.csv
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+

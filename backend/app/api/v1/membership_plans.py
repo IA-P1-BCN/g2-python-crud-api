@@ -1,0 +1,82 @@
+from fastapi import APIRouter, Depends, status
+from sqlalchemy.orm import Session
+
+from app.api.deps import Pagination, build_page, get_db, require_admin
+from app.api.responses import errors
+from app.schemas.common import Page
+from app.schemas.membership_plan import (
+    MembershipPlanCreate,
+    MembershipPlanRead,
+    MembershipPlanUpdate,
+)
+from app.services import membership_plan_service
+
+router = APIRouter(prefix="/membership-plans", tags=["membership-plans"])
+
+
+@router.get(
+    "",
+    responses=errors(422),
+    response_model=Page[MembershipPlanRead],
+    summary="Listar planes",
+    description="Lista los planes de membresía. Con `active_only=true` solo devuelve los activos.",
+)
+def list_plans(
+    pagination: Pagination = Depends(),
+    active_only: bool = False,
+    db: Session = Depends(get_db),
+) -> Page[MembershipPlanRead]:
+    items, total = membership_plan_service.list_plans(
+        db, page=pagination.page, size=pagination.size, active_only=active_only
+    )
+    return build_page(items, total, pagination)
+
+
+@router.post(
+    "",
+    responses=errors(401, 403, 409, 422),
+    response_model=MembershipPlanRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)],
+    summary="Crear plan",
+    description="Crea un plan de membresía. Requiere rol administrador.",
+)
+def create_plan(data: MembershipPlanCreate, db: Session = Depends(get_db)) -> MembershipPlanRead:
+    return membership_plan_service.create_plan(db, data)
+
+
+@router.get(
+    "/{plan_id}",
+    responses=errors(404, 422),
+    response_model=MembershipPlanRead,
+    summary="Obtener plan",
+    description="Devuelve un plan de membresía por id.",
+)
+def get_plan(plan_id: int, db: Session = Depends(get_db)) -> MembershipPlanRead:
+    return membership_plan_service.get_plan(db, plan_id)
+
+
+@router.put(
+    "/{plan_id}",
+    responses=errors(401, 403, 404, 409, 422),
+    response_model=MembershipPlanRead,
+    dependencies=[Depends(require_admin)],
+    summary="Actualizar plan",
+    description="Actualiza un plan de membresía. Requiere rol administrador.",
+)
+def update_plan(
+    plan_id: int, data: MembershipPlanUpdate, db: Session = Depends(get_db)
+) -> MembershipPlanRead:
+    return membership_plan_service.update_plan(db, plan_id, data)
+
+
+@router.delete(
+    "/{plan_id}",
+    responses=errors(401, 403, 404, 409, 422),
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_admin)],
+    summary="Eliminar plan",
+    description="Elimina un plan de membresía. Requiere rol administrador.",
+)
+def delete_plan(plan_id: int, db: Session = Depends(get_db)) -> None:
+    membership_plan_service.delete_plan(db, plan_id)

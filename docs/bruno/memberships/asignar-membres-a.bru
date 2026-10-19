@@ -1,0 +1,27 @@
+meta {
+  name: Asignar membresía
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/memberships
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+{
+  "user_id": 0,
+  "plan_id": 0,
+  "start_date": ""
+}
+}
+
