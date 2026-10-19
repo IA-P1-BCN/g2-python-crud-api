@@ -230,7 +230,7 @@ export function AdminMembershipsPage() {
               required
             />
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-3">
             <Button type="submit" isLoading={save.isPending} disabled={!canSave}>
               Guardar
             </Button>

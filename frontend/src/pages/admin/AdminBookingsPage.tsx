@@ -218,7 +218,7 @@ export function AdminBookingsPage() {
               required
             />
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-3">
             <Button type="submit" isLoading={create.isPending} disabled={!canSave}>
               Guardar
             </Button>

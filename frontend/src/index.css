@@ -60,8 +60,10 @@ body {
 
 .page__header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 }
 
 .page--centered {
@@ -96,7 +98,8 @@ body {
 
 .table-actions {
   display: flex;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .table-status {
@@ -136,7 +139,8 @@ body {
 
 .form__actions {
   display: flex;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .field {

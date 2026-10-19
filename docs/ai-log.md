@@ -11,10 +11,11 @@ le pidió, qué se aceptó, qué se rechazó y en qué se equivocó el agente.
 
 | Persona | Herramienta | Modelo | Coste | Alcance |
 | --- | --- | --- | --- | --- |
-| Eva | Claude Code | Claude Opus 5.5 | De pago | Solo `backend/`, `specs/` y `docs/` de las tareas de backend asignadas a Eva. No toca `frontend/` ni tareas de otras personas |
+| Eva | Claude Code | Claude Opus 5.5 | De pago | Solo las tareas asignadas a Eva: `backend/`, `specs/` y `docs/`; el despliegue (`render.yaml`) y la CI (`.github/`); y los arreglos de `frontend/` que se le asignaron (#139, #487). El código y las entradas de este registro los redacta el agente; Eva decide, revisa el diff y hace los commits |
 | Elena | OpenCode | Modelo gratuito (OpenCode Zen) | Gratuito | `frontend/`, `specs/` y `docs/` de sus tareas; escribe specs y PRs. Configuración en `docs/opencode.md` |
 | PDguezPgr | OpenCode | Cat Jam Free (OpenCode) | Gratuito | Solo las tareas asignadas a PDguezPgr; docs, codigo de la tarea concreta y specs. |
 | PDguezPgr | ChatGPT (app de escritorio) | GPT-4o | Gratuito | Consultas de apoyo y redaccion; sin escribir directamente en el repo. |
+| Nayeli | OpenCode | MiMo Flash | Gratuito | `frontend/`, `specs/` y `docs/` de sus tareas asignadas; componentes y páginas de admin (Sheet, PlanEditForm, PlansPage, etc.). |
 
 El briefing recomienda OpenCode con modelos gratuitos y permite IAs de pago si se delimita su
 alcance. El resto del equipo añade aquí su fila.
@@ -412,11 +413,12 @@ alcance. El resto del equipo añade aquí su fila.
 - **Persona, herramienta y modelo:** PDguezPgr, OpenCode (Cat Jam Free) y ChatGPT app de escritorio (GPT-4o, consultas).
 - **Spec:** issue #400.
 - **Prompt clave:** “Añadir mi fila al equipo en `docs/ai-log.md` con las herramientas y modelos gratuitos usados”.
+- **Justificación de la herramienta(s):** OpenCode con modelo gratuito (Cat Jam Free) es la herramienta principal del proyecto, alineada con el briefing que recomienda IA gratuita y delimitada en alcance. ChatGPT desktop (GPT-4o) se usa solo para consultas de apoyo y redacción puntuales, sin escribir directamente en el repo; su alcance queda limitado a tareas no críticas y se revisa antes de copiar cualquier contenido al repositorio.
 - **Aceptado:**
   - Fila de OpenCode Cat Jam Free (Gratuito).
   - Fila de ChatGPT desktop GPT-4o (Gratuito).
 - **Rechazado o cambiado, y por qué:** si el plan de ChatGPT pasa a pago, debe actualizarse el coste.
-- **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno relevante.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** en la tarea #400 no se detectaron errores relevantes en el contenido entregado. Al tratarse de documentación sin cambios en backend ni frontend, no hubo riesgo de introducir fallos funcionales; se revisó que no se tocasen archivos fuera de `docs/` ni se añadiesen dependencias.
 - **Revisión humana:** revisado por el equipo en PR asociado.
 
 ### #253 Formulario de registro (organismo)
