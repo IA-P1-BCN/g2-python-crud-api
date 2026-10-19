@@ -6,9 +6,26 @@ Monorepo con una API REST en FastAPI (`backend/`) y una web en React (`frontend/
 > **Estado:** el backend tiene la estructura de carpetas y las dependencias.
 > El frontend ya arranca. Este README se irá completando (usuarios demo, Docker
 > y enlaces a Swagger).
+## Demo en línea
+
+Puedes probar la aplicación sin instalar nada: **[Athletica en Render](https://athletica-web.onrender.com/)**
+
+- **API (Swagger de producción):** [https://athletica-api-w9f4.onrender.com/docs](https://athletica-api-w9f4.onrender.com/docs)
+- **Usuarios de prueba:** tres cuentas de demo con la contraseña `Athletica123!`
+- **Aviso:** la API gratuita de Render puede tardar unos segundos en despertar tras la primera petición.
 
 ## Documentación
 
+- **AGENTS.md:** instrucciones para agentes de trabajo en el repo.
+- **specs/:** una spec por tarea, escrita antes del código (`<issue>-<slug>.md`).
+- **docs/ai-log.md:** bitácora de uso de IA (herramienta, modelo, qué se aceptó/rechazó, errores del agente).
+- **docs/errores.md:** catálogo de códigos y mensajes de error de la API.
+- **docs/endpoints.md:** tablas de endpoints por recurso y las 5 reglas de negocio.
+- **docs/deploy.md:** despliegue en Render.
+- **docs/retrospectiva-parte2.md:** retrospectiva del equipo al final de la parte 2.
+- **docs/comparativa-modelos-407.md:** comparativa de modelos gratuitos (tarea #407).
+- **docs/postman/**: colección y entorno de Postman (incluye 2FA y GitHub OAuth).
+- **docs/bruno/**: colección y entornos de Bruno.
 - **Diagrama ER (Parte 2, actual):** [docs/er-diagram.md](docs/er-diagram.md) — Mermaid,
   9 tablas (añade `revoked_tokens` y auditoría en `users`).
 - **Diagrama ER (Parte 1):** [docs/er-diagram.pdf](docs/er-diagram.pdf) _(Parte 1)_ —
@@ -90,11 +107,35 @@ Para añadir una dependencia nueva, escríbela en `pyproject.toml` y vuelve a ej
 `pip install -e ".[dev]"`. No uses `pip install paquete` suelto: el resto del equipo no
 lo tendría.
 
+### Arranque del backend
+
+Desde la carpeta `backend/`, con el entorno virtual activado:
+
+1. Levanta la base de datos PostgreSQL:
+   ```bash
+   docker compose up -d db
+   ```
+2. Aplica las migraciones de Alembic:
+   ```bash
+   alembic upgrade head
+   ```
+3. Carga los datos de prueba:
+   ```bash
+   python -m app.db.seed
+   ```
+4. Arranca la API:
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+   La API queda disponible en http://localhost:8000 y el Swagger en http://localhost:8000/docs.
+
+Más detalles en [docs/docker.md](docs/docker.md).
+
 Comprobar que todo está bien (con el entorno activado):
 
 ```bash
 ruff check .        # debe decir "All checks passed!"
-pytest              # "no tests ran" hasta que haya tests
+pytest              # 1352 tests, cobertura mínima del 80 %
 ```
 
 Cada vez que abras una terminal nueva tienes que volver a activar el entorno virtual.
@@ -129,8 +170,17 @@ Más detalle (scripts, estructura, tests E2E) en [frontend/README.md](frontend/R
 | `AUTO_CREATE_TABLES` | Crear tablas automáticamente (solo throwaway; dejar `false` con Alembic) |
 | `SECRET_KEY` | Clave JWT |
 | `ALGORITHM` | Algoritmo JWT (`HS256`) |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | Duración del token |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Duración del token de acceso |
+| `REFRESH_TOKEN_EXPIRE_DAYS` | Duración del token de refresco en días |
 | `CORS_ORIGINS` | Orígenes permitidos (CSV) |
+| `LOGIN_RATE_LIMIT_ATTEMPTS` | Máximo de intentos de login por ventana |
+| `LOGIN_RATE_LIMIT_WINDOW_SECONDS` | Ventana de tiempo del límite de login (segundos) |
+| `EMAIL_VERIFICATION_EXPIRE_HOURS` | Horas de validez del enlace de verificación de email |
+| `PASSWORD_RESET_EXPIRE_MINUTES` | Minutos de validez del enlace de recuperación de contraseña |
+| `FRONTENDURL` | URL del frontend para redirecciones OAuth |
+| `GITHUB_CLIENT_ID` | ID de la aplicación GitHub OAuth |
+| `GITHUB_CLIENT_SECRET` | Secreto de la aplicación GitHub OAuth |
+| `GITHUB_REDIRECT_URI` | URI de callback de GitHub OAuth |
 | `LOG_LEVEL` | Nivel de log |
 | `LOG_FILE` | Fichero de log rotativo (vacío = solo consola) |
 
@@ -144,18 +194,26 @@ Más detalle (scripts, estructura, tests E2E) en [frontend/README.md](frontend/R
 
 ```text
 .
+├── AGENTS.md
+├── CONTRIBUTING.md
+├── render.yaml
+├── specs/
+├── docs/
 ├── .github/workflows/ci.yml   # CI: job de backend (ruff + pytest) y job de frontend
+├── .github/workflows/ai-review.yml  # revisión automática con IA en los PR
 ├── backend/
 │   ├── app/
 │   │   ├── main.py            # crea la app FastAPI
 │   │   ├── core/              # config, security (JWT y hash), logging, exceptions
 │   │   ├── db/                # base, session, seed
 │   │   ├── models/            # tablas SQLAlchemy, un archivo por tabla
+│   │   ├── repositories/      # acceso a datos (SQL)
 │   │   ├── schemas/           # schemas Pydantic, un archivo por recurso
 │   │   ├── services/          # reglas de negocio
 │   │   └── api/
 │   │       ├── deps.py        # dependencias comunes: sesión, usuario actual, roles
 │   │       └── v1/            # routers, un archivo por recurso
+│   ├── alembic/               # migraciones de base de datos
 │   ├── tests/
 │   │   ├── conftest.py
 │   │   ├── unit/              # tests de services
@@ -164,17 +222,6 @@ Más detalle (scripts, estructura, tests E2E) en [frontend/README.md](frontend/R
 │   ├── Dockerfile
 │   └── .env.example
 └── frontend/              # React + Vite + TypeScript
-    ├── src/
-    │   ├── api/          # cliente HTTP
-    │   ├── components/ui/{atoms,molecules,organisms}/
-    │   ├── layouts/
-    │   ├── pages/{admin,member,trainer,public}/
-    │   ├── styles/       # theme.css (tokens)
-    │   └── types/        # schema.d.ts generado
-    ├── tests/{unit,e2e}/
-    ├── package.json
-    ├── Dockerfile
-    └── .env.example
     ├── src/
     │   ├── api/          # cliente HTTP
     │   ├── components/ui/{atoms,molecules,organisms}/
@@ -209,7 +256,7 @@ Guía completa en [CONTRIBUTING.md](CONTRIBUTING.md).
 - **Pull requests:** pequeños (una historia o menos), con `Closes #N`, CI en verde y revisión
   humana, con la opcion C: si hay alguien conectado, se le añade en **Reviewers** y
   esa persona aprueba con un comentario y fusiona; si no, se revisa el propio PR
-  (`Files changed` -> `Review changes` -> **Comment**) antes de fusionar. Cada PR recibe un
+  (`Files changed` -> `Submit review` -> **Comment**) antes de fusionar. Cada PR recibe un
   comentario automatico *AI review* (Gemini) que solo orienta y no sustituye la
   revisión humana.
 
@@ -217,12 +264,6 @@ Guía completa en [CONTRIBUTING.md](CONTRIBUTING.md).
   `.env.example` con un valor ficticio.
 
 ## Documentación
-
-- **Diagrama ER (Parte 2, actual):** [docs/er-diagram.md](docs/er-diagram.md)
-- **Diagrama ER (Parte 1):** [docs/er-diagram.pdf](docs/er-diagram.pdf) _(Parte 1)_
-- **Design tokens:** [docs/design-tokens.md](docs/design-tokens.md)
-- **README del frontend:** [frontend/README.md](frontend/README.md)
-
 
 ## Equipo
 
@@ -233,3 +274,4 @@ Contribuidores de GitHub:
 - [@nagicome03](https://github.com/nagicome03)
 - [@PDguezPgr](https://github.com/PDguezPgr)
 - [@IvannaRCA](https://github.com/IvannaRCA)
+- Nayeli
