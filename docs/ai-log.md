@@ -11,7 +11,7 @@ le pidió, qué se aceptó, qué se rechazó y en qué se equivocó el agente.
 
 | Persona | Herramienta | Modelo | Coste | Alcance |
 | --- | --- | --- | --- | --- |
-| Eva | Claude Code | Claude Opus 5.5 | De pago | Solo `backend/`, `specs/` y `docs/` de las tareas de backend asignadas a Eva. No toca `frontend/` ni tareas de otras personas |
+| Eva | Claude Code | Claude Opus 5.5 | De pago | Solo las tareas asignadas a Eva: `backend/`, `specs/` y `docs/`; el despliegue (`render.yaml`) y la CI (`.github/`); y los arreglos de `frontend/` que se le asignaron (#139, #487). El código y las entradas de este registro los redacta el agente; Eva decide, revisa el diff y hace los commits |
 | Elena | OpenCode | Modelo gratuito (OpenCode Zen) | Gratuito | `frontend/`, `specs/` y `docs/` de sus tareas; escribe specs y PRs. Configuración en `docs/opencode.md` |
 | PDguezPgr | OpenCode | Cat Jam Free (OpenCode) | Gratuito | Solo las tareas asignadas a PDguezPgr; docs, codigo de la tarea concreta y specs. |
 | PDguezPgr | ChatGPT (app de escritorio) | GPT-4o | Gratuito | Consultas de apoyo y redaccion; sin escribir directamente en el repo. |
