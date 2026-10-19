@@ -28,10 +28,13 @@ export function AppLayout() {
       />
 
       <div className="hidden border-b border-line md:block">
-        <TopNav items={items} className="mx-auto w-full max-w-app px-4 py-2" />
+        <TopNav
+          items={items}
+          className="mx-auto w-full max-w-app px-4 py-2 md:max-w-page md:px-6"
+        />
       </div>
 
-      <main className="mx-auto w-full max-w-app flex-1 px-4 py-6 pb-28 md:pb-6">
+      <main className="mx-auto w-full max-w-app flex-1 px-4 py-6 pb-28 md:max-w-page md:px-6 md:py-8 md:pb-6">
         <Outlet />
       </main>
 

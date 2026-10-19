@@ -95,6 +95,8 @@
 
   /* ---------- Layout ---------- */
   --container-app: 28rem; /* 448px: max width of the mobile column */
+  --container-page: 64rem; /* 1024px: max width of the page from md (768px) */
+  --container-narrow: 20rem; /* 320px: sidebar column, e.g. admin forms */
 }
 
 @layer base {
