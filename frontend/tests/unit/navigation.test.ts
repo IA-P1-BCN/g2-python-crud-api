@@ -22,6 +22,7 @@ describe('role navigation config', () => {
     expect(navForRole('admin').map((item) => item.label)).toEqual([
       'Dashboard',
       'Socios',
+      'Usuarios',
       'Planes',
       'Membresías',
       'Salas',

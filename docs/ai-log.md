@@ -898,6 +898,24 @@ alcance. El resto del equipo añade aquí su fila.
 - **Comprobado a mano:** `lint`, `format:check`, 417 tests unitarios (6 nuevos) y `build` en verde.
 - **Revisión humana:** pendiente en el PR.
 
+### #503 Enlace a «Usuarios» en el menú del admin
+
+- **Fecha:** 2026-10-19
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/503-admin-menu-users-link.md`, escrita antes del código.
+- **Prompt clave:** «no veo cómo agrego un entrenador… será que se olvidaron de ese botón». El
+  agente comprobó que la página `/admin/users` existía con **Nuevo usuario** y selector de rol, y
+  que lo que faltaba era su entrada en el menú del admin.
+- **Qué generó el agente:** la spec, la entrada «Usuarios» en `NAV_BY_ROLE.admin` (después de
+  «Socios», icono `user`) y el test de navegación actualizado.
+- **Aceptado:** un cambio de una línea; como el menú sale de una sola fuente, aparece a la vez
+  arriba (escritorio) y abajo (móvil).
+- **Rechazado o cambiado, y por qué:** rediseñar el menú inferior del móvil, que ya no cabía bien
+  con 8 entradas del admin: queda fuera de alcance.
+- **Comprobado a mano:** `lint`, 417 tests y `build` en verde.
+- **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno.
+- **Revisión humana:** pendiente en el PR.
+
 ### #432 Refrescar la sesión con el refresh token y revocarla en el logout
 
 - **Fecha:** 2026-10-19
