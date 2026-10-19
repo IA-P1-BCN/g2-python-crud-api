@@ -43,7 +43,29 @@ contraseña). Datos verificables del cierre de sprint:
 ### ¿Y tú? Añade tu opinión
 
 - «Nayeli»: trabajamos bien cada una por su cuenta con sus agentes y el md que nos ayudaba a que sigamos el mismo camino sin desvariarnos mucho, siguiendo el flujo de SDD.
-- «Elena»: _¿qué funcionó bien en la parte 2? ¿Qué repetirías?_
+- «Elena»:
+  - **Spec antes que código**: escribí la spec de cada tarea antes de tocar nada (`specs/249`,
+    `251`, `253`, `255`, `275`, `299`, `308`, `378`, `461`) y eso evitó rehacer trabajo cuando el
+    alcance cambiaba.
+  - **Parar y preguntar ante la ambigüedad**: en #299 (alcance y enfoque de los gráficos), #308
+    (datos de entrenadores sin backend), #275 (origen de los beneficios) y #251 (un `AuthHeroCard`
+    inexistente). Preguntar ahorró implementar cosas que no se querían.
+  - **Reutilizar en vez de duplicar (DRY)**: `LoginForm` (#249 → #458) y `RegisterForm`
+    (#253 → #465), el copy del hero compartido (`lib/auth-copy.ts`, #255 → #468), `weekdayOf` a
+    `lib/dates` (#295), `formatPercent`, `ChartCard`/`DateRangeFilter` (#299) y `PlanBenefitsList`
+    (#275).
+  - **Rediseñar sin romper**: migré login, registro, el panel de admin y las páginas del entrenador
+    manteniendo sus tests existentes (#456 conservó los de `AdminDashboardPage`; #458/#465 no
+    tocaron los de login/registro).
+  - **Kit y tokens de forma consistente**: Tailwind v4 + `components/ui`, sin hex ni valores
+    arbitrarios, y estados de carga/vacío/error en cada pantalla nueva.
+  - **Calidad**: el frontend cerró con ~400 tests unitarios + 10 E2E; los checks destaparon fallos
+    reales antes del merge (React Query v5 no admite `undefined` como dato en #461; un test de
+    gráfico con varios `listitem`).
+  - **E2E estable**: detecté que el *flake* de `member.spec` podía tumbar PRs y lo arreglé en
+    `loginAs` con `waitForURL` (#468), verificado con dos pasadas seguidas.
+  - **Tablero al día al final**: cerré como entregados los subtemas que ya estaban en `dev`
+    (#296/#297 y #300–#306/#311).
 - _«[Otro miembro]»_:
 
 ## 3. Qué fue mal
@@ -65,7 +87,26 @@ contraseña). Datos verificables del cierre de sprint:
 ### ¿Y tú? Añade tu opinión
 
 - «Nayeli»: al no verificarse que algunas tareas ya estaban asignadas, yo comenzaba esas issues con sus subissues pero hacia trabajo duplicado y tuve que revisar todo el rato si las tareas que me tocaban ya estaban hechas, en eso perdí algo de tiempo.
-- «Elena»: _¿qué salió mal? ¿Dónde perdiste tiempo?_
+- «Elena»:
+  - **`ai-log` y ramas desincronizadas**: varias ramas iban por detrás de `dev` y, al añadir mi
+    entrada al final de `docs/ai-log.md`, chocaba con la de otra persona (tuve que hacer merge y
+    reordenar entradas en #478). Propuesta: actualizar la rama antes de abrir el PR y acordar un
+    punto de inserción estable.
+  - **Trabajo duplicado por no comprobar el estado real**: #251 pedía rediseñar una página que ya
+    estaba rediseñada (#233/#249) y #248 estaba cerrado como «completed» sin código. Revisar
+    issue + PRs + código con `gh` antes de reclamar una tarea.
+  - **El tablero no se cierra solo**: los PRs de feature cerraban el padre (#295, #299) y los
+    subtemas quedaban abiertos.
+  - **Entorno local frágil tras los merges**: `pyotp` (2FA) sin instalar y migraciones sin aplicar
+    → el backend no arrancaba y el registro se quedaba «cargando». Documentar/automatizar
+    `pull → instalar deps → alembic upgrade head`.
+  - **El *flake* se detectó tarde**: costó verlo y el e2e va en CI. Ejecutar el e2e dos veces en
+    local antes del PR y usar esperas deterministas.
+  - **Dos sistemas de estilos**: quedan clases CSS antiguas (`.member-item`, `.table`,
+    `.pagination`, `MembersList`) junto al rediseño Tailwind.
+  - **PRs de feature muy grandes**: #456 entregó muchos subtemas de golpe y cuesta revisarlo.
+  - **Tests acoplados al DOM**: para no romper `AdminDashboardPage.test` cambié `StatCard`
+    (etiqueta a encabezado + `hint`); funciona, pero es señal de acoplamiento.
 - _«[Otro miembro]»_:
 
 ## 4. Qué cambiaríamos
@@ -83,6 +124,15 @@ contraseña). Datos verificables del cierre de sprint:
 
 - «Nayeli»: No tengo nada mas que añadir.
 - «Elena»:
+  - Actualizar la rama con `dev` antes de abrir el PR y fijar un punto único/estable para las
+    entradas del `ai-log`.
+  - Referenciar/cerrar los subtemas en el PR de la feature (o justo al hacer merge).
+  - Revisar el estado real (issue, PRs, código) con `gh` antes de reclamar una tarea y corregir la
+    descripción del issue cuando cambie el estado.
+  - Documentar/automatizar el arranque local (`uv pip install -e ".[dev]"` + `alembic upgrade
+    head`) y comprobar `/health` + un login antes de las demos.
+  - Terminar la migración al design system y borrar el CSS heredado.
+  - Partir los PRs de feature por subtema cuando sea posible.
 - _«[Otro miembro]»_:
 
 ## 5. Trabajo con agentes de IA
