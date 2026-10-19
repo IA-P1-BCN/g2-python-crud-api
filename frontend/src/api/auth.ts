@@ -18,6 +18,11 @@ export const authApi = {
     return data
   },
 
+  /** Revokes the session server-side (204). Send the refresh token so it is revoked too. */
+  async logout(refreshToken: string | null): Promise<void> {
+    await apiClient.post('/auth/logout', refreshToken ? { refresh_token: refreshToken } : undefined)
+  },
+
   /** Confirms the email with the token from the verification link (204, no body). */
   async verifyEmail(token: string): Promise<void> {
     await apiClient.post('/auth/verify-email', { token })

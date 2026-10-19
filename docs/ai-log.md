@@ -915,3 +915,53 @@ alcance. El resto del equipo añade aquí su fila.
 - **Comprobado a mano:** `lint`, 417 tests y `build` en verde.
 - **Errores o alucinaciones del agente y cómo se corrigieron:** ninguno.
 - **Revisión humana:** pendiente en el PR.
+
+### #432 Refrescar la sesión con el refresh token y revocarla en el logout
+
+- **Fecha:** 2026-10-19
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, MiMo-V2.6-Flash Free.
+- **Spec:** `specs/432-refresh-session-and-logout.md`, escrita antes del código.
+- **Prompt clave:** «¿están implementadas las 432 y la 463?». Las dos se comprobaron y **ninguna**
+  estaba hecha (sin `refresh_token` en el almacenamiento, sin `authApi.logout`, sin páginas de
+  recuperación). Nayeli eligió ejecutar primero la #432 en su rama; la #463 queda para otra tarea.
+- **Qué generó el agente:** la clave `gym.refresh` en `auth/tokenStorage.ts` (`getRefreshToken`,
+  `setSession(token, refreshToken, user)`, `setToken` para el refresco y `clear()` de las tres);
+  el interceptor de 401 de `api/client.ts` con refresco único en paralelo, una sola repetición y
+  lista de endpoints excluidos; `authApi.logout(refresh_token?)`; `logout` asíncrono en
+  `AuthContext` (revoca en el backend y siempre borra); el tipo en `auth/context.ts`; 9 tests
+  nuevos (6 en `api.client`, 3 en `AuthContext`); y esta entrada.
+- **Aceptado (decisiones de Nayeli):**
+  - Se refresca ante **cualquier** 401 de un endpoint protegido, no leyendo el texto en español
+    del backend, quedando fuera `/auth/login`, `/auth/register`, `/auth/refresh`,
+    `/auth/verify-email`, `/auth/forgot-password` y `/auth/reset-password`.
+  - El logout es *best-effort*: si `POST /auth/logout` falla se borran los tokens igualmente,
+    para que nadie quede atrapado en la sesión.
+  - El refresco es reactivo (al llegar el 401), no proactivo.
+  - El 401 de un endpoint excluido **no** borra la sesión: el error llega al formulario, como
+    dice la tabla de la spec.
+- **Revisión con IA del PR:** el reviewer (`gemini-flash-latest`) señaló dos cosas. (1) Que el
+  reintento podía arrastrar la cabecera `Authorization` caducada: no ocurre, porque
+  `apiClient.request()` vuelve a pasar por el interceptor de petición, que lee el token recién
+  guardado; lo fija la prueba «un 401 renueva la sesión y repite la petición original», que
+  exige `Bearer token-nuevo` para que el reintento tenga éxito, así que **no se tocó** (habría
+  duplicado el interceptor). (2) Que `startsWith` no casaría con una URL absoluta o con el
+  prefijo `/api/v1`: se cambió a **`endsWith`** con su prueba
+  (`/api/v1/auth/login`). Endurecer solo la URL lo aprobó Nayeli.
+- **Errores o alucinaciones del agente y cómo se corrigieron:**
+  - `npm run api:types` contra `localhost:8000` quitó `trainer_name` de `GymClassRead` y eso
+    habría roto `useSessionDetail.ts` y `useMemberSessions.ts`. La causa real: **dos servidores
+    en el puerto 8000**, el `uvicorn --reload` local (IPv4, al día) y el contenedor del compose
+    `backend` (IPv6, imagen construida antes de las PR #486/#488); `localhost` resuelve primero
+    a `::1`, así que el script —y también el proxy del Vite— caía en el contenedor viejo. Se
+    revirtió `schema.d.ts` con `git checkout` y, tras parar el API del compose
+    (`docker compose -f backend/docker-compose.yml stop api`, dejando `db` vivo), `npm run
+    api:types` se ejecuta con **diff nulo**. Lección: mantener un solo servidor del 8000.
+  - Un test suponía que el 401 de `/auth/login` borraba la sesión; la spec dice que el error
+    llega al formulario sin cerrarla. Se corrigió el test, no el código.
+  - El `catch` del interceptor envolvía también la petición repetida, así que un 401 tras un
+    refresco válido llamaba al handler dos veces; la repetición se sacó del `try`.
+  - Un test contaba mal las peticiones concurrentes (3 originales + 1 refresco + 3 repeticiones
+    = 7, no 4).
+- **Comprobado a mano:** `lint`, `format:check`, 426 tests unitarios (9 nuevos) y `build` en
+  verde. `npm run api:types` con **diff nulo**.
+- **Revisión humana:** pendiente en el PR.

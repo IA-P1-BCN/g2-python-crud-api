@@ -9,7 +9,8 @@ export type AuthContextValue = {
   error: string | null
   login: (payload: LoginRequest) => Promise<User>
   register: (payload: RegisterRequest) => Promise<User>
-  logout: () => void
+  /** Closes the session: revokes it on the server (best-effort) and clears the tokens. */
+  logout: () => Promise<void>
   updateUser: (user: User) => void
   hasRole: (...roles: Role[]) => boolean
 }
