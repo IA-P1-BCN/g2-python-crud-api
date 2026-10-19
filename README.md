@@ -3,6 +3,10 @@
 Aplicación de gestión de un gimnasio: socios, membresías, clases y reservas.
 Monorepo con una API REST en FastAPI (`backend/`) y una web en React (`frontend/`).
 
+## Demo en línea
+
+Puedes probar la aplicación sin instalar nada: **[Athletica en Render](https://athletica-web.onrender.com/)**
+
 > **Estado:** el backend tiene la estructura de carpetas y las dependencias.
 > El frontend ya arranca. Este README se irá completando (usuarios demo, Docker
 > y enlaces a Swagger).
