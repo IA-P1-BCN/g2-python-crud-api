@@ -12,7 +12,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    // Best-effort: revokes the session on the server, but the user always leaves the
+    // session locally, even if the API is unreachable (#432).
+    await authApi.logout(tokenStorage.getRefreshToken()).catch(() => {})
     tokenStorage.clear()
     setUser(null)
     setToken(null)
@@ -25,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(updatedUser)
   }, [])
 
-  // Cuando el cliente axios recibe un 401 (token caducado), cerramos sesión.
+  // Cuando el cliente axios recibe un 401 y no puede renovar la sesión, la cerramos.
   useEffect(() => {
     setUnauthorizedHandler(() => {
       tokenStorage.clear()
@@ -48,7 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(current)
       })
       .catch(() => {
-        // Un 401 lo gestiona el interceptor (borra la sesión y redirige al login).
+        // Un 401 lo gestiona el interceptor: primero intenta renovar la sesión y, si no
+        // puede, la borra y navega al login.
       })
     return () => {
       active = false
@@ -56,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const startSession = useCallback((result: Token) => {
-    tokenStorage.setSession(result.access_token, result.user)
+    tokenStorage.setSession(result.access_token, result.refresh_token, result.user)
     setToken(result.access_token)
     setUser(result.user)
     return result.user
