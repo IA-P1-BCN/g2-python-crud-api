@@ -47,7 +47,9 @@ válida en el servidor hasta que caduca, con lo que un token copiado sigue sirvi
 - **Quedan fuera del refresco `/auth/login`, `/auth/register`, `/auth/refresh`,
   `/auth/forgot-password`, `/auth/reset-password` y `/auth/verify-email`.** En los dos primeros un
   401 es una contraseña equivocada, en `/auth/refresh` provocaría un bucle y los de enlaces no
-  tienen sesión. Todo lo demás, incluido `/auth/logout`, se trata como protegido.
+  tienen sesión. Todo lo demás, incluido `/auth/logout`, se trata como protegido. La lista se
+  compara **por sufijo** (`endsWith`), no por prefijo: si alguna llamada se construye con una URL
+  absoluta o con el prefijo `/api/v1`, la exclusión sigue casando.
 - **La llamada de refresco vive en `api/client.ts`, no en `authApi`.** `auth.ts` importa
   `apiClient` de `client.ts`; si `client.ts` importara `authApi` al revés habría una importación
   circular. El cliente marca la petición de refresco para que su propio 401 no dispare otro.

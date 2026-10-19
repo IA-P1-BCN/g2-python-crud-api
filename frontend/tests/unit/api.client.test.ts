@@ -156,6 +156,19 @@ describe('apiClient', () => {
     expect(tokenStorage.getToken()).toBe('token-viejo')
   })
 
+  it('excluye el login aunque la URL lleve el prefijo del baseURL', async () => {
+    tokenStorage.setSession('token-viejo', 'refresh-123', user)
+    const onUnauthorized = vi.fn()
+    setUnauthorizedHandler(onUnauthorized)
+
+    const urls = withAdapter((config) => unauthorized(config))
+
+    await expect(apiClient.post('/api/v1/auth/login', {})).rejects.toBeInstanceOf(AxiosError)
+
+    expect(urls).toEqual(['/api/v1/auth/login'])
+    expect(onUnauthorized).not.toHaveBeenCalled()
+  })
+
   it('un 401 tras haber refrescado cierra la sesión', async () => {
     tokenStorage.setSession('token-viejo', 'refresh-123', user)
     const onUnauthorized = vi.fn()

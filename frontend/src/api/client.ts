@@ -20,6 +20,8 @@ export function setUnauthorizedHandler(handler: (() => void) | null): void {
 /**
  * Endpoints where a 401 is not an expired access token. Refreshing there would either loop
  * (/auth/refresh) or hide the real error: a wrong password or a spent link.
+ * Matched by suffix, so a request built with an absolute URL or the `/api/v1` prefix is
+ * excluded too.
  */
 const NO_REFRESH_PATHS = [
   '/auth/login',
@@ -91,7 +93,7 @@ apiClient.interceptors.response.use(
     if (config.isRefresh) return Promise.reject(error)
     // A 401 that cannot be about an expired access token: the caller shows it as it is
     // (a wrong password must not log anybody out).
-    if (NO_REFRESH_PATHS.some((path) => (config.url ?? '').startsWith(path))) {
+    if (NO_REFRESH_PATHS.some((path) => (config.url ?? '').endsWith(path))) {
       return Promise.reject(error)
     }
     // Retried with a brand-new token and still rejected: there is no session left to renew.

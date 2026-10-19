@@ -921,6 +921,14 @@ alcance. El resto del equipo añade aquí su fila.
   - El refresco es reactivo (al llegar el 401), no proactivo.
   - El 401 de un endpoint excluido **no** borra la sesión: el error llega al formulario, como
     dice la tabla de la spec.
+- **Revisión con IA del PR:** el reviewer (`gemini-flash-latest`) señaló dos cosas. (1) Que el
+  reintento podía arrastrar la cabecera `Authorization` caducada: no ocurre, porque
+  `apiClient.request()` vuelve a pasar por el interceptor de petición, que lee el token recién
+  guardado; lo fija la prueba «un 401 renueva la sesión y repite la petición original», que
+  exige `Bearer token-nuevo` para que el reintento tenga éxito, así que **no se tocó** (habría
+  duplicado el interceptor). (2) Que `startsWith` no casaría con una URL absoluta o con el
+  prefijo `/api/v1`: se cambió a **`endsWith`** con su prueba
+  (`/api/v1/auth/login`). Endurecer solo la URL lo aprobó Nayeli.
 - **Errores o alucinaciones del agente y cómo se corrigieron:**
   - `npm run api:types` contra `localhost:8000` quitó `trainer_name` de `GymClassRead` y eso
     habría roto `useSessionDetail.ts` y `useMemberSessions.ts`. La causa real: **dos servidores
