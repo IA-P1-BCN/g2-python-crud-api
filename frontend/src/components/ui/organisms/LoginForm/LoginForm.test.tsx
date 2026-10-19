@@ -59,4 +59,22 @@ describe('LoginForm', () => {
 
     expect(screen.getByRole('link', { name: 'Registrarse' })).toHaveAttribute('href', '/register')
   })
+
+  it('enlaza al restablecimiento de contraseña', () => {
+    renderForm()
+
+    expect(screen.getByRole('link', { name: '¿Has olvidado tu contraseña?' })).toHaveAttribute(
+      'href',
+      '/forgot-password',
+    )
+  })
+
+  it('respeta el href del enlace de recuperación', () => {
+    renderForm({ forgotPasswordHref: '/otra-ruta' })
+
+    expect(screen.getByRole('link', { name: '¿Has olvidado tu contraseña?' })).toHaveAttribute(
+      'href',
+      '/otra-ruta',
+    )
+  })
 })
