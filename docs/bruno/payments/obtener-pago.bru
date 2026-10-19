@@ -1,0 +1,15 @@
+meta {
+  name: Obtener pago
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/payments/{{payment_id}}
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+

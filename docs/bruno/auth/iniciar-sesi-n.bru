@@ -1,0 +1,31 @@
+meta {
+  name: Iniciar sesión
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/auth/login
+  body: json
+  auth: none
+}
+auth: none
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+{
+  "email": "",
+  "password": ""
+}
+}
+
+script:post-response {
+  const json = res.body;
+  if (json && json.access_token) {
+    bru.setVar("token", json.access_token);
+  }
+}
+

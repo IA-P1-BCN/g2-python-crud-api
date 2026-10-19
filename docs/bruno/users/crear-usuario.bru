@@ -1,0 +1,27 @@
+meta {
+  name: Crear usuario
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/users
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+{
+  "email": "",
+  "full_name": "",
+  "password": ""
+}
+}
+

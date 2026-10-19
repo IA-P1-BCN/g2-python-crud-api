@@ -1,0 +1,15 @@
+meta {
+  name: Listar pagos
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/payments
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+

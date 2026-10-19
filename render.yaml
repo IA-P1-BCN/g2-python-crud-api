@@ -1,0 +1,63 @@
+# Render Blueprint: database, API and web (specs/113-deploy-to-render.md, steps in docs/deploy.md).
+# Secrets are never written here: Render generates SECRET_KEY, takes DATABASE_URL from the
+# database, and asks for the `sync: false` values when the Blueprint is created.
+
+databases:
+  - name: athletica-db
+    plan: free
+    region: frankfurt
+    databaseName: athletica
+    user: athletica
+
+services:
+  - type: web
+    name: athletica-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: athletica-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      # The web URL, e.g. https://athletica-web.onrender.com
+      - key: CORS_ORIGINS
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      # Login with GitHub: an OAuth App whose callback is the API URL + /api/v1/auth/github/callback
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_REDIRECT_URI
+        sync: false
+      # Logs go to stdout; the container user cannot write to /app
+      - key: LOG_FILE
+        value: ''
+      - key: SEED_DEMO_DATA
+        value: 'true'
+
+  - type: web
+    name: athletica-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    # React Router handles every route in the browser
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # The API URL with its prefix, e.g. https://athletica-api.onrender.com/api/v1
+      - key: VITE_API_URL
+        sync: false
+      - key: NODE_VERSION
+        value: '22'

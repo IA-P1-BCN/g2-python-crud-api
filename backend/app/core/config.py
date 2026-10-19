@@ -1,0 +1,51 @@
+from functools import lru_cache
+
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    database_url: str = "postgresql+psycopg://athletica:athletica@localhost:5432/athletica"
+    secret_key: str = "change-me"
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 60
+    refresh_token_expire_days: int = 7
+    login_rate_limit_attempts: int = 5
+    login_rate_limit_window_seconds: int = 60
+    email_verification_expire_hours: int = 24
+    password_reset_expire_minutes: int = 30
+    # Where the links sent by email point to
+    frontend_url: str = "http://localhost:5173"
+    cors_origins: str = "http://localhost:5173"
+    # Login with GitHub (OAuth App); empty client id means it is turned off
+    github_client_id: str = ""
+    github_client_secret: str = ""
+    github_redirect_uri: str = "http://localhost:8000/api/v1/auth/github/callback"
+    log_level: str = "INFO"
+    log_file: str = "logs/app.log"
+    # Alembic is the single source of truth for the schema; set this to true only for a
+    # throwaway database where you do not want to run migrations.
+    auto_create_tables: bool = False
+
+    @field_validator("database_url")
+    @classmethod
+    def use_psycopg_driver(cls, url: str) -> str:
+        """Hosting platforms give `postgresql://` URLs; SQLAlchemy needs the psycopg 3 driver."""
+        for scheme in ("postgres://", "postgresql://"):
+            if url.startswith(scheme):
+                return "postgresql+psycopg://" + url.removeprefix(scheme)
+        return url
+
+    @property
+    def cors_origins_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+
+
+settings = get_settings()

@@ -1,0 +1,27 @@
+meta {
+  name: Crear pago
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/api/v1/payments
+  body: json
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+{
+  "user_id": 0,
+  "membership_id": 0,
+  "amount_cents": 0
+}
+}
+

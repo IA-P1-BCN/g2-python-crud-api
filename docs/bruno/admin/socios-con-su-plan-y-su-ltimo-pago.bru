@@ -1,0 +1,15 @@
+meta {
+  name: Socios con su plan y su último pago
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/api/v1/admin/members
+  body: none
+  auth: bearer
+}
+auth:bearer {
+  token: {{token}}
+}
+

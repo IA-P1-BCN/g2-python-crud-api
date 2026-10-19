@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: athletica
+      POSTGRES_PASSWORD: athletica
+      POSTGRES_DB: athletica
+    ports:
+      - '5432:5432'
+    volumes:
+      - athletica_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U athletica']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg://athletica:athletica@db:5432/athletica
+      SECRET_KEY: change-me
+      CORS_ORIGINS: http://localhost:5173
+      LOG_LEVEL: INFO
+      # In the container logs go to stdout (docker logs); appuser cannot write to /app
+      LOG_FILE: ''
+      # The image runs the Alembic migrations at start-up; they are the only source of the schema
+      AUTO_CREATE_TABLES: 'false'
+    ports:
+      - '8000:8000'
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  athletica_pgdata:

@@ -1,0 +1,111 @@
+/*
+ * Design tokens for the app (Tailwind CSS v4).
+ * Source: Figma file "Wireframes-Athletica (Copia)", normalized.
+ * Rules and the mapping from raw Figma values live in docs/design-tokens.md.
+ *
+ * Usage: src/index.css
+ *   @import "tailwindcss";
+ *   @import "./styles/theme.css";
+ *
+ * Spacing is not overridden on purpose: Tailwind's default 4px step
+ * (p-1 = 4, p-2 = 8, p-3 = 12, p-4 = 16, p-5 = 20, p-6 = 24, p-8 = 32 ...)
+ * is the allowed scale. Do not use arbitrary values such as p-[10px].
+ */
+
+/* "static" keeps every variable in the CSS output so charts can use var(--color-chart-1) directly. */
+@theme static {
+  /* Remove Tailwind defaults so only design tokens are available. */
+  --color-*: initial;
+  --text-*: initial;
+  --radius-*: initial;
+  --font-*: initial;
+
+  /* ---------- Typography ---------- */
+  /* Display: numbers, headings, labels. Sans: body copy. */
+  --font-display: 'Space Grotesk Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+
+  --text-caption: 0.6875rem; /* 11px */
+  --text-caption--line-height: 1rem;
+  --text-small: 0.75rem; /* 12px */
+  --text-small--line-height: 1rem;
+  --text-body: 0.875rem; /* 14px */
+  --text-body--line-height: 1.25rem;
+  --text-lead: 1.125rem; /* 18px */
+  --text-lead--line-height: 1.5rem;
+  --text-title: 1.25rem; /* 20px */
+  --text-title--line-height: 1.75rem;
+  --text-headline: 1.5rem; /* 24px */
+  --text-headline--line-height: 2rem;
+  --text-display: 2rem; /* 32px */
+  --text-display--line-height: 2.5rem;
+  --text-metric: 2.25rem; /* 36px */
+  --text-metric--line-height: 2.75rem;
+  --text-hero: 3rem; /* 48px */
+  --text-hero--line-height: 3rem;
+
+  --tracking-wide: 0.05em;
+
+  /* ---------- Colors ---------- */
+  --color-white: #ffffff;
+
+  /* Surfaces */
+  --color-canvas: #17181a; /* app background */
+  --color-surface: #26282b; /* cards, panels */
+  --color-surface-sunken: #1b1c1e; /* inputs, nested blocks */
+  --color-line: #33363a; /* borders, progress tracks */
+  --color-ink: #121315; /* text and icons over primary */
+
+  /* Text */
+  --color-text: #ffffff;
+  --color-text-soft: #e3e2e4;
+  --color-text-muted: #9a9ca1;
+
+  /* Brand */
+  --color-primary: #d4f55a; /* lime: active states, primary actions */
+  --color-primary-soft: rgb(212 245 90 / 0.15);
+  --color-secondary: #4b63e0; /* blue: feature cards */
+  --color-secondary-mid: #3a50c7;
+  --color-secondary-strong: #233391;
+  --color-secondary-soft: #bac3ff; /* second chart series, light accents */
+
+  /* Status */
+  --color-success: #4ade80;
+  --color-danger: #f87171;
+  --color-danger-soft: rgb(248 113 113 / 0.2);
+  --color-danger-surface: #241517;
+  --color-warning: #fbbf24; /* amber: attention, capacity warnings */
+
+  /* Decorative */
+  --color-glow: #3a4420; /* olive background glow */
+  --color-scrim: rgb(0 0 0 / 0.25); /* dark overlay on top of blue cards */
+
+  /* Chart series (reference the tokens above) */
+  --color-chart-1: var(--color-primary);
+  --color-chart-2: var(--color-secondary-soft);
+  --color-chart-3: var(--color-white);
+  --color-chart-4: var(--color-text-muted);
+
+  /* ---------- Shape ---------- */
+  --radius-tile: 1rem; /* 16px: small tiles, chart bars */
+  --radius-card: 2rem; /* 32px: cards, panels, sheets */
+  /* Inputs, buttons, chips and avatars use Tailwind's rounded-full. */
+
+  --shadow-glow-primary: 0 4px 8px 0 rgb(212 245 90 / 0.2);
+
+  /* ---------- Layout ---------- */
+  --container-app: 28rem; /* 448px: max width of the mobile column */
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}

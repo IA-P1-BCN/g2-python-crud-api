@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Gym CRUD · Memoria del proyecto</title>
+    <style>
+      :root {
+        --primary: #2563eb;
+        --primary-dark: #1e40af;
+        --ink: #1f2933;
+        --muted: #64748b;
+        --line: #e2e8f0;
+        --bg-soft: #f8fafc;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      html {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      body {
+        font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        color: var(--ink);
+        font-size: 11pt;
+        line-height: 1.5;
+        margin: 0;
+      }
+      h1,
+      h2,
+      h3 {
+        color: var(--primary-dark);
+        line-height: 1.25;
+      }
+      h2 {
+        font-size: 16pt;
+        border-bottom: 2px solid var(--primary);
+        padding-bottom: 4px;
+        margin-top: 28px;
+      }
+      h3 {
+        font-size: 12.5pt;
+        margin-bottom: 4px;
+      }
+      p {
+        margin: 6px 0;
+      }
+      ul,
+      ol {
+        margin: 6px 0 6px 18px;
+        padding: 0;
+      }
+      li {
+        margin: 2px 0;
+      }
+      code {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+        font-size: 9.5pt;
+        background: #eef2ff;
+        color: #3730a3;
+        padding: 1px 4px;
+        border-radius: 4px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0;
+        font-size: 10pt;
+      }
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 6px 8px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: var(--primary);
+        color: #fff;
+        font-weight: 600;
+      }
+      tr:nth-child(even) td {
+        background: var(--bg-soft);
+      }
+      .cover {
+        height: 245mm;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        page-break-after: always;
+      }
+      .cover .badge {
+        display: inline-block;
+        background: var(--primary);
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 10pt;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+      }
+      .cover h1 {
+        font-size: 32pt;
+        margin: 0 0 8px;
+      }
+      .cover .subtitle {
+        font-size: 14pt;
+        color: var(--muted);
+        margin-bottom: 40px;
+      }
+      .cover .meta {
+        display: inline-block;
+        text-align: left;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 18px 26px;
+        font-size: 11pt;
+      }
+      .cover .meta b {
+        color: var(--primary-dark);
+      }
+      .toc ol {
+        margin-left: 0;
+        list-style: none;
+        counter-reset: item;
+      }
+      .toc ol > li {
+        counter-increment: item;
+        padding: 4px 0;
+        border-bottom: 1px dotted var(--line);
+      }
+      .toc ol > li::before {
+        content: counter(item) '. ';
+        color: var(--primary);
+        font-weight: 700;
+      }
+      .section {
+        page-break-before: always;
+      }
+      .callout {
+        background: var(--bg-soft);
+        border-left: 4px solid var(--primary);
+        padding: 10px 14px;
+        border-radius: 0 6px 6px 0;
+        margin: 10px 0;
+      }
+      .grid {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .card {
+        flex: 1 1 45%;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px 14px;
+        background: #fff;
+      }
+      .card h3 {
+        margin-top: 0;
+      }
+      .kpi {
+        display: flex;
+        gap: 10px;
+        margin: 12px 0;
+      }
+      .kpi div {
+        flex: 1;
+        text-align: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px 4px;
+        background: var(--bg-soft);
+      }
+      .kpi strong {
+        display: block;
+        font-size: 20pt;
+        color: var(--primary);
+      }
+      .kpi span {
+        font-size: 9pt;
+        color: var(--muted);
+      }
+      .tree {
+        font-family: 'SFMono-Regular', Consolas, monospace;
+        font-size: 9pt;
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 14px 16px;
+        border-radius: 8px;
+        white-space: pre;
+        line-height: 1.45;
+      }
+      .tree .c {
+        color: #93c5fd;
+      }
+      .footer-note {
+        color: var(--muted);
+        font-size: 9pt;
+        margin-top: 24px;
+        border-top: 1px solid var(--line);
+        padding-top: 8px;
+      }
+      .avoid-break {
+        page-break-inside: avoid;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- PORTADA -->
+    <section class="cover">
+      <div><span class="badge">Proyecto 2 · Gym CRUD</span></div>
+      <h1>Memoria del proyecto</h1>
+      <div class="subtitle">API de gestión de gimnasio (FastAPI) y aplicación web (React)</div>
+      <div class="meta">
+        <p><b>Repositorio:</b> github.com/IA-P1-BCN/g2-python-crud-api</p>
+        <p><b>Equipo:</b> Eva, Nayeli, Pedro, Ivanna y Elena</p>
+        <p><b>Organización:</b> IA-P1-BCN</p>
+        <p><b>Fecha:</b> 2 de octubre de 2026</p>
+      </div>
+    </section>
+
+    <!-- INDICE -->
+    <section>
+      <h2>Índice</h2>
+      <div class="toc">
+        <ol>
+          <li>Resumen ejecutivo</li>
+          <li>Objetivo y alcance</li>
+          <li>Stack tecnológico</li>
+          <li>Arquitectura del frontend</li>
+          <li>Cómo encajan front y back</li>
+          <li>Estrategia de pruebas</li>
+          <li>Integración continua y despliegue</li>
+          <li>Backlog del producto</li>
+          <li>Reparto del equipo</li>
+          <li>Gestión del repositorio</li>
+          <li>Estado actual y próximos pasos</li>
+          <li>Anexo: comandos útiles</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 1 -->
+    <section class="section">
+      <h2>1. Resumen ejecutivo</h2>
+      <p>
+        El proyecto consiste en una <b>API REST de gestión de gimnasio</b> desarrollada con FastAPI y
+        una <b>aplicación web</b> en React que la consume. El trabajo se organiza en cuatro fases de
+        dificultad creciente (Esencial, Medio, Avanzado y Experto) que cubren desde el CRUD y las
+        reglas de negocio hasta autenticación JWT, caché, WebSockets, Docker, CI/CD y despliegue en
+        la nube.
+      </p>
+      <p>
+        En esta primera entrega se ha dejado preparado el <b>andamiaje del frontend</b> (estructura,
+        capa de API, autenticación y enrutado por roles) y se ha generado el <b>backlog completo</b>
+        en GitHub Projects, con historias de usuario, subtareas, prioridades, estimaciones y
+        responsables.
+      </p>
+      <div class="kpi">
+        <div><strong>28</strong><span>historias de usuario</span></div>
+        <div><strong>95</strong><span>subtareas</span></div>
+        <div><strong>4</strong><span>fases / milestones</span></div>
+        <div><strong>5</strong><span>personas</span></div>
+      </div>
+      <div class="callout">
+        El repositorio trabaja con dos ramas: <code>main</code> (vacía, reservada) y <code>dev</code>
+        (rama por defecto y de integración). Todo el desarrollo se hace en ramas de característica y
+        se integra por pull request.
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="section">
+      <h2>2. Objetivo y alcance</h2>
+      <h3>Objetivo</h3>
+      <p>
+        Construir una plataforma que permita gestionar socios, entrenadores, planes de membresía,
+        clases, horarios, reservas y pagos, aplicando buenas prácticas de desarrollo: separación en
+        capas, pruebas automatizadas, integración continua y despliegue reproducible.
+      </p>
+      <h3>Alcance funcional</h3>
+      <ul>
+        <li>Gestión de usuarios con roles (administrador, entrenador y socio).</li>
+        <li>Planes de membresía y asignación de suscripciones con fechas de validez.</li>
+        <li>Clases, horarios y control de aforo.</li>
+        <li>Reservas y cancelaciones con reglas de negocio (membresía activa, aforo, solapamiento).</li>
+        <li>Pagos asociados a membresías.</li>
+        <li>Documentación interactiva (Swagger), filtros, paginación y exportación a CSV.</li>
+        <li>Autenticación JWT, permisos por rol, caché y disponibilidad en tiempo real.</li>
+        <li>Interfaz web básica para socios.</li>
+      </ul>
+      <h3>Alcance de esta entrega</h3>
+      <ul>
+        <li>Estructura del proyecto frontend React + Vite + TypeScript.</li>
+        <li>Backlog completo creado en GitHub Projects con reparto asignado.</li>
+        <li>Pipeline de CI con dos jobs (backend y frontend).</li>
+      </ul>
+    </section>
+
+    <!-- 3 -->
+    <section class="section">
+      <h2>3. Stack tecnológico</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Frontend</h3>
+          <ul>
+            <li>React 18 + TypeScript</li>
+            <li>Vite como empaquetador</li>
+            <li>React Router (enrutado por rol)</li>
+            <li>TanStack Query (estado del servidor)</li>
+            <li>axios (cliente HTTP)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Backend</h3>
+          <ul>
+            <li>Python + FastAPI</li>
+            <li>SQLAlchemy + Alembic</li>
+            <li>PostgreSQL</li>
+            <li>Pydantic (validación)</li>
+            <li>JWT (autenticación)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Calidad y pruebas</h3>
+          <ul>
+            <li>Vitest + Testing Library (unitarios)</li>
+            <li>Playwright (end-to-end)</li>
+            <li>pytest (backend)</li>
+            <li>ESLint + Prettier</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Infraestructura</h3>
+          <ul>
+            <li>Docker + nginx</li>
+            <li>GitHub Actions (CI)</li>
+            <li>Render / Railway (API y BD)</li>
+            <li>Vercel / Netlify (frontend)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="section">
+      <h2>4. Arquitectura del frontend</h2>
+      <h3>4.1 Estructura de carpetas</h3>
+      <div class="tree"><span class="c">frontend/</span>
+├── src/
+│   ├── <span class="c">api/</span>            # ÚNICO sitio que llama a la API (axios + interceptores)
+│   ├── <span class="c">auth/</span>           # AuthContext, ProtectedRoute, tokenStorage, roles
+│   ├── <span class="c">components/ui/</span>  # Button, Table, Pagination, Alert reutilizables
+│   ├── <span class="c">layouts/</span>        # AppLayout (cabecera + navegación por rol)
+│   ├── <span class="c">pages/</span>
+│   │   ├── <span class="c">member/</span>     # Pantallas del socio
+│   │   ├── <span class="c">trainer/</span>    # Pantallas del entrenador (HU-29)
+│   │   └── <span class="c">admin/</span>      # Pantallas del admin, planes (HU-28)
+│   ├── <span class="c">types/</span>         # schema.d.ts generado desde OpenAPI
+│   └── <span class="c">lib/</span>           # queryClient
+├── tests/
+│   ├── <span class="c">unit/</span>          # Vitest
+│   └── <span class="c">e2e/</span>           # Playwright
+├── Dockerfile · nginx.conf
+└── package.json · vite.config.ts · playwright.config.ts</div>
+
+      <h3>4.2 Capa de API</h3>
+      <p>
+        El módulo <code>src/api/</code> es el único punto que habla con el backend. El cliente de
+        axios añade el token en cada petición y, si el servidor responde <code>401</code>, borra la
+        sesión y redirige al login. Los errores se normalizan con <code>toApiError</code> para
+        mostrarlos de forma uniforme.
+      </p>
+      <div class="callout">
+        Si el backend cambia, solo se toca esta capa; las páginas no conocen detalles de HTTP.
+      </div>
+
+      <h3>4.3 Autenticación y roles</h3>
+      <ul>
+        <li><b>AuthContext</b>: guarda el usuario y su rol; expone <code>login</code>, <code>logout</code> y <code>hasRole</code>.</li>
+        <li><b>tokenStorage</b>: único punto de acceso a la sesión persistida.</li>
+        <li><b>ProtectedRoute</b>: bloquea rutas sin sesión (redirige a login) y por rol (403).</li>
+      </ul>
+
+      <h3>4.4 Componentes UI reutilizables</h3>
+      <p>
+        Se incluyen <code>Button</code>, <code>Table</code>, <code>Pagination</code> y
+        <code>Alert</code>, pensados para que cada persona los reutilice en sus pantallas y mantenga
+        una interfaz coherente.
+      </p>
+
+      <h3>4.5 Páginas por rol</h3>
+      <p>
+        Las pantallas de dominio quedan como <b>stubs</b> con su propietario y su historia asignada,
+        listas para que cada miembro del equipo implemente su parte:
+      </p>
+      <table class="avoid-break">
+        <thead>
+          <tr><th>Pantalla</th><th>Responsable</th><th>Historia</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Reservas y formulario de reserva (socio)</td><td>P5 · Elena</td><td>Socios</td></tr>
+          <tr><td>Listado de socios (admin)</td><td>P5 · Elena</td><td>Socios</td></tr>
+          <tr><td>Gestión de planes (admin)</td><td>P2 · Pedro</td><td>HU-28</td></tr>
+          <tr><td>Socios del entrenador</td><td>P3 · Nayeli</td><td>HU-29</td></tr>
+          <tr><td>Pruebas end-to-end</td><td>P4 · Eva</td><td>HU-30</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 5 -->
+    <section class="section">
+      <h2>5. Cómo encajan front y back</h2>
+      <h3>Generación de tipos</h3>
+      <p>
+        FastAPI publica su esquema en <code>/openapi.json</code>. Con
+        <code>npm run api:types</code> se regenera <code>src/types/schema.d.ts</code> mediante
+        <code>openapi-typescript</code>. Ese fichero no se edita a mano: si el backend cambia un
+        campo, el front deja de compilar y el contrato roto se detecta en CI.
+      </p>
+      <h3>CORS</h3>
+      <p>
+        En desarrollo, Vite hace proxy de <code>/api</code> hacia <code>http://localhost:8000</code>,
+        de modo que el navegador nunca cruza orígenes. En producción, el front llama directamente a
+        la URL del backend y FastAPI debe permitir el origen del front en su middleware CORS.
+      </p>
+      <h3>Dónde se guarda el token</h3>
+      <p>
+        El token se guarda en <code>localStorage</code> y viaja como cabecera
+        <code>Authorization: Bearer</code>. Al recargar, la sesión se recupera del almacenamiento.
+      </p>
+      <h3>Errores de la API</h3>
+      <p>
+        El interceptor de respuesta detecta el <code>401</code> y cierra sesión. El resto de errores
+        se muestran con <code>&lt;Alert variant="error"&gt;</code> a partir del mensaje normalizado.
+      </p>
+      <h3>La seguridad real está en el backend</h3>
+      <div class="callout">
+        Ocultar rutas con <code>ProtectedRoute</code> es solo experiencia de usuario: cualquiera
+        puede modificar el estado en el navegador. La autorización de verdad se valida en el backend
+        en cada endpoint, comprobando el token y el rol.
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="section">
+      <h2>6. Estrategia de pruebas</h2>
+      <p>Se cubren los tres niveles que pide la rúbrica: unitario, integración y end-to-end.</p>
+      <table class="avoid-break">
+        <thead>
+          <tr><th>Nivel</th><th>Herramienta</th><th>Qué cubre</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Unitario</td><td>Vitest + Testing Library</td><td>ProtectedRoute (roles), Pagination, cliente de API (token y errores)</td></tr>
+          <tr><td>Integración</td><td>pytest + FastAPI TestClient</td><td>Flujo completo de reservas, reglas de negocio y relaciones</td></tr>
+          <tr><td>End-to-end</td><td>Playwright</td><td>Login, reservar, cancelar y acceso denegado por rol</td></tr>
+        </tbody>
+      </table>
+      <p>
+        En el frontend hay actualmente <b>9 pruebas unitarias</b> (3 ficheros) y un
+        <code>example.spec.ts</code> de humo en E2E, que sirve de base para que P4 escriba los flujos
+        reales.
+      </p>
+    </section>
+
+    <!-- 7 -->
+    <section class="section">
+      <h2>7. Integración continua y despliegue</h2>
+      <h3>Integración continua</h3>
+      <p>
+        El flujo de GitHub Actions tiene <b>dos jobs</b> independientes:
+      </p>
+      <ul>
+        <li><b>Backend</b>: instalación de dependencias, lint con ruff y tests con pytest.</li>
+        <li><b>Frontend</b>: <code>npm ci</code>, lint, formato, tests unitarios, build (typecheck) y tests E2E con Playwright.</li>
+      </ul>
+      <h3>Contenedor y servidor web</h3>
+      <p>
+        El frontend se empaqueta con un <b>Dockerfile multi-etapa</b> (build con Node y servido con
+        nginx). El <code>nginx.conf</code> aplica el fallback de SPA hacia <code>index.html</code> y
+        cachea los assets con hash.
+      </p>
+      <h3>Despliegue</h3>
+      <ul>
+        <li>API y base de datos: <b>Render</b> o <b>Railway</b>.</li>
+        <li>Frontend: <b>Vercel</b> o <b>Netlify</b>.</li>
+        <li>La URL de la API se inyecta en tiempo de build con <code>VITE_API_URL</code>.</li>
+      </ul>
+    </section>
+
+    <!-- 8 -->
+    <section class="section">
+      <h2>8. Backlog del producto</h2>
+      <p>
+        El backlog está creado en GitHub Projects (proyecto <b>#28</b>) y se estructura en cuatro
+        fases. Cada historia incluye criterios de aceptación y cada subtarea está enlazada a su
+        historia como <i>sub-issue</i>.
+      </p>
+      <table class="avoid-break">
+        <thead>
+          <tr><th>Fase</th><th>Historias</th><th>Subtareas</th><th>Contenido</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1 · Esencial</td><td>12</td><td>42</td>
+            <td>Setup, BD y diagrama ER, CRUDs, reservas con reglas de negocio, excepciones, tests, README y Kanban</td>
+          </tr>
+          <tr>
+            <td>2 · Medio</td><td>7</td><td>19</td>
+            <td>Swagger, errores HTTP, filtros y paginación, CSV, endpoints de relación, pagos, tests de integración</td>
+          </tr>
+          <tr>
+            <td>3 · Avanzado</td><td>4</td><td>16</td>
+            <td>JWT, roles y permisos (RBAC), caché, WebSockets</td>
+          </tr>
+          <tr>
+            <td>4 · Experto</td><td>5</td><td>18</td>
+            <td>Docker, GitHub Actions, despliegue en la nube, Stripe en modo test, interfaz React</td>
+          </tr>
+          <tr>
+            <td><b>Total</b></td><td><b>28</b></td><td><b>95</b></td><td></td>
+          </tr>
+        </tbody>
+      </table>
+      <h3>Metadatos de las issues</h3>
+      <ul>
+        <li><b>Labels</b>: nivel (essential/medium/advanced/expert), tipo (user-story/subtask) y área (backend, database, auth, testing, docs, devops, scrum, frontend, performance, realtime).</li>
+        <li><b>Issue type</b>: <code>Feature</code> para historias y <code>Task</code> para subtareas.</li>
+        <li><b>Priority</b>: P0 (imprescindible), P1 (deseable), P2 (opcional).</li>
+        <li><b>Estimate</b>: 1 (½ día), 2 (1 día), 3 (2 días), 4 (3 días o más).</li>
+        <li><b>Milestones</b>: una por fase, para agrupar la vista del proyecto.</li>
+      </ul>
+      <div class="callout">
+        El backlog se genera de forma reproducible con el script
+        <code>scripts/create_backlog.sh</code>, configurable por variables de entorno.
+      </div>
+    </section>
+
+    <!-- 9 -->
+    <section class="section">
+      <h2>9. Reparto del equipo</h2>
+      <p>
+        El reparto se ha equilibrado por carga (23–25 issues por persona) minimizando el número de
+        historias movidas. Cada persona recibe historias completas junto con sus subtareas.
+      </p>
+      <table class="avoid-break">
+        <thead>
+          <tr><th>Persona</th><th>Usuario</th><th>Issues</th><th>Historias asignadas</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Eva</td><td><code>miskybox</code></td><td>23</td>
+            <td>Setup, Classes CRUD, Kanban/SCRUM, JWT, CI</td>
+          </tr>
+          <tr>
+            <td>Nayeli</td><td><code>nagicome03</code></td><td>25</td>
+            <td>Database design, Class schedules, Swagger, Payments, CSV export, RBAC</td>
+          </tr>
+          <tr>
+            <td>Pedro</td><td><code>PDguezPgr</code></td><td>25</td>
+            <td>Users CRUD, Bookings rules, Filtros/paginación, Caché, Cloud deployment</td>
+          </tr>
+          <tr>
+            <td>Ivanna</td><td><code>IvannaRCA</code></td><td>25</td>
+            <td>Plans CRUD, Excepciones, Errores avanzados, Integration tests, Docker, Stripe</td>
+          </tr>
+          <tr>
+            <td>Elena</td><td><code>elenaalmansacampos</code></td><td>25</td>
+            <td>Memberships, Test infra, Docs, Relationship endpoints, WebSockets, Web UI</td>
+          </tr>
+        </tbody>
+      </table>
+      <h3>Ajuste de equilibrio</h3>
+      <p>Para equilibrar las cargas se movieron cuatro historias (con sus subtareas):</p>
+      <ul>
+        <li>CSV export: de Pedro a Nayeli.</li>
+        <li>Stripe (pagos): de Nayeli a Ivanna.</li>
+        <li>Documentación Markdown: de Ivanna a Elena.</li>
+        <li>Relationship endpoints: de Eva a Elena.</li>
+      </ul>
+    </section>
+
+    <!-- 10 -->
+    <section class="section">
+      <h2>10. Gestión del repositorio</h2>
+      <ul>
+        <li><b>Rama por defecto</b>: <code>dev</code>, usada para integrar el trabajo del equipo.</li>
+        <li><b>Rama <code>main</code></b>: reservada y vacía, destinada a versiones estables.</li>
+        <li><b>Ramas de característica</b>: <code>feature/*</code> y <code>fix/*</code>.</li>
+        <li><b>Integración</b>: mediante pull request con al menos una revisión y CI en verde.</li>
+        <li><b>Scripts</b>: <code>scripts/create_backlog.sh</code> genera el backlog de forma reproducible.</li>
+      </ul>
+      <h3>Documentación del frontend</h3>
+      <p>
+        El <code>README.md</code> del frontend incluye la sección «Cómo encajan front y back» con
+        generación de tipos, CORS, gestión del token, errores y el principio de que la seguridad real
+        reside en el backend.
+      </p>
+    </section>
+
+    <!-- 11 -->
+    <section class="section">
+      <h2>11. Estado actual y próximos pasos</h2>
+      <h3>Completado</h3>
+      <ul>
+        <li>Estructura del frontend React + Vite + TypeScript con capa de API, autenticación y rutas por rol.</li>
+        <li>Componentes UI reutilizables y pantallas de dominio como stubs asignados.</li>
+        <li>Pruebas unitarias del andamiaje y ejemplo E2E.</li>
+        <li>Dockerfile, nginx y pipeline de CI con dos jobs.</li>
+        <li>Backlog completo en GitHub Projects con reparto equilibrado.</li>
+        <li>Ramas <code>dev</code>/<code>main</code> publicadas, con <code>dev</code> por defecto.</li>
+      </ul>
+      <h3>Próximos pasos</h3>
+      <ol>
+        <li>Implementar las pantallas de cada rol a partir de los stubs (P5, P2, P3).</li>
+        <li>Escribir los tests E2E reales de login, reserva, cancelación y acceso por rol (P4).</li>
+        <li>Desarrollar el backend siguiendo las fases del backlog.</li>
+        <li>Configurar despliegue en Render/Railway y Vercel/Netlify.</li>
+        <li>Revisar prioridades y estimaciones en el sprint planning.</li>
+      </ol>
+      <div class="footer-note">
+        Documento generado automáticamente a partir del estado del repositorio y del proyecto en
+        GitHub. Gym CRUD · IA-P1-BCN · 2 de octubre de 2026.
+      </div>
+    </section>
+
+    <!-- ANEXO -->
+    <section class="section">
+      <h2>Anexo: comandos útiles</h2>
+      <h3>Frontend</h3>
+      <table>
+        <thead><tr><th>Comando</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><code>npm install</code></td><td>Instala dependencias</td></tr>
+          <tr><td><code>npm run dev</code></td><td>Servidor de desarrollo (proxy /api → :8000)</td></tr>
+          <tr><td><code>npm run build</code></td><td>Typecheck + build de producción</td></tr>
+          <tr><td><code>npm run test</code></td><td>Tests unitarios (Vitest)</td></tr>
+          <tr><td><code>npm run test:e2e</code></td><td>Tests end-to-end (Playwright)</td></tr>
+          <tr><td><code>npm run lint</code> / <code>format</code></td><td>ESLint / Prettier</td></tr>
+          <tr><td><code>npm run api:types</code></td><td>Regenera tipos desde OpenAPI</td></tr>
+        </tbody>
+      </table>
+      <h3>Backlog</h3>
+      <table>
+        <thead><tr><th>Comando</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><code>bash scripts/create_backlog.sh</code></td><td>Genera el backlog en GitHub Projects</td></tr>
+          <tr><td><code>REPO=... PROJECT_NUMBER=... bash ...</code></td><td>Ejecuta contra otro repo/proyecto</td></tr>
+          <tr><td><code>SKIP_ASSIGNEES=1 bash ...</code></td><td>Crea el backlog sin asignar responsables</td></tr>
+        </tbody>
+      </table>
+      <h3>Enlaces</h3>
+      <ul>
+        <li>Repositorio: github.com/IA-P1-BCN/g2-python-crud-api</li>
+        <li>Proyecto: github.com/orgs/IA-P1-BCN/projects/28</li>
+      </ul>
+    </section>
+  </body>
+</html>
