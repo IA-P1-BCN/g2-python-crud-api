@@ -22,6 +22,7 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   admin: [
     { to: '/admin/dashboard', label: 'Dashboard', icon: 'home' },
     { to: '/admin/members', label: 'Socios', icon: 'users' },
+    { to: '/admin/users', label: 'Usuarios', icon: 'user' },
     { to: '/admin/plans', label: 'Planes', icon: 'dumbbell' },
     { to: '/admin/memberships', label: 'Membresías', icon: 'ticket' },
     { to: '/admin/rooms', label: 'Salas', icon: 'door' },
