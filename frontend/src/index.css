@@ -58,6 +58,12 @@ body {
   padding: 1.5rem;
 }
 
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .page__header {
   display: flex;
   flex-wrap: wrap;
@@ -690,8 +696,7 @@ body {
   }
 
   .page__header {
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 1rem;
   }
 
   .form--inline {
