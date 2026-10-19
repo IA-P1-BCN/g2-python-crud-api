@@ -88,7 +88,7 @@ export function AdminRoomsPage() {
               required
             />
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-3">
             <Button type="submit" isLoading={save.isPending} disabled={!canSave}>
               Guardar
             </Button>
@@ -115,7 +115,7 @@ export function AdminRoomsPage() {
                 <span className="font-display text-title text-text">{room.name}</span>
                 <span className="text-small text-text-muted">{room.capacity} plazas</span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-3">
                 <Button
                   variant="secondary"
                   onClick={() =>

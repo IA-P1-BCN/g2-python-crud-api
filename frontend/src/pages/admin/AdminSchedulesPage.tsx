@@ -237,7 +237,7 @@ export function AdminSchedulesPage() {
               ))}
             </select>
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-3">
             <Button type="submit" isLoading={save.isPending} disabled={!canSave}>
               Guardar
             </Button>
@@ -269,7 +269,7 @@ export function AdminSchedulesPage() {
                   {schedule.end_time.slice(0, 5)} · {roomName(schedule.room_id)}
                 </span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-3">
                 <Button
                   variant="secondary"
                   onClick={() =>
