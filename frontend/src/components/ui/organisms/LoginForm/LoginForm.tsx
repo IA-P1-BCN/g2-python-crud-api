@@ -20,15 +20,18 @@ export type LoginFormProps = {
   error?: string | null
   /** Where the "Registrarse" link points. */
   registerHref?: string
+  /** Where the "¿Has olvidado tu contraseña?" link points. */
+  forgotPasswordHref?: string
   className?: string
 }
 
-/** Login form: email, password (with show/hide), submit, register link and error/loading states. */
+/** Login form: email, password (with show/hide), recovery link, submit, register link and error/loading states. */
 export function LoginForm({
   onSubmit,
   isLoading = false,
   error = null,
   registerHref = '/register',
+  forgotPasswordHref = '/forgot-password',
   className,
 }: LoginFormProps) {
   const [email, setEmail] = useState('')
@@ -83,6 +86,10 @@ export function LoginForm({
         required
         placeholder="secretPassword123"
       />
+
+      <Link to={forgotPasswordHref} className="self-end text-small font-semibold text-primary">
+        ¿Has olvidado tu contraseña?
+      </Link>
 
       <Button type="submit" isLoading={isLoading} fullWidth rightIcon="arrow-right">
         Iniciar sesión

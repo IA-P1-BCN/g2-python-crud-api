@@ -50,6 +50,8 @@ export type TotpSetup = Schemas['TotpSetup']
 export type TotpCode = Schemas['TotpCode']
 export type RegisterRequest = Schemas['RegisterRequest']
 export type Token = Schemas['Token']
+export type ForgotPasswordRequest = Schemas['ForgotPasswordRequest']
+export type ResetPasswordRequest = Schemas['ResetPasswordRequest']
 
 // Member dashboard (`GET /me/dashboard`). Hand-written because `schema.d.ts` is stale
 // and does not include this endpoint yet; regenerate the types to replace them.

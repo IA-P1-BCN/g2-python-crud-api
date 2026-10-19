@@ -3,10 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { authApi, toApiError } from '@/api'
 import { homePathForRole, useAuth } from '@/auth'
 import { Alert } from '@/components/ui/molecules/Alert'
-
-const INVALID_LINK = 'El enlace no es válido o ha caducado'
-
-const LINK_CLASS = 'rounded-full bg-primary px-6 py-3 font-display text-body text-ink'
+import { AUTH_LINK_CLASS, INVALID_LINK_MESSAGE } from '@/lib/auth-copy'
 
 /** Public page that confirms an email with the token of the verification link. */
 export function VerifyEmailPage() {
@@ -33,8 +30,8 @@ export function VerifyEmailPage() {
 
       {!token ? (
         <>
-          <Alert variant="error">{INVALID_LINK}</Alert>
-          <Link to="/login" className={LINK_CLASS}>
+          <Alert variant="error">{INVALID_LINK_MESSAGE}</Alert>
+          <Link to="/login" className={AUTH_LINK_CLASS}>
             Ir a iniciar sesión
           </Link>
         </>
@@ -45,14 +42,14 @@ export function VerifyEmailPage() {
       ) : verify.isError ? (
         <>
           <Alert variant="error">{toApiError(verify.error).message}</Alert>
-          <Link to="/login" className={LINK_CLASS}>
+          <Link to="/login" className={AUTH_LINK_CLASS}>
             Ir a iniciar sesión
           </Link>
         </>
       ) : (
         <>
           <Alert variant="success">Tu correo ya está verificado.</Alert>
-          <Link to={home} className={LINK_CLASS}>
+          <Link to={home} className={AUTH_LINK_CLASS}>
             {homeLabel}
           </Link>
         </>

@@ -1,5 +1,14 @@
 import { apiClient } from './client'
-import type { LoginRequest, RegisterRequest, Token, TotpCode, TotpSetup, User } from '@/types/api'
+import type {
+  ForgotPasswordRequest,
+  LoginRequest,
+  RegisterRequest,
+  ResetPasswordRequest,
+  Token,
+  TotpCode,
+  TotpSetup,
+  User,
+} from '@/types/api'
 
 /** JWT auth endpoints. Paths are relative to `/api/v1`. */
 export const authApi = {
@@ -26,6 +35,16 @@ export const authApi = {
   /** Confirms the email with the token from the verification link (204, no body). */
   async verifyEmail(token: string): Promise<void> {
     await apiClient.post('/auth/verify-email', { token })
+  },
+
+  /** Asks for a recovery link (202 always, whether the email exists or not). */
+  async forgotPassword(payload: ForgotPasswordRequest): Promise<void> {
+    await apiClient.post('/auth/forgot-password', payload)
+  },
+
+  /** Sets the new password with the token of the recovery link (204). */
+  async resetPassword(payload: ResetPasswordRequest): Promise<void> {
+    await apiClient.post('/auth/reset-password', payload)
   },
 
   async setupTwoFactor(): Promise<TotpSetup> {

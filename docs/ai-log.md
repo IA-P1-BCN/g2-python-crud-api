@@ -15,7 +15,7 @@ le pidió, qué se aceptó, qué se rechazó y en qué se equivocó el agente.
 | Elena | OpenCode | Modelo gratuito (OpenCode Zen) | Gratuito | `frontend/`, `specs/` y `docs/` de sus tareas; escribe specs y PRs. Configuración en `docs/opencode.md` |
 | PDguezPgr | OpenCode | Cat Jam Free (OpenCode) | Gratuito | Solo las tareas asignadas a PDguezPgr; docs, codigo de la tarea concreta y specs. |
 | PDguezPgr | ChatGPT (app de escritorio) | GPT-4o | Gratuito | Consultas de apoyo y redaccion; sin escribir directamente en el repo. |
-| Nayeli | OpenCode | MiMo Flash | Gratuito | `frontend/`, `specs/` y `docs/` de sus tareas asignadas; componentes y páginas de admin (Sheet, PlanEditForm, PlansPage, etc.). |
+| Nayeli | OpenCode | MiMo-V2.6-Flash Free | Gratuito | `frontend/`, `specs/` y `docs/` de sus tareas asignadas; componentes y páginas de admin (Sheet, PlanEditForm, PlansPage, etc.). |
 
 El briefing recomienda OpenCode con modelos gratuitos y permite IAs de pago si se delimita su
 alcance. El resto del equipo añade aquí su fila.
@@ -517,7 +517,7 @@ alcance. El resto del equipo añade aquí su fila.
 ### #318 Sheet (molécula)
 
 - **Fecha:** 2026-10-15
-- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, MiMo-V2.6-Flash Free.
 - **Spec:** `specs/318-sheet.md`, escrita antes del código.
 - **Prompt clave:** «tarea: Sheet (molécula) #318». La issue no enlaza diseño, así que
   Nayeli confirmó partir del enunciado (sin Figma).
@@ -537,7 +537,7 @@ alcance. El resto del equipo añade aquí su fila.
 ### #320 Lista de planes de admin (organismo)
 
 - **Fecha:** 2026-10-15
-- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, MiMo-V2.6-Flash Free.
 - **Spec:** `specs/320-plans-admin-list.md`, escrita antes del código.
 - **Prompt clave:** «tarea: PlansAdminList (organismo) #320». Sin Figma; Nayeli eligió
   conservar todas las acciones de la tabla (opción B: Editar, Activar/Desactivar y Borrar)
@@ -562,7 +562,7 @@ alcance. El resto del equipo añade aquí su fila.
 ### #319 PlanEditForm (organismo)
 
 - **Fecha:** 2026-10-16
-- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, MiMo-V2.6-Flash Free.
 - **Spec:** `specs/319-plan-edit-form.md`, escrita antes del código.
 - **Prompt clave:** «tarea: PlanEditForm (organismo) #319». Nayeli respondió a las dudas del agente:
   la descripción se queda (opción A), patrón presentacional nuevo, organismo solo sin tocar la
@@ -589,7 +589,7 @@ alcance. El resto del equipo añade aquí su fila.
 ### #317 PlansPage de admin (composición)
 
 - **Fecha:** 2026-10-16
-- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, MiMo-V2.6-Flash Free.
 - **Spec:** `specs/317-admin-plans-page.md`, escrita antes del código.
 - **Prompt clave:** «tarea: PlansPage (composición) #317». Nayeli decidió con el equipo conservar
   «Nuevo plan» (opción A) y la paginación actual (opción A), y aprobó el formulario dentro del
@@ -724,14 +724,14 @@ alcance. El resto del equipo añade aquí su fila.
 ### #407 Comparativa de dos modelos gratuitos
 
 - **Fecha:** 2026-10-16
-- **Persona, herramienta y modelo:** Nayeli, OpenCode, modelo gratuito (MiMo Flash).
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, MiMo-V2.6-Flash Free.
 - **Spec:** `docs/comparativa-modelos-407.md`, con la mini-spec de la tarea (molécula
   `ConfirmDialog`) y el prompt exacto, idéntico para ambos modelos.
 - **Prompt clave:** la misma spec y el mismo prompt, con la restricción de no tocar nada fuera
   de la carpeta del componente; dos subagentes en paralelo, cada uno en su worktree con las
   dependencias ya instaladas.
 - **Qué generó el agente:** la comparativa completa; la molécula `ConfirmDialog` ejecutada dos
-  veces (MiMo Flash y DeepSeek V4.1 Flash); la tabla de resultados (calidad, checks, tiempo,
+  veces (MiMo-V2.6-Flash Free y DeepSeek V4.1 Flash); la tabla de resultados (calidad, checks, tiempo,
   alucinaciones, correcciones) y la conclusión.
 - **Aceptado:** ambos entregaron código listo para merge con **0 correcciones** y checks
   verificados de nuevo por la revisión humana; MiMo añadió 11 tests y fue más exhaustivo,
@@ -930,7 +930,7 @@ alcance. El resto del equipo añade aquí su fila.
   lista de endpoints excluidos; `authApi.logout(refresh_token?)`; `logout` asíncrono en
   `AuthContext` (revoca en el backend y siempre borra); el tipo en `auth/context.ts`; 9 tests
   nuevos (6 en `api.client`, 3 en `AuthContext`); y esta entrada.
-- **Aceptado (decisiones de Nayeli):**
+- **Aceptado:**
   - Se refresca ante **cualquier** 401 de un endpoint protegido, no leyendo el texto en español
     del backend, quedando fuera `/auth/login`, `/auth/register`, `/auth/refresh`,
     `/auth/verify-email`, `/auth/forgot-password` y `/auth/reset-password`.
@@ -939,14 +939,19 @@ alcance. El resto del equipo añade aquí su fila.
   - El refresco es reactivo (al llegar el 401), no proactivo.
   - El 401 de un endpoint excluido **no** borra la sesión: el error llega al formulario, como
     dice la tabla de la spec.
-- **Revisión con IA del PR:** el reviewer (`gemini-flash-latest`) señaló dos cosas. (1) Que el
-  reintento podía arrastrar la cabecera `Authorization` caducada: no ocurre, porque
-  `apiClient.request()` vuelve a pasar por el interceptor de petición, que lee el token recién
-  guardado; lo fija la prueba «un 401 renueva la sesión y repite la petición original», que
-  exige `Bearer token-nuevo` para que el reintento tenga éxito, así que **no se tocó** (habría
-  duplicado el interceptor). (2) Que `startsWith` no casaría con una URL absoluta o con el
-  prefijo `/api/v1`: se cambió a **`endsWith`** con su prueba
-  (`/api/v1/auth/login`). Endurecer solo la URL lo aprobó Nayeli.
+- **Rechazado o cambiado, y por qué:**
+  - **Revisión con IA del PR:** el reviewer (`gemini-flash-latest`) señaló dos cosas. (1) Que el
+    reintento podía arrastrar la cabecera `Authorization` caducada: no ocurre, porque
+    `apiClient.request()` vuelve a pasar por el interceptor de petición, que lee el token recién
+    guardado; lo fija la prueba «un 401 renueva la sesión y repite la petición original», que
+    exige `Bearer token-nuevo` para que el reintento tenga éxito, así que **no se tocó** (habría
+    duplicado el interceptor). (2) Que `startsWith` no casaría con una URL absoluta o con el
+    prefijo `/api/v1`: se cambió a **`endsWith`** con su prueba
+    (`/api/v1/auth/login`). Endurecer solo la URL lo aprobó Nayeli.
+  - El diff que produjo `npm run api:types` se **revirtió**: el script se había regenerado contra
+    un servidor desactualizado y eso quitaba `trainer_name` de `GymClassRead` (ver «Errores»).
+  - Los tests de `utcDay`/`utcToday` que no llegaron en #273: fuera del alcance de #432; Nayeli
+    los deja como issue aparte.
 - **Errores o alucinaciones del agente y cómo se corrigieron:**
   - `npm run api:types` contra `localhost:8000` quitó `trainer_name` de `GymClassRead` y eso
     habría roto `useSessionDetail.ts` y `useMemberSessions.ts`. La causa real: **dos servidores
@@ -964,4 +969,40 @@ alcance. El resto del equipo añade aquí su fila.
     = 7, no 4).
 - **Comprobado a mano:** `lint`, `format:check`, 426 tests unitarios (9 nuevos) y `build` en
   verde. `npm run api:types` con **diff nulo**.
+- **Revisión humana:** pendiente en el PR.
+
+### #463 Páginas de «olvidé mi contraseña» y de restablecerla
+
+- **Fecha:** 2026-10-19
+- **Persona, herramienta y modelo:** Nayeli, OpenCode, MiMo-V2.6-Flash Free.
+- **Spec:** `specs/463-forgot-password-and-reset-password.md`, escrita antes del código.
+- **Prompt clave:** «continuemos con la siguiente tarea, la #463». El backend ya estaba (#412,
+  PR #460); en el frontend no había ni rutas ni métodos, pero sí casi todas las piezas
+  (`PasswordField` con mostrar/ocultar y reglas, `Alert`, `VerifyEmailPage` como plantilla).
+- **Qué generó el agente:** `authApi.forgotPassword` y `authApi.resetPassword` con sus alias en
+  `types/api.ts`; el enlace «¿Has olvidado tu contraseña?» dentro de `LoginForm` con la prop
+  `forgotPasswordHref`, igual que `registerHref`; las páginas `ForgotPasswordPage` y
+  `ResetPasswordPage`; las dos rutas en `AuthLayout`; `AUTH_LINK_CLASS` e `INVALID_LINK_MESSAGE`
+  extraídos a `lib/auth-copy.ts` (el estilo de enlace primario estaba duplicado cinco veces); y
+  10 tests nuevos (3 en `ForgotPasswordPage`, 5 en `ResetPasswordPage`, 2 en `LoginForm`).
+- **Aceptado:**
+  - El éxito de `/forgot-password` se muestra **en la misma página**: el formulario se sustituye
+    por un `Alert` con el mensaje fijo y el enlace al login, sin inventar rutas.
+  - Sin `token` o con sesión iniciada, las dos páginas se tratan **como `/verify-email`**: aviso
+    de enlace inválido y sin redirecciones.
+  - `AuthHeroCard` **solo en los estados con formulario**, igual que login y registro.
+  - Los errores se reparten **por código**, como los distingue el AC: el 422 va bajo el campo
+    (junto a la checklist que lo hace incumplible) y el 400 a un `Alert`. Los dos salen de
+    `toApiError`, sin mensajes propios.
+- **Rechazado o cambiado, y por qué:** unificar `AUTH_LINK_CLASS` también en `LandingPage`,
+  `ForbiddenPage` y `NotFoundPage` (otros tres usos de la misma cadena): fuera del alcance de
+  #463, que es de autenticación. Queda como issue aparte, igual que el `formatDate` de #273.
+- **Errores o alucinaciones del agente y cómo se corrigieron:**
+  - Al sustituir `LINK_CLASS` en `VerifyEmailPage` solo cambió uno de los tres usos: el del
+    enlace «Ir a mi área» quedó roto y un test falló con «LINK_CLASS is not defined». Se cambió
+    el que faltaba.
+  - Un `getByText` con regex casaba dos reglas de la checklist y el test falló por «found
+    multiple elements»; se usó la etiqueta exacta («Al menos 8 caracteres»).
+- **Comprobado a mano:** `lint`, `format:check`, 437 tests unitarios (10 nuevos) y `build` en
+  verde, y `npm run api:types` con **diff nulo** (los endpoints ya estaban generados).
 - **Revisión humana:** pendiente en el PR.
