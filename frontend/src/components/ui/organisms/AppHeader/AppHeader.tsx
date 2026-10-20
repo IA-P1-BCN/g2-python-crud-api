@@ -1,6 +1,7 @@
 import { useState, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Avatar } from '@/components/ui/atoms/Avatar'
+import { IconButton } from '@/components/ui/atoms/IconButton'
 import { Logo } from '@/components/ui/atoms/Logo'
 import { cn } from '@/lib/cn'
 import { ROLE_LABELS } from '@/lib/roles'
@@ -15,6 +16,8 @@ export type AppHeaderProps = {
   profileHref?: string
   /** Product name shown in the logo. */
   productName?: string
+  /** Opens the mobile navigation menu. Hides the button when omitted. */
+  onOpenNav?: () => void
   className?: string
 }
 
@@ -25,6 +28,7 @@ export function AppHeader({
   avatarSrc,
   profileHref = '/member/profile',
   productName,
+  onOpenNav,
   className,
 }: AppHeaderProps) {
   const [open, setOpen] = useState(false)
@@ -35,8 +39,20 @@ export function AppHeader({
 
   return (
     <header className={cn('bg-surface', className)}>
-      <div className="mx-auto flex w-full max-w-app items-center justify-between gap-3 px-4 py-3 md:max-w-page md:px-6">
-        <Logo name={productName} subtitle={ROLE_LABELS[role]} />
+      <div className="mx-auto flex w-full max-w-app items-center justify-between gap-3 px-4 py-3 md:max-w-none md:px-6">
+        <div className="flex min-w-0 items-center gap-2">
+          {onOpenNav ? (
+            <IconButton
+              icon="menu"
+              label="Abrir menú"
+              variant="ghost"
+              className="lg:hidden"
+              onClick={onOpenNav}
+            />
+          ) : null}
+
+          <Logo name={productName} subtitle={ROLE_LABELS[role]} />
+        </div>
 
         <div className="flex items-center gap-1">
           <button

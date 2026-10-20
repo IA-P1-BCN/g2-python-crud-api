@@ -80,6 +80,7 @@ export function PlansPage() {
       <PlansAdminList
         plans={plans.data?.items ?? []}
         isLoading={plans.isLoading}
+        className="md:grid md:grid-cols-2 md:items-start"
         onEdit={(plan) => setPanel({ kind: 'edit', plan })}
         onToggle={handleToggle}
         onRemove={handleRemove}

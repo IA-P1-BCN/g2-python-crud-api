@@ -55,9 +55,24 @@ export function AdminMembersPage() {
   }
 
   return (
-    <div className="page">
+    <div className="flex flex-col gap-4">
       <div className="page__header">
         <h1>Socios</h1>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="form__actions" role="group" aria-label="Estado">
+          {STATUS_FILTERS.map((option) => (
+            <Button
+              key={option.value}
+              variant={option.value === status ? 'primary' : 'secondary'}
+              aria-pressed={option.value === status}
+              onClick={() => handleStatus(option.value)}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
         <div className="form__actions">
           <Button onClick={() => setPanel({ kind: 'create' })}>Nuevo socio</Button>
           <Button
@@ -68,19 +83,6 @@ export function AdminMembersPage() {
             Exportar CSV
           </Button>
         </div>
-      </div>
-
-      <div className="form__actions" role="group" aria-label="Estado">
-        {STATUS_FILTERS.map((option) => (
-          <Button
-            key={option.value}
-            variant={option.value === status ? 'primary' : 'secondary'}
-            aria-pressed={option.value === status}
-            onClick={() => handleStatus(option.value)}
-          >
-            {option.label}
-          </Button>
-        ))}
       </div>
 
       {toggleActive.error ? (

@@ -1,29 +1,33 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
-import { TopNav, type TopNavItem } from '@/components/ui/organisms/TopNav'
+import { describe, expect, it, vi } from 'vitest'
+import { SideNav, type SideNavItem } from '@/components/ui/organisms/SideNav'
 
-const items: TopNavItem[] = [
+const items: SideNavItem[] = [
   { to: '/member', label: 'Inicio', icon: 'home' },
   { to: '/member/bookings', label: 'Reservas', icon: 'calendar' },
   { to: '/member/membership', label: 'Mi plan', icon: 'dumbbell' },
 ]
 
-function renderNav(path = '/') {
+function renderNav(path = '/', props: Partial<Parameters<typeof SideNav>[0]> = {}) {
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <TopNav items={items} />
+      <SideNav items={items} {...props} />
     </MemoryRouter>,
   )
 }
 
-describe('TopNav', () => {
-  it('muestra los mismos elementos que BottomNav', () => {
+describe('SideNav', () => {
+  it('muestra la navegación principal con un enlace por sección', () => {
     renderNav()
 
     expect(screen.getByRole('navigation', { name: 'Navegación principal' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Inicio' })).toHaveAttribute('href', '/member')
-    expect(screen.getByRole('link', { name: 'Reservas' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Reservas' })).toHaveAttribute(
+      'href',
+      '/member/bookings',
+    )
     expect(screen.getByRole('link', { name: 'Mi plan' })).toBeInTheDocument()
   })
 
@@ -32,5 +36,14 @@ describe('TopNav', () => {
 
     expect(screen.getByRole('link', { name: 'Mi plan' }).className).toContain('bg-primary')
     expect(screen.getByRole('link', { name: 'Inicio' }).className).not.toContain('bg-primary')
+  })
+
+  it('avisa al abrir el menú móvil al elegir un enlace', async () => {
+    const onNavigate = vi.fn()
+    renderNav('/', { onNavigate })
+
+    await userEvent.click(screen.getByRole('link', { name: 'Reservas' }))
+
+    expect(onNavigate).toHaveBeenCalledTimes(1)
   })
 })
