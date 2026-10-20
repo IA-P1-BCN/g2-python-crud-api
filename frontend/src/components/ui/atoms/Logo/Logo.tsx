@@ -1,4 +1,3 @@
-import { Icon } from '@/components/ui/atoms/Icon'
 import { cn } from '@/lib/cn'
 
 export type LogoProps = {
@@ -12,9 +11,7 @@ export type LogoProps = {
 export function Logo({ name = 'Athletica', subtitle = null, className }: LogoProps) {
   return (
     <span className={cn('inline-flex items-center gap-2', className)}>
-      <span className="flex size-8 items-center justify-center rounded-full bg-primary text-ink">
-        <Icon name="dumbbell" size={20} />
-      </span>
+      <img src="/athletica_logo.svg" alt="" className="size-8" />
       <span className="flex flex-col leading-none">
         <span className="font-display text-title text-text">{name}</span>
         {subtitle ? <span className="text-caption text-text-muted">{subtitle}</span> : null}

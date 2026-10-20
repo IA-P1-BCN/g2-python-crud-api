@@ -29,7 +29,7 @@ export function FeaturedClassesSection({
 }: FeaturedClassesSectionProps) {
   return (
     <section className={cn('flex flex-col gap-4', className)} aria-label="Clases destacadas">
-      <h2 className="font-display text-headline text-text">{title}</h2>
+      <h2 className="font-display text-headline text-text md:text-display">{title}</h2>
 
       {error ? <Alert variant="error">{error}</Alert> : null}
       {!error && isLoading ? <p className="text-body text-text-muted">Cargando…</p> : null}

@@ -76,7 +76,7 @@ export function AdminUsersPage() {
   ]
 
   return (
-    <div className="page">
+    <div className="flex flex-col gap-4">
       <div className="page__header">
         <h1>Usuarios y roles</h1>
         <Button onClick={() => setPanel({ kind: 'create' })}>Nuevo usuario</Button>

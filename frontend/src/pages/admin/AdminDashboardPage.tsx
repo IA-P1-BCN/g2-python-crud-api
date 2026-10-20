@@ -58,14 +58,16 @@ export function AdminDashboardPage() {
             />
           </div>
 
-          <BookingsByDayChart days={data.bookings.by_day} />
-          <ExpiringMembershipsList memberships={data.expiring_memberships} />
-          <OccupancyList
-            averageRate={data.occupancy.average_rate}
-            classes={data.occupancy.by_class}
-          />
-          <PlansDistributionChart plans={data.plans.by_plan} />
-          <TopClassesList classes={data.popular_classes} />
+          <div className="grid gap-6 md:grid-cols-2">
+            <BookingsByDayChart days={data.bookings.by_day} />
+            <ExpiringMembershipsList memberships={data.expiring_memberships} />
+            <OccupancyList
+              averageRate={data.occupancy.average_rate}
+              classes={data.occupancy.by_class}
+            />
+            <PlansDistributionChart plans={data.plans.by_plan} />
+            <TopClassesList classes={data.popular_classes} className="md:col-span-2" />
+          </div>
         </>
       ) : null}
 
