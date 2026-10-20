@@ -22,7 +22,7 @@ export function LandingFooter({
         className,
       )}
     >
-      <h2 className="font-display text-headline text-text">{title}</h2>
+      <h2 className="font-display text-headline text-text md:text-display">{title}</h2>
       <p className="text-body text-text-muted">{text}</p>
       <div className="flex flex-wrap items-center justify-center gap-3">{actions}</div>
       <p className="text-caption text-text-muted">Gym · Entrena a tu ritmo</p>

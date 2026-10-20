@@ -36,7 +36,7 @@ export function PlansSection({
 }: PlansSectionProps) {
   return (
     <section className={cn('flex flex-col gap-4', className)} aria-label="Planes">
-      <Title className="font-display text-headline text-text">{title}</Title>
+      <Title className="font-display text-headline text-text md:text-display">{title}</Title>
 
       {error ? <Alert variant="error">{error}</Alert> : null}
       {!error && isLoading ? <p className="text-body text-text-muted">Cargando…</p> : null}
