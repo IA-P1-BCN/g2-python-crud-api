@@ -29,9 +29,9 @@ export function PlansAdminList({
 }: PlansAdminListProps) {
   if (isLoading) {
     return (
-      <div className={cn('flex flex-col gap-4', className)}>
+      <div className="flex flex-col gap-4">
         <p className="text-small text-text-muted">Cargando…</p>
-        <ul className="flex flex-col gap-4" aria-hidden="true">
+        <ul className={cn('flex flex-col gap-4', className)} aria-hidden="true">
           {Array.from({ length: SKELETON_COUNT }, (_, index) => (
             <li key={index}>
               <div className="flex flex-col gap-3 rounded-card bg-surface p-6">

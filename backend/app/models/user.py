@@ -47,6 +47,10 @@ class User(Base):
     # Two-factor authentication: the shared TOTP secret, and when it was turned on (empty: off).
     totp_secret: Mapped[str | None] = mapped_column(String(64), nullable=True)
     totp_enabled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # When an admin erased this member's personal data; the account can never be reactivated.
+    personal_data_erased_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     memberships: Mapped[list["Membership"]] = relationship(
         "Membership", back_populates="user", cascade="all, delete-orphan"

@@ -83,23 +83,29 @@ export function MovementsReport() {
 
       {error ? <Alert variant="error">{toApiError(error).message}</Alert> : null}
 
-      <h3>Altas: {signups.data?.total ?? '…'}</h3>
-      <Table
-        columns={signupColumns}
-        rows={signups.data?.items ?? []}
-        rowKey={(row) => row.id}
-        isLoading={signups.isLoading}
-        emptyMessage="No hay altas en este periodo."
-      />
+      <div className="grid gap-4 xl:grid-cols-2">
+        <div>
+          <h3>Altas: {signups.data?.total ?? '…'}</h3>
+          <Table
+            columns={signupColumns}
+            rows={signups.data?.items ?? []}
+            rowKey={(row) => row.id}
+            isLoading={signups.isLoading}
+            emptyMessage="No hay altas en este periodo."
+          />
+        </div>
 
-      <h3>Bajas: {signOffs.data?.total ?? '…'}</h3>
-      <Table
-        columns={signOffColumns}
-        rows={signOffs.data?.items ?? []}
-        rowKey={(row) => row.id}
-        isLoading={signOffs.isLoading}
-        emptyMessage="No hay bajas en este periodo."
-      />
+        <div>
+          <h3>Bajas: {signOffs.data?.total ?? '…'}</h3>
+          <Table
+            columns={signOffColumns}
+            rows={signOffs.data?.items ?? []}
+            rowKey={(row) => row.id}
+            isLoading={signOffs.isLoading}
+            emptyMessage="No hay bajas en este periodo."
+          />
+        </div>
+      </div>
     </section>
   )
 }

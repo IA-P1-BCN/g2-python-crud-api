@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
+import { Sheet } from '@/components/ui/molecules/Sheet'
 import { AppHeader } from '@/components/ui/organisms/AppHeader'
-import { BottomNav } from '@/components/ui/organisms/BottomNav'
-import { TopNav } from '@/components/ui/organisms/TopNav'
+import { SideNav } from '@/components/ui/organisms/SideNav'
 import { useAuth } from '@/auth'
 import { navForRole } from '@/lib/navigation'
 import type { Role } from '@/types/api'
@@ -14,6 +15,7 @@ const PROFILE_BY_ROLE: Record<Role, string> = {
 
 export function AppLayout() {
   const { user, logout } = useAuth()
+  const [isNavOpen, setIsNavOpen] = useState(false)
   if (!user) return null
 
   const items = navForRole(user.role)
@@ -25,19 +27,23 @@ export function AppLayout() {
         role={user.role}
         onLogout={logout}
         profileHref={PROFILE_BY_ROLE[user.role]}
+        onOpenNav={() => setIsNavOpen(true)}
       />
 
-      <div className="hidden border-b border-line md:block">
-        <TopNav items={items} className="mx-auto w-full max-w-app px-4 py-2" />
+      {/* Same container as the header so the sidebar, the logo and the content share their edges. */}
+      <div className="mx-auto flex w-full max-w-app md:max-w-none">
+        <aside className="hidden shrink-0 border-r border-line bg-surface lg:block">
+          <SideNav items={items} className="w-64 gap-1 px-6 py-4" />
+        </aside>
+
+        <main className="min-w-0 max-w-page flex-1 px-4 py-6 md:px-6 md:py-8">
+          <Outlet />
+        </main>
       </div>
 
-      <main className="mx-auto w-full max-w-app flex-1 px-4 py-6 pb-28 md:pb-6">
-        <Outlet />
-      </main>
-
-      <div className="md:hidden">
-        <BottomNav items={items} />
-      </div>
+      <Sheet isOpen={isNavOpen} onClose={() => setIsNavOpen(false)} title="Menú">
+        <SideNav items={items} onNavigate={() => setIsNavOpen(false)} />
+      </Sheet>
     </div>
   )
 }

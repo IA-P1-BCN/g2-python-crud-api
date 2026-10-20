@@ -108,6 +108,10 @@ navegador al volver de GitHub: **no responde JSON**, sino que redirige a
 | Usuario inexistente | 404 | `not_found` | Usuario {id} no encontrado |
 | Email ya usado por otro usuario | 409 | `conflict` | El email ya está registrado |
 | Un admin intenta darse de baja a sí mismo | 409 | `conflict` | No puedes dar de baja tu propia cuenta |
+| Borrar los datos personales de alguien que no es socio | 400 | `business_rule` | Solo se pueden borrar los datos personales de un socio |
+| Borrar los datos personales de un socio que sigue activo | 409 | `conflict` | Primero da de baja al socio |
+| Borrar los datos personales de un socio que ya los tiene borrados | 409 | `conflict` | Los datos personales de este socio ya se borraron |
+| Reactivar un socio con los datos personales borrados | 409 | `conflict` | No se puede reactivar un socio con los datos personales borrados |
 | Cambio de contraseña con la actual incorrecta | 400 | `business_rule` | La contraseña actual no es correcta |
 | Contraseña nueva débil | 422 | `validation_error` | Lista; `type: weak_password` |
 | Rol que no existe | 422 | `validation_error` | Lista |

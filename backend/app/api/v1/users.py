@@ -172,6 +172,25 @@ def deactivate_user(
     user_service.deactivate_user(db, user_id, changed_by=current_user)
 
 
+@router.delete(
+    "/{user_id}/personal-data",
+    responses=errors(400, 401, 403, 404, 409, 422),
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Borrar los datos personales de un socio",
+    description=(
+        "Anonimiza a un socio ya dado de baja: borra su email, nombre, contraseña y verificación "
+        "en dos pasos, y conserva sus reservas, membresías y pagos sin identificarle. Es "
+        "irreversible: el socio ya no se puede reactivar. Requiere rol administrador."
+    ),
+)
+def erase_personal_data(
+    user_id: int,
+    current_user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> None:
+    user_service.erase_personal_data(db, user_id, changed_by=current_user)
+
+
 @router.get(
     "/{user_id}/audit",
     responses=errors(401, 403, 404, 422),

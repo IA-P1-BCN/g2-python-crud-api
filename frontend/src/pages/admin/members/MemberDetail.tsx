@@ -58,29 +58,35 @@ export function MemberDetail({ member, onClose }: MemberDetailProps) {
         {member.email} · Alta el {formatDate(member.created_at)} · <UserStatusBadge user={member} />
       </p>
 
-      <h3>Membresías</h3>
-      {memberships.isError ? (
-        <Alert variant="error">{toApiError(memberships.error).message}</Alert>
-      ) : null}
-      <Table
-        columns={membershipColumns}
-        rows={memberships.data?.items ?? []}
-        rowKey={(row) => row.id}
-        isLoading={memberships.isLoading}
-        emptyMessage="Sin membresías."
-      />
+      <div className="grid gap-4 xl:grid-cols-2">
+        <div>
+          <h3>Membresías</h3>
+          {memberships.isError ? (
+            <Alert variant="error">{toApiError(memberships.error).message}</Alert>
+          ) : null}
+          <Table
+            columns={membershipColumns}
+            rows={memberships.data?.items ?? []}
+            rowKey={(row) => row.id}
+            isLoading={memberships.isLoading}
+            emptyMessage="Sin membresías."
+          />
+        </div>
 
-      <h3>Reservas</h3>
-      {bookings.isError ? (
-        <Alert variant="error">{toApiError(bookings.error).message}</Alert>
-      ) : null}
-      <Table
-        columns={bookingColumns}
-        rows={bookings.data?.items ?? []}
-        rowKey={(row) => row.id}
-        isLoading={bookings.isLoading}
-        emptyMessage="Sin reservas."
-      />
+        <div>
+          <h3>Reservas</h3>
+          {bookings.isError ? (
+            <Alert variant="error">{toApiError(bookings.error).message}</Alert>
+          ) : null}
+          <Table
+            columns={bookingColumns}
+            rows={bookings.data?.items ?? []}
+            rowKey={(row) => row.id}
+            isLoading={bookings.isLoading}
+            emptyMessage="Sin reservas."
+          />
+        </div>
+      </div>
     </section>
   )
 }
