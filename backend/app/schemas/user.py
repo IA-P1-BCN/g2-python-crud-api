@@ -88,6 +88,7 @@ class UserRead(BaseModel):
     is_active: bool
     created_at: datetime
     deactivated_at: datetime | None
+    personal_data_erased_at: datetime | None = None
 
 
 class UserRef(BaseModel):

@@ -10,7 +10,7 @@ Monorepo con una API REST en FastAPI (`backend/`) y una web en React (`frontend/
 Puedes probar la aplicación sin instalar nada: **[Athletica en Render](https://athletica-web.onrender.com/)**
 
 - **API (Swagger de producción):** [https://athletica-api-w9f4.onrender.com/docs](https://athletica-api-w9f4.onrender.com/docs)
-- **Usuarios de prueba:** `admin@athletica.dev`, `trainer@athletica.dev` y `member@athletica.dev`, todos con la contraseña `Athletica123!`
+- **Usuario de prueba:** `member@athletica.dev`, con la contraseña `Athletica123!` (rol socio). Las cuentas de admin y entrenador no se publican.
 - **Aviso:** la API gratuita de Render puede tardar entre 30 y 60 segundos en despertar tras la primera petición.
 
 ## Documentación

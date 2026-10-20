@@ -1,10 +1,11 @@
+import secrets
 from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import BusinessRuleError, ConflictError, NotFoundError
 from app.core.security import hash_password, verify_password
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.repositories import user_repository
 from app.schemas.user import (
     PasswordChange,
@@ -102,6 +103,8 @@ def update_user(db: Session, user_id: int, data: UserUpdate, changed_by: User) -
         _ensure_email_is_free(db, payload["email"], owner_id=user_id)
 
     is_active = payload.pop("is_active", None)
+    if is_active and user.personal_data_erased_at is not None:
+        raise ConflictError("No se puede reactivar un socio con los datos personales borrados")
     for field, value in payload.items():
         setattr(user, field, value)
     if password:
@@ -167,6 +170,30 @@ def deactivate_user(db: Session, user_id: int, changed_by: User) -> None:
     """Sign the user off without deleting them, so their history is kept."""
     user = get_user(db, user_id)
     _set_active(user, False)
+    _touch(user, changed_by)
+    user_repository.save(db, user)
+
+
+ERASED_NAME = "Socio eliminado"
+
+
+def erase_personal_data(db: Session, user_id: int, changed_by: User) -> None:
+    """Anonymize a deactivated member for good; bookings, memberships and payments stay."""
+    user = get_user(db, user_id)
+    if user.role != UserRole.member:
+        raise BusinessRuleError("Solo se pueden borrar los datos personales de un socio")
+    if user.is_active:
+        raise ConflictError("Primero da de baja al socio")
+    if user.personal_data_erased_at is not None:
+        raise ConflictError("Los datos personales de este socio ya se borraron")
+    user.email = f"socio-eliminado-{user.id}@athletica.dev"
+    user.full_name = ERASED_NAME
+    # Nobody knows this password, so the account can never be logged into again.
+    user.hashed_password = hash_password(secrets.token_urlsafe(32))
+    user.totp_secret = None
+    user.totp_enabled_at = None
+    user.email_verified_at = None
+    user.personal_data_erased_at = datetime.now(UTC)
     _touch(user, changed_by)
     user_repository.save(db, user)
 

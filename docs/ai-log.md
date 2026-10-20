@@ -1006,3 +1006,33 @@ alcance. El resto del equipo añade aquí su fila.
 - **Comprobado a mano:** `lint`, `format:check`, 437 tests unitarios (10 nuevos) y `build` en
   verde, y `npm run api:types` con **diff nulo** (los endpoints ya estaban generados).
 - **Revisión humana:** pendiente en el PR.
+
+### #518 Borrar los datos personales de un socio y no publicar credenciales de staff
+
+- **Fecha:** 2026-10-20
+- **Persona, herramienta y modelo:** Eva, Claude Code, Claude Opus 5.5.
+- **Spec:** `specs/518-erase-member-personal-data.md`, escrita antes del código.
+- **Prompt clave:** «abre una rama fix para los ajustes de seguridad, borrado de datos de socio al
+  darse de baja y cambiar la contraseña de admin y de entrenador». El agente aclaró que el socio de
+  demo sí puede reservar, cambiar su contraseña o activar la 2FA, y que cambiar contraseñas en
+  producción no es código. Preguntó cuatro decisiones; Eva eligió las recomendadas: anonimizar en
+  vez de borrar filas, como acción aparte de la baja (que sigue siendo reversible), publicar solo
+  el socio de demo y no bloquear su cuenta en código.
+- **Qué generó el agente:** la spec; la columna `users.personal_data_erased_at` con su migración;
+  `user_service.erase_personal_data`; `DELETE /users/{id}/personal-data` (solo admin); el bloqueo
+  de reactivar a un socio anonimizado; 12 tests nuevos y la ruta en la matriz de permisos; el
+  README con solo el socio de demo; y las filas de `docs/errores.md` y `docs/er-diagram.md`.
+- **Aceptado:**
+  - Anonimizar conserva reservas, membresías y pagos (historial, métricas y claves foráneas).
+  - El email anónimo lleva el `id` (`socio-eliminado-{id}@athletica.dev`), así que es único y
+    sigue siendo un email válido para la API.
+  - La contraseña pasa a una aleatoria que nadie conoce: la cuenta no puede volver a entrar.
+- **Rechazado o cambiado, y por qué:** borrar las filas del socio (rompe el historial y las
+  claves foráneas) y anonimizar al dar de baja (haría la baja irreversible).
+- **Comprobado a mano:** la migración sube, baja y vuelve a subir; `ruff` y `pytest` (1373 tests,
+  98,9 %).
+- **Errores o alucinaciones del agente y cómo se corrigieron:** un test tenía un nombre que no
+  describía lo que comprobaba; se renombró.
+- **Pendiente fuera de esta tarea:** el botón en el panel de admin (frontend) y cambiar en
+  producción las contraseñas de admin y entrenador por Swagger (Eva).
+- **Revisión humana:** pendiente en el PR.
