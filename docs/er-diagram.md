@@ -5,7 +5,7 @@ sustituye al de la parte 1 (`docs/er-diagram.pdf` y `docs/screenshots/er-diagram
 tiene la tabla `revoked_tokens` ni las columnas de auditoría de `users`.
 
 Está escrito en [Mermaid](https://mermaid.js.org/), así que se puede editar como texto y GitHub lo
-dibuja al abrir este archivo. Coincide con las migraciones de Alembic hasta la `f5a8d2c7e9b1`.
+dibuja al abrir este archivo. Coincide con las migraciones de Alembic hasta la `a2c4e6f8b0d1`.
 
 ```mermaid
 erDiagram
@@ -24,6 +24,7 @@ erDiagram
         datetime email_verified_at "vacío hasta que confirma su email"
         string totp_secret "2FA: secreto de la app de códigos, nunca se devuelve"
         datetime totp_enabled_at "2FA: cuándo se activó; vacío si está desactivado"
+        datetime personal_data_erased_at "cuándo se borraron sus datos personales; vacío si no"
     }
     revoked_tokens {
         int id PK
@@ -144,3 +145,4 @@ Las garantiza el código, no la base de datos:
 | Columnas de auditoría en `users`: `created_by_id`, `updated_by_id`, `updated_at` | #410 | `d7e2b5a9c1f3` |
 | Columna `users.email_verified_at` | #412 | `e3f9c6b1a2d4` |
 | Columnas `users.totp_secret` y `users.totp_enabled_at` | #415 | `f5a8d2c7e9b1` |
+| Columna `users.personal_data_erased_at` | #518 | `a2c4e6f8b0d1` |
